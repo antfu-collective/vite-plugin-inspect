@@ -47,8 +47,8 @@ onMounted(() => {
     // clean up marks
     cm1.getAllMarks().forEach(i => i.clear())
     cm2.getAllMarks().forEach(i => i.clear())
-    new Array(cm1.lineCount()).fill(null!).map((_, i) => cm1.removeLineClass(i, 'background', 'diff-removed'))
-    new Array(cm2.lineCount()).fill(null!).map((_, i) => cm2.removeLineClass(i, 'background', 'diff-added'))
+    new Array(cm1.lineCount).fill(null!).map((_, i) => cm1.removeLineClass(i, 'background', 'diff-removed'))
+    new Array(cm2.lineCount).fill(null!).map((_, i) => cm2.removeLineClass(i, 'background', 'diff-added'))
 
     if (showDiff) {
       const diff = new Diff()
@@ -68,11 +68,11 @@ onMounted(() => {
           cm2.markText(start, end, { className: 'diff-added-inline' })
           for (let i = start.line; i <= end.line; i++)
             addedLines.add(i)
-          indexL += change.length
         }
         else if (type === -1) {
-          const start = cm2.posFromIndex(indexL)
-          const end = cm2.posFromIndex(indexL + change.length)
+          const start = cm1.posFromIndex(indexL)
+          indexL += change.length
+          const end = cm1.posFromIndex(indexL)
           cm1.markText(start, end, { className: 'diff-removed-inline' })
           for (let i = start.line; i <= end.line; i++)
             removedLines.add(i)
