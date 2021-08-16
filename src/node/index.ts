@@ -138,9 +138,15 @@ function VitePluginPackageConfig(): Plugin {
           }, null, 2))
           res.end()
         }
-        if (pathname === '/id') {
+        else if (pathname === '/module') {
           const id = parseQuery(search).id as string
           res.write(JSON.stringify(getIdInfo(id), null, 2))
+          res.end()
+        }
+        else if (pathname === '/clear') {
+          const id = parseQuery(search).id as string
+          if (id)
+            delete transformMap[id]
           res.end()
         }
       })

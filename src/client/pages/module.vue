@@ -3,17 +3,30 @@ import { useRoute } from 'vue-router'
 import { computed, ref, watch } from 'vue'
 import { useFetch } from '@vueuse/core'
 import { msToTime } from '../logic/utils'
-import { list } from '../logic'
+import { onRefetch } from '../logic'
 
 const route = useRoute()
 const id = computed(() => route?.query.id as string)
 
 const currentIdx = ref(0)
-const { data, execute } = useFetch(computed(() => `/__inspect_api/id?id=${encodeURIComponent(id.value)}`))
+const { data, execute } = useFetch(computed(() => `/__inspect_api/module?id=${encodeURIComponent(id.value)}`), { immediate: false })
   .get()
   .json<{ transforms: { name: string; end: number; start: number; result: string }[] }>()
 
-list.onFetchResponse(() => execute())
+async function refetch() {
+  // revaluate the module (if it's not initialized by the module graph)
+  try { await fetch(id.value) }
+  catch (e) {}
+  await execute()
+}
+
+onRefetch.on(async() => {
+  await fetch(`/__inspect_api/clear?id=${encodeURIComponent(id.value)}`)
+  await refetch()
+})
+
+refetch()
+
 watch(data, () => currentIdx.value = (data.value?.transforms?.length || 1) - 1)
 
 const from = computed(() => data.value?.transforms[currentIdx.value - 1]?.result || '')

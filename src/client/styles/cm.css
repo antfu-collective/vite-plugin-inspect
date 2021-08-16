@@ -16,6 +16,7 @@ html:not(.dark) {
   --cm-boolean: #1c6b48;
   --cm-constant: #a65e2b;
   --cm-deleted: #a14f55;
+  --cm-variable: #ad944c;
   --cm-class: #2993a3;
   --cm-builtin: #ab5959;
   --cm-property: #b58451;
