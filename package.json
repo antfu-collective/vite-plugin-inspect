@@ -26,7 +26,7 @@
     "prepublishOnly": "npm run build",
     "build": "run-s build:*",
     "dev": "vite src/client",
-    "build:js": "tsup src/node/index.ts --format cjs,esm",
+    "build:js": "tsup src/node/index.ts --format cjs,esm --env.NODE_ENV production",
     "build:client": "vite build src/client",
     "dev:js": "nr build:js --watch src",
     "dev:client": "vite build src/client --watch",
