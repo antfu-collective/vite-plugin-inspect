@@ -6,6 +6,7 @@ declare module 'vue' {
     Badge: typeof import('./components/Badge.vue')['default']
     'Carbon:compare': typeof import('virtual:vite-icons/carbon/compare')['default']
     'Carbon:list': typeof import('virtual:vite-icons/carbon/list')['default']
+    'Carbon:logoGithub': typeof import('virtual:vite-icons/carbon/logo-github')['default']
     'Carbon:renew': typeof import('virtual:vite-icons/carbon/renew')['default']
     'Carbon:textWrap': typeof import('virtual:vite-icons/carbon/text-wrap')['default']
     CarbonArrowLeft: typeof import('virtual:vite-icons/carbon/arrow-left')['default']

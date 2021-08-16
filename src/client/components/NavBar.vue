@@ -14,14 +14,25 @@ defineProps<{
     <ModuleId v-if="id" :id="id" />
     <span v-else class="text-md my-auto">Vite Inspect</span>
     <div class="flex-auto"></div>
+    <template v-if="$route.path != '/'">
+      <button class="icon-btn !outline-none my-auto" @click="lineWrapping = !lineWrapping">
+        <carbon:text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+      </button>
+      <button class="icon-btn !outline-none my-auto" @click="enableDiff = !enableDiff">
+        <carbon:compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+      </button>
+    </template>
+    <template v-else>
+      <a
+        class="icon-btn !outline-none my-auto"
+        href="https://github.com/antfu/vite-plugin-inspect"
+        target="_blank"
+      >
+        <carbon:logo-github />
+      </a>
+    </template>
     <button class="icon-btn !outline-none my-auto" @click="refetch()">
       <carbon:renew />
-    </button>
-    <button class="icon-btn !outline-none my-auto" @click="lineWrapping = !lineWrapping">
-      <carbon:text-wrap :class="lineWrapping ? 'opacity-100': 'opacity-25'" />
-    </button>
-    <button class="icon-btn !outline-none my-auto" @click="enableDiff = !enableDiff">
-      <carbon:compare :class="enableDiff ? 'opacity-100': 'opacity-25'" />
     </button>
     <button class="icon-btn !outline-none my-auto" @click="toggleDark()">
       <carbon-moon v-if="isDark" />
