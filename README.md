@@ -4,6 +4,8 @@
 
 {**WIP**} Inspect the intermediate state of Vite plugins
 
+![image](https://user-images.githubusercontent.com/11247099/129511471-8d040306-31fc-45b5-9a91-508f995c8658.png)
+
 ## Install
 
 ```bash
