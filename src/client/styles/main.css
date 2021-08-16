@@ -27,6 +27,8 @@ html.dark {
 
 .CodeMirror {
   height: max-content !important;
+  font-family: var(--cm-font-family) !important;
+  font-size: 13px !important;
 }
 
 .CodeMirror-scroll {

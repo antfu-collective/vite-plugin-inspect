@@ -3,7 +3,7 @@ import { ref, onMounted, toRefs, watchEffect, nextTick } from 'vue'
 import { diff_match_patch as Diff } from 'diff-match-patch'
 import { useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
-import { enableDiff } from '../logic/state'
+import { enableDiff, lineWrapping } from '../logic/state'
 
 const props = defineProps<{ from: string; to: string }>()
 const { from, to } = toRefs(props)
@@ -33,6 +33,11 @@ onMounted(() => {
       scrollbarStyle: 'null',
     },
   )
+
+  watchEffect(() => {
+    cm1.setOption('lineWrapping', lineWrapping.value)
+    cm2.setOption('lineWrapping', lineWrapping.value)
+  })
 
   watchEffect(async() => {
     const l = from.value

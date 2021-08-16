@@ -1,7 +1,7 @@
 @import 'codemirror-theme-vars/base.css';
 
 :root {
-  --cm-font-family: var(--slidev-code-font-family);
+  --cm-font-family: 'Input Mono', 'FiraCode', monospace;
 }
 
 html:not(.dark) {
