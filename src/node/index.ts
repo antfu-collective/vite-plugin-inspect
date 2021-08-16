@@ -1,4 +1,5 @@
 import { resolve } from 'path'
+import fs from 'fs'
 import _debug from 'debug'
 import type { ModuleNode, Plugin, ResolvedConfig } from 'vite'
 import sirv from 'sirv'
@@ -111,9 +112,12 @@ function VitePluginPackageConfig(): Plugin {
         const { pathname, search } = parseURL(req.url)
 
         if (pathname === '/list') {
+          const modules = Object.keys(transformMap).sort()
+            .map(id => ({ id, virtual: !fs.existsSync(id) }))
+
           res.write(JSON.stringify({
             root: config.root,
-            ids: Object.keys(transformMap).sort(),
+            modules,
           }, null, 2))
           res.end()
         }

@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { list } from '../logic'
-import { clearRoot } from '../logic/utils'
 </script>
 
 <template>
-  <div v-if="list.data && list.data.ids">
+  <div v-if="list.data && list.data.modules">
     <RouterLink
+      v-for="m in list.data.modules"
+      :key="m.id"
       class="block border-b border-main px-3 py-2 text-left font-mono text-sm"
-      v-for="id in list.data.ids"
-      :key="id"
-      :to="`/id?id=${encodeURIComponent(id)}`"
+      :to="`/module?id=${encodeURIComponent(m.id)}`"
     >
-      {{ clearRoot(id) }}
+      <ModuleId :id="m.id" />
     </RouterLink>
   </div>
 </template>

@@ -13,8 +13,8 @@ declare module 'vue' {
     CarbonPedestrian: typeof import('virtual:vite-icons/carbon/pedestrian')['default']
     CarbonSun: typeof import('virtual:vite-icons/carbon/sun')['default']
     DiffEditor: typeof import('./components/DiffEditor.vue')['default']
-    Footer: typeof import('./components/Nav.vue')['default']
-    IdList: typeof import('./components/IdList.vue')['default']
+    ModuleId: typeof import('./components/ModuleId.vue')['default']
+    ModuleList: typeof import('./components/ModuleList.vue')['default']
     NavBar: typeof import('./components/NavBar.vue')['default']
   }
 }

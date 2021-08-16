@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { isDark, toggleDark, enableDiff } from '../logic'
+import { isDark, toggleDark, enableDiff, root } from '../logic'
 
 defineProps<{
-  name?: string
+  id?: string
 }>()
 </script>
 
@@ -11,10 +11,8 @@ defineProps<{
     <router-link v-if="$route.path != '/'" class="icon-btn !outline-none my-auto" to="/">
       <carbon-arrow-left />
     </router-link>
-    <div v-if="name" class="text-sm font-mono my-auto">
-      {{ name }}
-    </div>
-    <span class="text-md my-auto" v-else>Vite Inspect</span>
+    <ModuleId v-if="id" :id="id" />
+    <span v-else class="text-md my-auto">Vite Inspect</span>
     <div class="flex-auto"></div>
     <button class="icon-btn !outline-none my-auto" @click="enableDiff = !enableDiff">
       <carbon:compare :class="enableDiff ? 'opacity-100': 'opacity-25'" />
