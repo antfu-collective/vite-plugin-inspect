@@ -69,6 +69,23 @@ function VitePluginPackageConfig(): Plugin {
         return _result
       }
     }
+
+    if (plugin.handleHotUpdate) {
+      debug('hijack plugin handleHotUpdate', plugin.name)
+      const _handleHotUpdate = plugin.handleHotUpdate
+      plugin.handleHotUpdate = async function(this: any, ...args: any[]) {
+        const _result = await _handleHotUpdate.apply(this, args as any)
+
+        if (_result) {
+          _result.forEach((mod) => {
+            if (mod.id)
+              delete transformMap[mod.id]
+          })
+        }
+
+        return _result
+      }
+    }
   }
 
   function resolveId(id: string): string {
@@ -113,7 +130,7 @@ function VitePluginPackageConfig(): Plugin {
 
         if (pathname === '/list') {
           const modules = Object.keys(transformMap).sort()
-            .map(id => ({ id, virtual: !fs.existsSync(id) }))
+            .map(id => ({ id, virtual: !fs.existsSync(parseURL(id).pathname) }))
 
           res.write(JSON.stringify({
             root: config.root,
