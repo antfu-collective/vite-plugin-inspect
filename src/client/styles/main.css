@@ -22,18 +22,14 @@ html.dark {
     opacity-75 transition duration-200 ease-in-out
     hover:opacity-100 hover:text-teal-600;
   font-size: 0.9em;
-  height: 1em;
+  height: 1.2em;
 }
 
 .CodeMirror {
-  height: 100% !important;
+  height: max-content !important;
 }
 
 .CodeMirror-scroll {
   overflow-y: hidden !important;
   overflow-x: auto !important;
-}
-
-.CodeMirror-gutters {
-  background: rgba(125,125,125,0.05) !important;
 }

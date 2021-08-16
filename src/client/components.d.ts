@@ -3,7 +3,9 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
+    Badge: typeof import('./components/Badge.vue')['default']
     'Carbon:list': typeof import('virtual:vite-icons/carbon/list')['default']
+    CarbonArrowLeft: typeof import('virtual:vite-icons/carbon/arrow-left')['default']
     CarbonCampsite: typeof import('virtual:vite-icons/carbon/campsite')['default']
     CarbonLogoGithub: typeof import('virtual:vite-icons/carbon/logo-github')['default']
     CarbonMoon: typeof import('virtual:vite-icons/carbon/moon')['default']

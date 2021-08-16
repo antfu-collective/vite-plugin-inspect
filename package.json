@@ -25,7 +25,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "run-s build:*",
-    "dev": "run-p dev:*",
+    "dev": "vite src/client",
     "build:js": "tsup src/node/index.ts --format cjs,esm",
     "build:client": "vite build src/client",
     "dev:js": "nr build:js --watch src",

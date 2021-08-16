@@ -5,9 +5,10 @@ import Pages from 'vite-plugin-pages'
 import ViteIcons, { ViteIconsResolver } from 'vite-plugin-icons'
 import ViteComponents from 'vite-plugin-components'
 import WindiCSS from 'vite-plugin-windicss'
+import Inspect from '../node'
 
 export default defineConfig({
-  base: '/__inspect',
+  base: '/__inspect/',
 
   plugins: [
     Vue(),
@@ -33,6 +34,7 @@ export default defineConfig({
         ],
       },
     }),
+    Inspect(),
   ],
 
   server: {

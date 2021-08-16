@@ -100,17 +100,20 @@ function VitePluginPackageConfig(): Plugin {
         return _invalidateModule.apply(this, args)
       }
 
-      server.middlewares.use('/__inspect', sirv(resolve(__dirname, 'client'), {
-        single: true,
-        dev: true,
-      }))
+      if (process.env.NODE_ENV === 'production') {
+        server.middlewares.use('/__inspect', sirv(resolve(__dirname, 'client'), {
+          single: true,
+          dev: true,
+        }))
+      }
+
       server.middlewares.use('/__inspect_api', (req, res) => {
         const { pathname, search } = parseURL(req.url)
 
         if (pathname === '/list') {
           res.write(JSON.stringify({
             root: config.root,
-            ids: Object.keys(transformMap),
+            ids: Object.keys(transformMap).sort(),
           }, null, 2))
           res.end()
         }
