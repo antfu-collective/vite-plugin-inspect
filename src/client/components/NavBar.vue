@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isDark, toggleDark } from '../logic'
+import { isDark, toggleDark, enableDiff } from '../logic'
 
 defineProps<{
   name?: string
@@ -16,6 +16,9 @@ defineProps<{
     </div>
     <span class="text-md my-auto" v-else>Vite Inspect</span>
     <div class="flex-auto"></div>
+    <button class="icon-btn !outline-none my-auto" @click="enableDiff = !enableDiff">
+      <carbon:compare :class="enableDiff ? 'opacity-100': 'opacity-25'" />
+    </button>
     <button class="icon-btn !outline-none my-auto" @click="toggleDark()">
       <carbon-moon v-if="isDark" />
       <carbon-sun v-else />

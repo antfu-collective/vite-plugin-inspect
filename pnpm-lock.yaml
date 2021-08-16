@@ -10,6 +10,7 @@ importers:
       '@iconify/json': ^1.1.387
       '@types/codemirror': ^5.60.2
       '@types/debug': ^4.1.7
+      '@types/diff-match-patch': ^1.0.32
       '@types/fs-extra': ^9.0.12
       '@types/node': ^16.6.1
       '@vueuse/core': ^6.0.0
@@ -17,6 +18,7 @@ importers:
       codemirror: ^5.62.2
       codemirror-theme-vars: ^0.1.1
       debug: ^4.3.2
+      diff-match-patch: ^1.0.5
       eslint: ^7.32.0
       eslint-plugin-jest: ^24.4.0
       esno: ^0.8.0
@@ -43,12 +45,14 @@ importers:
       '@iconify/json': 1.1.387
       '@types/codemirror': 5.60.2
       '@types/debug': 4.1.7
+      '@types/diff-match-patch': 1.0.32
       '@types/fs-extra': 9.0.12
       '@types/node': 16.6.1
       '@vueuse/core': 6.0.0
       bumpp: 6.0.6
       codemirror: 5.62.2
       codemirror-theme-vars: 0.1.1
+      diff-match-patch: 1.0.5
       eslint: 7.32.0
       eslint-plugin-jest: 24.4.0_eslint@7.32.0+typescript@4.3.5
       esno: 0.8.0
@@ -495,6 +499,10 @@ packages:
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
     dependencies:
       '@types/ms': 0.7.31
+    dev: true
+
+  /@types/diff-match-patch/1.0.32:
+    resolution: {integrity: sha512-bPYT5ECFiblzsVzyURaNhljBH2Gh1t9LowgUwciMrNAhFewLkHT2H0Mto07Y4/3KCOGZHRQll3CTtQZ0X11D/A==}
     dev: true
 
   /@types/estree/0.0.48:
@@ -1353,6 +1361,10 @@ packages:
   /detect-newline/3.1.0:
     resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}
     engines: {node: '>=8'}
+    dev: true
+
+  /diff-match-patch/1.0.5:
+    resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
     dev: true
 
   /dir-glob/3.0.1:

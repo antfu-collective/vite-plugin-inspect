@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, toRefs, watchEffect } from 'vue'
+import { ref, onMounted, toRefs, watchEffect, nextTick } from 'vue'
+import { diff_match_patch as Diff } from 'diff-match-patch'
 import { useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
+import { enableDiff } from '../logic/state'
 
 const props = defineProps<{ from: string; to: string }>()
 const { from, to } = toRefs(props)
@@ -32,9 +34,58 @@ onMounted(() => {
     },
   )
 
-  watchEffect(() => {
-    cm1.setOption('mode', guessMode(from.value))
-    cm2.setOption('mode', guessMode(to.value))
+  watchEffect(async() => {
+    const l = from.value
+    const r = to.value
+    const showDiff = enableDiff.value
+
+    cm1.setOption('mode', guessMode(l))
+    cm2.setOption('mode', guessMode(r))
+
+    await nextTick()
+
+    // clean up marks
+    cm1.getAllMarks().forEach(i => i.clear())
+    cm2.getAllMarks().forEach(i => i.clear())
+    new Array(cm1.lineCount()).fill(null!).map((_, i) => cm1.removeLineClass(i, 'background', 'diff-removed'))
+    new Array(cm2.lineCount()).fill(null!).map((_, i) => cm2.removeLineClass(i, 'background', 'diff-added'))
+
+    if (showDiff) {
+      const diff = new Diff()
+      const changes = diff.diff_main(l, r)
+      diff.diff_cleanupSemantic(changes)
+
+      const addedLines = new Set()
+      const removedLines = new Set()
+
+      let indexL = 0
+      let indexR = 0
+      changes.forEach(([type, change]) => {
+        if (type === 1) {
+          const start = cm2.posFromIndex(indexR)
+          indexR += change.length
+          const end = cm2.posFromIndex(indexR)
+          cm2.markText(start, end, { className: 'diff-added-inline' })
+          for (let i = start.line; i <= end.line; i++)
+            addedLines.add(i)
+          indexL += change.length
+        }
+        else if (type === -1) {
+          const start = cm2.posFromIndex(indexL)
+          const end = cm2.posFromIndex(indexL + change.length)
+          cm1.markText(start, end, { className: 'diff-removed-inline' })
+          for (let i = start.line; i <= end.line; i++)
+            removedLines.add(i)
+        }
+        else {
+          indexL += change.length
+          indexR += change.length
+        }
+      })
+
+      Array.from(removedLines).forEach(i => cm1.addLineClass(i, 'background', 'diff-removed'))
+      Array.from(addedLines).forEach(i => cm2.addLineClass(i, 'background', 'diff-added'))
+    }
   })
 })
 </script>
@@ -46,3 +97,18 @@ onMounted(() => {
     <textarea ref="toEl" v-text="to" />
   </div>
 </template>
+
+<style lang="postcss">
+.diff-added {
+  @apply bg-green-400/15;
+}
+.diff-removed {
+  @apply bg-red-400/15;
+}
+.diff-added-inline {
+  @apply bg-green-400/30;
+}
+.diff-removed-inline {
+  @apply bg-red-400/30;
+}
+</style>

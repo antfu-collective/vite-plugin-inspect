@@ -1,5 +1,7 @@
 import { useFetch } from '@vueuse/core'
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
+
+export const enableDiff = ref(true)
 
 export const list = reactive(
   useFetch('/__inspect_api/list')
