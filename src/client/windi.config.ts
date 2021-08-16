@@ -5,5 +5,6 @@ export default defineConfig({
   attributify: true,
   shortcuts: {
     'border-main': 'border-gray-400 border-opacity-30',
+    'bg-main': 'bg-gray-400',
   },
 })

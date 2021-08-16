@@ -35,9 +35,10 @@ const to = computed(() => data.value?.transforms[currentIdx.value]?.result || ''
       <template v-for="tr, idx of data.transforms" :key="tr.name">
         <button
           class="block border-b border-main px-3 py-2 text-left font-mono text-sm !outline-none"
+          :class="currentIdx === idx ? 'bg-main bg-opacity-10' : ''"
           @click="currentIdx = idx"
         >
-          <span :class="{ 'font-bold': currentIdx === idx }">{{ tr.name }}</span>
+          <span :class="currentIdx === idx ? 'font-bold' : ''">{{ tr.name }}</span>
           <span class="ml-2 text-xs opacity-50">{{ msToTime(tr.end - tr.start) }}</span>
           <Badge
             v-if="tr.result === data.transforms[idx - 1]?.result"

@@ -2,9 +2,9 @@
 
 [![NPM version](https://img.shields.io/npm/v/vite-plugin-inspect?color=a1b858&label=)](https://www.npmjs.com/package/vite-plugin-inspect)
 
-{**WIP**} Inspect the intermediate state of Vite plugins
+Inspect the intermediate state of Vite plugins. Useful for debugging and authoring plugins.
 
-![image](https://user-images.githubusercontent.com/11247099/129511471-8d040306-31fc-45b5-9a91-508f995c8658.png)
+<img width="1304" src="https://user-images.githubusercontent.com/11247099/129639115-07f9f087-8098-455d-b277-fb9449a31f6d.png">
 
 ## Install
 
@@ -20,7 +20,7 @@ import Inspect from 'vite-plugin-inspect'
 
 export default {
   plugins: [
-    Inspect()
+    Inspect() // only applies in dev mode
   ]
 }
 ```
