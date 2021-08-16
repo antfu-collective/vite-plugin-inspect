@@ -44,6 +44,7 @@ export default defineConfig({
   build: {
     outDir: resolve(__dirname, '../../dist/client'),
     minify: true,
+    emptyOutDir: true,
   },
 
   optimizeDeps: {

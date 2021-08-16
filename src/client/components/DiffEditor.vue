@@ -3,8 +3,8 @@ import { ref, onMounted, toRefs, watchEffect } from 'vue'
 import { useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 
-const props = defineProps<{ from: string; to: string; id: string }>()
-const { from, to, id } = toRefs(props)
+const props = defineProps<{ from: string; to: string }>()
+const { from, to } = toRefs(props)
 
 const fromEl = ref<HTMLTextAreaElement>()
 const toEl = ref<HTMLTextAreaElement>()

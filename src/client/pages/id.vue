@@ -19,7 +19,7 @@ const to = computed(() => data.value?.transforms[currentIdx.value]?.result || ''
 <template>
   <NavBar :name="id"/>
   <div v-if="data && data.transforms" class="grid grid-cols-[300px,3fr] h-[calc(100vh-55px)] overflow-hidden">
-    <div class="flex flex-col">
+    <div class="flex flex-col border-r border-main">
       <button
         v-for="tr, idx of data.transforms"
         :key="tr.name"
