@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 import _debug from 'debug'
-import type { HmrContext, ModuleNode, Plugin, ResolvedConfig } from 'vite'
+import type { ModuleNode, Plugin, ResolvedConfig } from 'vite'
 import sirv from 'sirv'
 import { parseURL } from 'ufo'
 import { parseQuery } from 'vue-router'
@@ -26,8 +26,13 @@ function VitePluginPackageConfig(): Plugin {
         const result = typeof _result === 'string' ? _result : _result?.code
 
         if (result != null) {
+          // the last plugin must be `vite:import-analysis`, if it's already there, we reset the stack
+          if (transformMap[id] && transformMap[id].slice(-1)[0]?.name === 'vite:import-analysis')
+            delete transformMap[id]
+          // initial tranform (load from fs), add a dummy
           if (!transformMap[id])
             transformMap[id] = [{ name: '__load__', result: code, start, end: start }]
+          // record transform
           transformMap[id].push({ name: plugin.name, result, start, end })
         }
 
@@ -68,49 +73,6 @@ function VitePluginPackageConfig(): Plugin {
         return _result
       }
     }
-
-    if (plugin.handleHotUpdate) {
-      debug('hijack plugin handleHotUpdate', plugin.name)
-      const _handleHotUpdate = plugin.handleHotUpdate
-      plugin.handleHotUpdate = async function(this: any, ...args: any[]) {
-        const ctx = args[0] as HmrContext
-        ctx.modules.forEach(mod => hijackModule(mod))
-        const _result = await _handleHotUpdate.apply(this, args as any)
-
-        if (_result) {
-          _result.forEach((mod) => {
-            hijackModule(mod)
-            if (mod.id)
-              delete transformMap[mod.id]
-          })
-        }
-
-        return _result
-      }
-    }
-  }
-
-  function hijackModule(mod: ModuleNode) {
-    const key = '__vite_plugin_inspect'
-    // @ts-expect-error
-    if (mod[key])
-      return
-
-    let ts = mod.lastHMRTimestamp
-    Object.defineProperty(mod, 'lastHMRTimestamp', {
-      get() {
-        return ts
-      },
-      set(v) {
-        ts = v
-        if (mod.id)
-          delete transformMap[mod.id]
-      },
-    })
-
-    Object.defineProperty(mod, key, { value: true, enumerable: false })
-
-    return ts
   }
 
   function resolveId(id: string): string {
@@ -135,7 +97,6 @@ function VitePluginPackageConfig(): Plugin {
     },
     configureServer(server) {
       const _invalidateModule = server.moduleGraph.invalidateModule
-
       server.moduleGraph.invalidateModule = function(this: any, ...args: any) {
         const mod = args[0] as ModuleNode
         if (mod?.id)
@@ -178,8 +139,12 @@ function VitePluginPackageConfig(): Plugin {
         }
         else if (pathname === '/clear') {
           const id = parseQuery(search).id as string
-          if (id)
+          if (id) {
+            const mod = server.moduleGraph.getModuleById(id)
+            if (mod)
+              server.moduleGraph.invalidateModule(mod)
             delete transformMap[id]
+          }
           res.end()
         }
       })
