@@ -35,9 +35,9 @@ const to = computed(() => data.value?.transforms[currentIdx.value]?.result || ''
 
 <template>
   <NavBar :id="id" />
-  <div
+  <Container
     v-if="data && data.transforms"
-    class="grid grid-cols-[300px,3fr] h-[calc(100vh-55px)] overflow-hidden"
+    class="grid grid-cols-[300px,3fr] overflow-hidden"
   >
     <div class="flex flex-col border-r border-main">
       <div
@@ -63,5 +63,5 @@ const to = computed(() => data.value?.transforms[currentIdx.value]?.result || ''
       </template>
     </div>
     <DiffEditor :from="from" :to="to" />
-  </div>
+  </Container>
 </template>

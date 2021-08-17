@@ -1,9 +1,10 @@
-import { useFetch, createEventHook } from '@vueuse/core'
-import { reactive, computed, ref } from 'vue'
+import { useFetch, createEventHook, useStorage } from '@vueuse/core'
+import { reactive, computed } from 'vue'
 
 export const onRefetch = createEventHook<void>()
-export const enableDiff = ref(true)
-export const lineWrapping = ref(false)
+export const enableDiff = useStorage('vite-inspect-diff', true)
+export const lineWrapping = useStorage('vite-inspect-line-wrapping', false)
+export const showPluginNames = useStorage('vite-inspect-show-plugin-names', false)
 
 export const list = reactive(
   useFetch('/__inspect_api/list')

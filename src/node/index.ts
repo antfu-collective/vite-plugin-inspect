@@ -1,7 +1,6 @@
 import { resolve } from 'path'
-import fs from 'fs'
 import _debug from 'debug'
-import type { ModuleNode, Plugin, ResolvedConfig } from 'vite'
+import type { HmrContext, ModuleNode, Plugin, ResolvedConfig } from 'vite'
 import sirv from 'sirv'
 import { parseURL } from 'ufo'
 import { parseQuery } from 'vue-router'
@@ -74,10 +73,13 @@ function VitePluginPackageConfig(): Plugin {
       debug('hijack plugin handleHotUpdate', plugin.name)
       const _handleHotUpdate = plugin.handleHotUpdate
       plugin.handleHotUpdate = async function(this: any, ...args: any[]) {
+        const ctx = args[0] as HmrContext
+        ctx.modules.forEach(mod => hijackModule(mod))
         const _result = await _handleHotUpdate.apply(this, args as any)
 
         if (_result) {
           _result.forEach((mod) => {
+            hijackModule(mod)
             if (mod.id)
               delete transformMap[mod.id]
           })
@@ -86,6 +88,29 @@ function VitePluginPackageConfig(): Plugin {
         return _result
       }
     }
+  }
+
+  function hijackModule(mod: ModuleNode) {
+    const key = '__vite_plugin_inspect'
+    // @ts-expect-error
+    if (mod[key])
+      return
+
+    let ts = mod.lastHMRTimestamp
+    Object.defineProperty(mod, 'lastHMRTimestamp', {
+      get() {
+        return ts
+      },
+      set(v) {
+        ts = v
+        if (mod.id)
+          delete transformMap[mod.id]
+      },
+    })
+
+    Object.defineProperty(mod, key, { value: true, enumerable: false })
+
+    return ts
   }
 
   function resolveId(id: string): string {
@@ -130,7 +155,15 @@ function VitePluginPackageConfig(): Plugin {
 
         if (pathname === '/list') {
           const modules = Object.keys(transformMap).sort()
-            .map(id => ({ id, virtual: !fs.existsSync(parseURL(id).pathname) }))
+            .map((id) => {
+              const plugins = transformMap[id]?.map(i => i.name)
+
+              return {
+                id,
+                plugins,
+                virtual: plugins[0] !== '__load__',
+              }
+            })
 
           res.write(JSON.stringify({
             root: config.root,

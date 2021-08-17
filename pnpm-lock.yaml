@@ -22,6 +22,7 @@ importers:
       eslint: ^7.32.0
       eslint-plugin-jest: ^24.4.0
       esno: ^0.8.0
+      fuse.js: ^6.4.6
       npm-run-all: ^4.1.5
       prism-theme-vars: ^0.2.2
       sirv: ^1.0.14
@@ -56,6 +57,7 @@ importers:
       eslint: 7.32.0
       eslint-plugin-jest: 24.4.0_eslint@7.32.0+typescript@4.3.5
       esno: 0.8.0
+      fuse.js: 6.4.6
       npm-run-all: 4.1.5
       prism-theme-vars: 0.2.2
       tsup: 4.13.1_typescript@4.3.5
@@ -2054,6 +2056,11 @@ packages:
 
   /functional-red-black-tree/1.0.1:
     resolution: {integrity: sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=}
+    dev: true
+
+  /fuse.js/6.4.6:
+    resolution: {integrity: sha512-/gYxR/0VpXmWSfZOIPS3rWwU8SHgsRTwWuXhyb2O6s7aRuVtHtxCkR33bNYu3wyLyNx/Wpv0vU7FZy8Vj53VNw==}
+    engines: {node: '>=10'}
     dev: true
 
   /generic-names/2.0.1:

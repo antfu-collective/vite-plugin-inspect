@@ -6,6 +6,7 @@ declare module 'vue' {
     Badge: typeof import('./components/Badge.vue')['default']
     'Carbon:compare': typeof import('virtual:vite-icons/carbon/compare')['default']
     'Carbon:list': typeof import('virtual:vite-icons/carbon/list')['default']
+    'Carbon:listBoxes': typeof import('virtual:vite-icons/carbon/list-boxes')['default']
     'Carbon:logoGithub': typeof import('virtual:vite-icons/carbon/logo-github')['default']
     'Carbon:renew': typeof import('virtual:vite-icons/carbon/renew')['default']
     'Carbon:textWrap': typeof import('virtual:vite-icons/carbon/text-wrap')['default']
@@ -15,10 +16,12 @@ declare module 'vue' {
     CarbonMoon: typeof import('virtual:vite-icons/carbon/moon')['default']
     CarbonPedestrian: typeof import('virtual:vite-icons/carbon/pedestrian')['default']
     CarbonSun: typeof import('virtual:vite-icons/carbon/sun')['default']
+    Container: typeof import('./components/Container.vue')['default']
     DiffEditor: typeof import('./components/DiffEditor.vue')['default']
     ModuleId: typeof import('./components/ModuleId.vue')['default']
     ModuleList: typeof import('./components/ModuleList.vue')['default']
     NavBar: typeof import('./components/NavBar.vue')['default']
+    SearchBox: typeof import('./components/SearchBox.vue')['default']
   }
 }
 
