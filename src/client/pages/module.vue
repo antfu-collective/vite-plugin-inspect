@@ -11,17 +11,20 @@ const id = computed(() => route?.query.id as string)
 const currentIdx = ref(0)
 const { data, execute } = useFetch(computed(() => `/__inspect_api/module?id=${encodeURIComponent(id.value)}`), { immediate: false })
   .get()
-  .json<{ transforms: { name: string; end: number; start: number; result: string }[] }>()
+  .json<{ resolvedId: string; transforms: { name: string; end: number; start: number; result: string }[] }>()
 
 async function refetch() {
+  const { id: resolved } = await fetch(`/__inspect_api/resolve?id=${id.value}`).then(r => r.json())
+  if (resolved) {
   // revaluate the module (if it's not initialized by the module graph)
-  try { await fetch(id.value) }
-  catch (e) {}
+    try { await fetch(resolved) }
+    catch (e) {}
+  }
   await execute()
 }
 
 onRefetch.on(async() => {
-  await fetch(`/__inspect_api/clear?id=${encodeURIComponent(id.value)}`)
+  await fetch(`/__inspect_api/clear?id=${id.value}`)
   await refetch()
 })
 

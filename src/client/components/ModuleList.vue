@@ -12,7 +12,7 @@ defineProps<{
       v-for="m in modules"
       :key="m.id"
       class="block border-b border-main px-3 py-2 text-left font-mono text-sm"
-      :to="`/module?id=${encodeURIComponent(m.id)}`"
+      :to="`/module?id=${m.id}`"
     >
       <ModuleId :id="m.id" />
       <div v-if="showPluginNames" class="text-xs">

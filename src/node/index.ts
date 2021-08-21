@@ -75,15 +75,23 @@ function VitePluginPackageConfig(): Plugin {
     }
   }
 
-  function resolveId(id: string): string {
-    return idMap[id] ? resolveId(idMap[id]) : id
+  function resolveId(id = ''): string {
+    if (id.startsWith('./'))
+      id = resolve(config.root, id).replace(/\\/g, '/')
+    return resolveIdRec(id)
+  }
+
+  function resolveIdRec(id: string): string {
+    return idMap[id]
+      ? resolveIdRec(idMap[id])
+      : id
   }
 
   function getIdInfo(id: string) {
     const resolvedId = resolveId(id)
 
     return {
-      resolveId,
+      resolvedId,
       transforms: transformMap[resolvedId] || [],
     }
   }
@@ -137,8 +145,13 @@ function VitePluginPackageConfig(): Plugin {
           res.write(JSON.stringify(getIdInfo(id), null, 2))
           res.end()
         }
-        else if (pathname === '/clear') {
+        else if (pathname === '/resolve') {
           const id = parseQuery(search).id as string
+          res.write(JSON.stringify({ id: resolveId(id) }, null, 2))
+          res.end()
+        }
+        else if (pathname === '/clear') {
+          const id = resolveId(parseQuery(search).id as string)
           if (id) {
             const mod = server.moduleGraph.getModuleById(id)
             if (mod)
