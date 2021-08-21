@@ -51,6 +51,7 @@
     "@types/fs-extra": "^9.0.12",
     "@types/node": "^16.6.1",
     "@vueuse/core": "^6.0.0",
+    "@vueuse/router": "^6.0.0",
     "bumpp": "^6.0.6",
     "codemirror": "^5.62.2",
     "codemirror-theme-vars": "^0.1.1",

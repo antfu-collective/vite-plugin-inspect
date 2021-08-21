@@ -14,6 +14,7 @@ importers:
       '@types/fs-extra': ^9.0.12
       '@types/node': ^16.6.1
       '@vueuse/core': ^6.0.0
+      '@vueuse/router': ^6.0.0
       bumpp: ^6.0.6
       codemirror: ^5.62.2
       codemirror-theme-vars: ^0.1.1
@@ -50,6 +51,7 @@ importers:
       '@types/fs-extra': 9.0.12
       '@types/node': 16.6.1
       '@vueuse/core': 6.0.0
+      '@vueuse/router': 6.0.0_vue-router@4.0.11
       bumpp: 6.0.6
       codemirror: 5.62.2
       codemirror-theme-vars: 0.1.1
@@ -852,6 +854,19 @@ packages:
     dependencies:
       '@vueuse/shared': 6.0.0
       vue-demi: 0.11.3
+    dev: true
+
+  /@vueuse/router/6.0.0_vue-router@4.0.11:
+    resolution: {integrity: sha512-lxfZSCw2EwV8HuRed+Bzqr/lHbYOCz8PpCzLhagISLSjQ3WgyY6pqSpPzVDEEXdjgmNRyvmv3LGVhWadMB1QWA==}
+    peerDependencies:
+      vue-router: '>=4.0.0-rc.1'
+    dependencies:
+      '@vueuse/shared': 6.0.0
+      vue-demi: 0.11.3
+      vue-router: 4.0.11
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
     dev: true
 
   /@vueuse/shared/6.0.0:

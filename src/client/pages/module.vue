@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { computed, ref, watch } from 'vue'
+import { computed, Ref, watch } from 'vue'
 import { useFetch } from '@vueuse/core'
+import { useRouteQuery } from '@vueuse/router'
 import { msToTime } from '../logic/utils'
 import { onRefetch } from '../logic'
 
 const route = useRoute()
 const id = computed(() => route?.query.id as string)
 
-const currentIdx = ref(0)
 const { data, execute } = useFetch(computed(() => `/__inspect_api/module?id=${encodeURIComponent(id.value)}`), { immediate: false })
   .get()
   .json<{ resolvedId: string; transforms: { name: string; end: number; start: number; result: string }[] }>()
+
+const index = useRouteQuery('index') as Ref<string>
+const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
 
 async function refetch() {
   const { id: resolved } = await fetch(`/__inspect_api/resolve?id=${id.value}`).then(r => r.json())
@@ -30,10 +33,8 @@ onRefetch.on(async() => {
 
 refetch()
 
-watch(data, () => currentIdx.value = (data.value?.transforms?.length || 1) - 1)
-
-const from = computed(() => data.value?.transforms[currentIdx.value - 1]?.result || '')
-const to = computed(() => data.value?.transforms[currentIdx.value]?.result || '')
+const from = computed(() => data.value?.transforms[currentIndex.value - 1]?.result || '')
+const to = computed(() => data.value?.transforms[currentIndex.value]?.result || '')
 </script>
 
 <template>
@@ -51,10 +52,10 @@ const to = computed(() => data.value?.transforms[currentIdx.value]?.result || ''
       <template v-for="tr, idx of data.transforms" :key="tr.name">
         <button
           class="block border-b border-main px-3 py-2 text-left font-mono text-sm !outline-none"
-          :class="currentIdx === idx ? 'bg-main bg-opacity-10' : ''"
-          @click="currentIdx = idx"
+          :class="currentIndex === idx ? 'bg-main bg-opacity-10' : ''"
+          @click="index = idx.toString()"
         >
-          <span :class="currentIdx === idx ? 'font-bold' : ''">{{ tr.name }}</span>
+          <span :class="currentIndex === idx ? 'font-bold' : ''">{{ tr.name }}</span>
           <span class="ml-2 text-xs opacity-50">{{ msToTime(tr.end - tr.start) }}</span>
           <Badge
             v-if="tr.result === data.transforms[idx - 1]?.result"
