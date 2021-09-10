@@ -53,6 +53,7 @@
     "@vueuse/core": "^6.3.2",
     "@vueuse/router": "^6.3.2",
     "bumpp": "^7.1.1",
+    "chalk": "^4.1.2",
     "codemirror": "^5.62.3",
     "codemirror-theme-vars": "^0.1.1",
     "diff-match-patch": "^1.0.5",

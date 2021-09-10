@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import _debug from 'debug'
-import type { ModuleNode, Plugin, ResolvedConfig } from 'vite'
+import { yellow } from 'chalk'
+import type { ModuleNode, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { parseURL } from 'ufo'
 import { parseQuery } from 'vue-router'
@@ -115,6 +116,84 @@ function PluginInspect({
     }
   }
 
+  function configureServer(server: ViteDevServer) {
+    const _invalidateModule = server.moduleGraph.invalidateModule
+    server.moduleGraph.invalidateModule = function(this: any, ...args: any) {
+      const mod = args[0] as ModuleNode
+      if (mod?.id)
+        delete transformMap[mod.id]
+      return _invalidateModule.apply(this, args)
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+      server.middlewares.use('/__inspect', sirv(resolve(__dirname, 'client'), {
+        single: true,
+        dev: true,
+      }))
+    }
+
+    server.middlewares.use('/__inspect_api', (req, res) => {
+      const { pathname, search } = parseURL(req.url)
+
+      if (pathname === '/list') {
+        const modules = Object.keys(transformMap).sort()
+          .map((id): ModuleInfo => {
+            const plugins = transformMap[id]?.map(i => i.name)
+            const deps = Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
+              .map(i => i.id || '')
+              .filter(Boolean)
+
+            return {
+              id,
+              plugins,
+              deps,
+              virtual: plugins[0] !== '__load__',
+            }
+          })
+
+        res.write(JSON.stringify({
+          root: config.root,
+          modules,
+        }, null, 2))
+        res.end()
+      }
+      else if (pathname === '/module') {
+        const id = parseQuery(search).id as string
+        res.write(JSON.stringify(getIdInfo(id), null, 2))
+        res.end()
+      }
+      else if (pathname === '/resolve') {
+        const id = parseQuery(search).id as string
+        res.write(JSON.stringify({ id: resolveId(id) }, null, 2))
+        res.end()
+      }
+      else if (pathname === '/clear') {
+        const id = resolveId(parseQuery(search).id as string)
+        if (id) {
+          const mod = server.moduleGraph.getModuleById(id)
+          if (mod)
+            server.moduleGraph.invalidateModule(mod)
+          delete transformMap[id]
+        }
+        res.end()
+      }
+    })
+
+    // hijack httpServer.listen to print the log
+    const _listen = server.httpServer!.listen
+    let port = config.server.port || 3000
+    let timer: any
+    server.httpServer!.listen = function(this: any, ...args: any) {
+      port ||= args[0]
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        // eslint-disable-next-line no-console
+        console.log(`  > Inspect: ${yellow(`http://localhost:${port}/__inspect/`)}\n`)
+      }, 0)
+      return _listen.apply(this, args)
+    }
+  }
+
   return <Plugin>{
     name: 'vite-plugin-inspect',
     apply: 'serve',
@@ -122,69 +201,7 @@ function PluginInspect({
       config = _config
       config.plugins.forEach(hijackPlugin)
     },
-    configureServer(server) {
-      const _invalidateModule = server.moduleGraph.invalidateModule
-      server.moduleGraph.invalidateModule = function(this: any, ...args: any) {
-        const mod = args[0] as ModuleNode
-        if (mod?.id)
-          delete transformMap[mod.id]
-        return _invalidateModule.apply(this, args)
-      }
-
-      if (process.env.NODE_ENV === 'production') {
-        server.middlewares.use('/__inspect', sirv(resolve(__dirname, 'client'), {
-          single: true,
-          dev: true,
-        }))
-      }
-
-      server.middlewares.use('/__inspect_api', (req, res) => {
-        const { pathname, search } = parseURL(req.url)
-
-        if (pathname === '/list') {
-          const modules = Object.keys(transformMap).sort()
-            .map((id): ModuleInfo => {
-              const plugins = transformMap[id]?.map(i => i.name)
-              const deps = Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
-                .map(i => i.id || '')
-                .filter(Boolean)
-
-              return {
-                id,
-                plugins,
-                deps,
-                virtual: plugins[0] !== '__load__',
-              }
-            })
-
-          res.write(JSON.stringify({
-            root: config.root,
-            modules,
-          }, null, 2))
-          res.end()
-        }
-        else if (pathname === '/module') {
-          const id = parseQuery(search).id as string
-          res.write(JSON.stringify(getIdInfo(id), null, 2))
-          res.end()
-        }
-        else if (pathname === '/resolve') {
-          const id = parseQuery(search).id as string
-          res.write(JSON.stringify({ id: resolveId(id) }, null, 2))
-          res.end()
-        }
-        else if (pathname === '/clear') {
-          const id = resolveId(parseQuery(search).id as string)
-          if (id) {
-            const mod = server.moduleGraph.getModuleById(id)
-            if (mod)
-              server.moduleGraph.invalidateModule(mod)
-            delete transformMap[id]
-          }
-          res.end()
-        }
-      })
-    },
+    configureServer,
   }
 }
 
