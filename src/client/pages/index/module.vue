@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { computed, Ref, watch } from 'vue'
-import { useFetch } from '@vueuse/core'
+import { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
-import { msToTime } from '../logic/utils'
-import { onRefetch } from '../logic'
+import { msToTime } from '../../logic/utils'
+import { onRefetch } from '../../logic'
 
 const route = useRoute()
 const id = computed(() => route?.query.id as string)

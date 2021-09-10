@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isDark, toggleDark, enableDiff, lineWrapping, refetch, showPluginNames } from '../logic'
+import { isDark, toggleDark, enableDiff, lineWrapping, refetch, toggleMode, listMode } from '../logic'
 
 defineProps<{
   id?: string
@@ -25,9 +25,10 @@ defineProps<{
       <span class="text-md">Vite Inspect</span>
       <SearchBox />
       <div class="flex-auto"></div>
-      <button class="icon-btn text-lg" title="Line Wrapping" @click="showPluginNames = !showPluginNames">
-        <carbon:list-boxes v-if="showPluginNames" />
-        <carbon:list v-else />
+      <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
+        <carbon:list-boxes v-if="listMode === 'detailed'" />
+        <carbon:list v-else-if="listMode === 'list'" />
+        <carbon:network-4 v-else />
       </button>
       <a
         class="icon-btn text-lg"

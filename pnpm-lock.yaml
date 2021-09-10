@@ -30,8 +30,11 @@ importers:
       tsup: ^4.14.0
       typescript: ^4.4.2
       ufo: ^0.7.9
+      unplugin-auto-import: ^0.4.5
       unplugin-icons: ^0.7.6
       unplugin-vue-components: ^0.15.0
+      vis-data: ^7.1.2
+      vis-network: ^9.1.0
       vite: ^2.5.6
       vite-plugin-optimize-persist: ^0.0.5
       vite-plugin-package-config: ^0.0.3
@@ -66,8 +69,11 @@ importers:
       prism-theme-vars: 0.2.2
       tsup: 4.14.0_typescript@4.4.2
       typescript: 4.4.2
+      unplugin-auto-import: 0.4.5_@vueuse+core@6.3.2+vite@2.5.6
       unplugin-icons: 0.7.6_@iconify+json@1.1.400+vite@2.5.6
       unplugin-vue-components: 0.15.0_vite@2.5.6
+      vis-data: 7.1.2
+      vis-network: 9.1.0_vis-data@7.1.2
       vite: 2.5.6
       vite-plugin-optimize-persist: 0.0.5_48975875298b2d009bf35fdfd7142a65
       vite-plugin-package-config: 0.0.3_vite@2.5.6
@@ -3757,6 +3763,28 @@ packages:
     engines: {node: '>= 10.0.0'}
     dev: true
 
+  /unplugin-auto-import/0.4.5_@vueuse+core@6.3.2+vite@2.5.6:
+    resolution: {integrity: sha512-newc1GYPYhGQkR4WcORsGtFaEgZ3KvMyP7IOEcicXe2i/y12/w0u8HD47YogRf6UMdzaeJRqeqM5chCmClwSvQ==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      '@vueuse/core': ^6.0.0
+    peerDependenciesMeta:
+      '@vueuse/core':
+        optional: true
+    dependencies:
+      '@antfu/utils': 0.3.0
+      '@rollup/pluginutils': 4.1.1
+      '@vueuse/core': 6.3.2
+      has-pkg: 0.0.1
+      magic-string: 0.25.7
+      resolve: 1.20.0
+      unplugin: 0.2.7_vite@2.5.6
+    transitivePeerDependencies:
+      - rollup
+      - vite
+      - webpack
+    dev: true
+
   /unplugin-icons/0.7.6_@iconify+json@1.1.400+vite@2.5.6:
     resolution: {integrity: sha512-P9Uvto2ImdIYovkk13YBkr/o5GRyYsjaVerrcP2AnAewqxcEh20IB71ZkTWog9ywTnGgv0sfeIlOQplbbaCzbw==}
     peerDependencies:
@@ -3850,6 +3878,29 @@ packages:
     dependencies:
       spdx-correct: 3.1.1
       spdx-expression-parse: 3.0.1
+    dev: true
+
+  /vis-data/7.1.2:
+    resolution: {integrity: sha512-RPSegFxEcnp3HUEJSzhS2vBdbJ2PSsrYYuhRlpHp2frO/MfRtTYbIkkLZmPkA/Sg3pPfBlR235gcoKbtdm4mbw==}
+    requiresBuild: true
+    peerDependencies:
+      uuid: ^7.0.0 || ^8.0.0
+      vis-util: ^4.0.0 || ^5.0.0
+    dev: true
+
+  /vis-network/9.1.0_vis-data@7.1.2:
+    resolution: {integrity: sha512-rx96L144RJWcqOa6afjiFyxZKUerRRbT/YaNMpsusHdwzxrVTO2LlduR45PeJDEztrAf3AU5l2zmiG+1ydUZCw==}
+    requiresBuild: true
+    peerDependencies:
+      '@egjs/hammerjs': ^2.0.0
+      component-emitter: ^1.3.0
+      keycharm: ^0.2.0 || ^0.3.0 || ^0.4.0
+      timsort: ^0.3.0
+      uuid: ^3.4.0 || ^7.0.0 || ^8.0.0
+      vis-data: ^7.0.0
+      vis-util: ^5.0.1
+    dependencies:
+      vis-data: 7.1.2
     dev: true
 
   /vite-plugin-optimize-persist/0.0.5_48975875298b2d009bf35fdfd7142a65:

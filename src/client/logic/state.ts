@@ -1,16 +1,27 @@
 import { useFetch, createEventHook, useStorage } from '@vueuse/core'
 import { reactive, computed } from 'vue'
+import { ModuleInfo } from '../../types'
 
 export const onRefetch = createEventHook<void>()
 export const enableDiff = useStorage('vite-inspect-diff', true)
+export const listMode = useStorage<'graph' | 'list' | 'detailed'>('vite-inspect-mode', 'detailed')
 export const lineWrapping = useStorage('vite-inspect-line-wrapping', false)
-export const showPluginNames = useStorage('vite-inspect-show-plugin-names', false)
 
 export const list = reactive(
   useFetch('/__inspect_api/list')
     .get()
-    .json<{ root: string; modules: { id: string; virtual: boolean}[] }>(),
+    .json<{ root: string; modules: ModuleInfo[] }>(),
 )
+
+const modes = [
+  'detailed',
+  'graph',
+  'list',
+] as const
+
+export function toggleMode() {
+  listMode.value = modes[(modes.indexOf(listMode.value) + 1) % modes.length]
+}
 
 export const root = computed(() => list.data?.root || '')
 

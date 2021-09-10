@@ -1,10 +1,12 @@
 import { resolve } from 'path'
+import { join } from 'path/posix'
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Pages from 'vite-plugin-pages'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import Components from 'unplugin-vue-components/vite'
+import AutoImport from 'unplugin-auto-import/vite'
 import WindiCSS from 'vite-plugin-windicss'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
@@ -12,6 +14,12 @@ import Inspect from '../node'
 
 export default defineConfig({
   base: '/__inspect/',
+
+  resolve: {
+    alias: {
+      '~/': __dirname,
+    },
+  },
 
   plugins: [
     Vue(),
@@ -22,7 +30,7 @@ export default defineConfig({
       dirs: [
         'components',
       ],
-      dts: true,
+      dts: join(__dirname, 'components.d.ts'),
       resolvers: [
         IconsResolver({
           componentPrefix: '',
@@ -42,6 +50,14 @@ export default defineConfig({
       packageJsonPath: 'vite.config.json',
     }),
     OptimizationPersist(),
+    AutoImport({
+      dts: join(__dirname, 'auto-imports.d.ts'),
+      imports: [
+        'vue',
+        'vue-router',
+        '@vueuse/core',
+      ],
+    }),
   ],
 
   server: {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { showPluginNames } from '../logic'
+import { listMode } from '../logic'
 
 defineProps<{
   modules: any[]
@@ -15,7 +15,7 @@ defineProps<{
       :to="`/module?id=${m.id}`"
     >
       <ModuleId :id="m.id" />
-      <div v-if="showPluginNames" class="text-xs">
+      <div v-if="listMode === 'detailed'" class="text-xs">
         <template v-for="i, idx in m.plugins.slice(1)" :key="i">
           <span v-if="idx !== 0">|</span>
           <span class="mx-0.5 text-gray-400">{{ i }}</span>

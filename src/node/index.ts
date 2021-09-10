@@ -4,12 +4,14 @@ import type { ModuleNode, Plugin, ResolvedConfig } from 'vite'
 import sirv from 'sirv'
 import { parseURL } from 'ufo'
 import { parseQuery } from 'vue-router'
+import { ModuleInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
 function VitePluginPackageConfig(): Plugin {
   let config: ResolvedConfig
-  const transformMap: Record<string, {name: string; result: string; start: number; end: number}[]> = {}
+
+  const transformMap: Record<string, TransformInfo[]> = {}
   const idMap: Record<string, string> = {}
 
   function hijackPlugin(plugin: Plugin) {
@@ -124,12 +126,16 @@ function VitePluginPackageConfig(): Plugin {
 
         if (pathname === '/list') {
           const modules = Object.keys(transformMap).sort()
-            .map((id) => {
+            .map((id): ModuleInfo => {
               const plugins = transformMap[id]?.map(i => i.name)
+              const deps = Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
+                .map(i => i.id || '')
+                .filter(Boolean)
 
               return {
                 id,
                 plugins,
+                deps,
                 virtual: plugins[0] !== '__load__',
               }
             })

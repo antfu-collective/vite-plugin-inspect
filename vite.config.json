@@ -15,7 +15,8 @@
         "codemirror/mode/vue/vue",
         "codemirror/mode/xml/xml",
         "diff-match-patch",
-        "fuse.js"
+        "fuse.js",
+        "vis-network"
       ]
     }
   }
