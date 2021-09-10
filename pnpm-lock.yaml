@@ -27,6 +27,7 @@ importers:
       fuse.js: ^6.4.6
       npm-run-all: ^4.1.5
       prism-theme-vars: ^0.2.2
+      rimraf: ^3.0.2
       sirv: ^1.0.17
       tsup: ^4.14.0
       typescript: ^4.4.2
@@ -69,6 +70,7 @@ importers:
       fuse.js: 6.4.6
       npm-run-all: 4.1.5
       prism-theme-vars: 0.2.2
+      rimraf: 3.0.2
       tsup: 4.14.0_typescript@4.4.2
       typescript: 4.4.2
       unplugin-auto-import: 0.4.5_@vueuse+core@6.3.2+vite@2.5.6
