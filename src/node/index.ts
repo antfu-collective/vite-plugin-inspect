@@ -8,7 +8,24 @@ import { ModuleInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
-function VitePluginPackageConfig(): Plugin {
+export interface Options {
+  /**
+   * Enable the inspect plugin (could be some performance overhead)
+   *
+   * @default true
+   */
+  enabled: boolean
+}
+
+function PluginInspect({
+  enabled = true,
+} = {}): Plugin {
+  if (!enabled) {
+    return {
+      name: 'vite-plugin-inspect',
+    }
+  }
+
   let config: ResolvedConfig
 
   const transformMap: Record<string, TransformInfo[]> = {}
@@ -171,4 +188,4 @@ function VitePluginPackageConfig(): Plugin {
   }
 }
 
-export default VitePluginPackageConfig
+export default PluginInspect
