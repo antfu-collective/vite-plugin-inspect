@@ -15,12 +15,12 @@ export interface Options {
    *
    * @default true
    */
-  enabled: boolean
+  enabled?: boolean
 }
 
 function PluginInspect({
   enabled = true,
-} = {}): Plugin {
+}: Options = {}): Plugin {
   if (!enabled) {
     return {
       name: 'vite-plugin-inspect',
