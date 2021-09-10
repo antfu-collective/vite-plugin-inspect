@@ -29,7 +29,7 @@ onRefetch.on(async() => {
   await refetch()
 })
 
-refetch()
+watch(id, () => refetch(), { immediate: true })
 
 const from = computed(() => data.value?.transforms[currentIndex.value - 1]?.result || '')
 const to = computed(() => data.value?.transforms[currentIndex.value]?.result || '')
