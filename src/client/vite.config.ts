@@ -2,9 +2,12 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Pages from 'vite-plugin-pages'
-import ViteIcons, { ViteIconsResolver } from 'vite-plugin-icons'
-import ViteComponents from 'vite-plugin-components'
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
+import Components from 'unplugin-vue-components/vite'
 import WindiCSS from 'vite-plugin-windicss'
+import OptimizationPersist from 'vite-plugin-optimize-persist'
+import PkgConfig from 'vite-plugin-package-config'
 import Inspect from '../node'
 
 export default defineConfig({
@@ -15,18 +18,18 @@ export default defineConfig({
     Pages({
       pagesDir: 'pages',
     }),
-    ViteComponents({
+    Components({
       dirs: [
         'components',
       ],
-      globalComponentsDeclaration: true,
-      customComponentResolvers: [
-        ViteIconsResolver({
+      dts: true,
+      resolvers: [
+        IconsResolver({
           componentPrefix: '',
         }),
       ],
     }),
-    ViteIcons(),
+    Icons(),
     WindiCSS({
       scan: {
         dirs: [
@@ -35,6 +38,10 @@ export default defineConfig({
       },
     }),
     Inspect(),
+    PkgConfig({
+      packageJsonPath: 'vite.config.json',
+    }),
+    OptimizationPersist(),
   ],
 
   server: {

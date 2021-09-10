@@ -25,7 +25,7 @@ export default {
 }
 ```
 
-Then visit [localhost:3000/__inspect](http://localhost:3000/__inspect) to inspect the modules.
+Then visit [localhost:3000/__inspect/](http://localhost:3000/__inspect/) to inspect the modules.
 
 ## Sponsors
 
