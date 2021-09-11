@@ -5,6 +5,7 @@ import type { ModuleNode, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { parseURL } from 'ufo'
 import { parseQuery } from 'vue-router'
+import { createFilter, FilterPattern } from '@rollup/pluginutils'
 import { ModuleInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
@@ -16,16 +17,29 @@ export interface Options {
    * @default true
    */
   enabled?: boolean
+
+  /**
+   * Filter for modules to be inspected
+   */
+  include?: FilterPattern
+  /**
+   * Filter for modules to not be inspected
+   */
+  exclude?: FilterPattern
 }
 
-function PluginInspect({
-  enabled = true,
-}: Options = {}): Plugin {
+function PluginInspect(options: Options = {}): Plugin {
+  const {
+    enabled = true,
+  } = options
+
   if (!enabled) {
     return {
       name: 'vite-plugin-inspect',
     }
   }
+
+  const filter = createFilter(options.include, options.exclude)
 
   let config: ResolvedConfig
 
@@ -45,7 +59,7 @@ function PluginInspect({
 
         const result = typeof _result === 'string' ? _result : _result?.code
 
-        if (result != null) {
+        if (filter(id) && result != null) {
           // the last plugin must be `vite:import-analysis`, if it's already there, we reset the stack
           if (transformMap[id] && transformMap[id].slice(-1)[0]?.name === 'vite:import-analysis')
             delete transformMap[id]
@@ -71,7 +85,7 @@ function PluginInspect({
 
         const result = typeof _result === 'string' ? _result : _result?.code
 
-        if (result != null)
+        if (filter(id) && result != null)
           transformMap[id] = [{ name: plugin.name, result, start, end }]
 
         return _result

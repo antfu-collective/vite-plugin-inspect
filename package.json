@@ -45,6 +45,7 @@
     "@antfu/ni": "^0.9.3",
     "@antfu/utils": "^0.3.0",
     "@iconify/json": "^1.1.400",
+    "@rollup/pluginutils": "^4.1.1",
     "@types/codemirror": "^5.60.2",
     "@types/debug": "^4.1.7",
     "@types/diff-match-patch": "^1.0.32",

@@ -45,7 +45,9 @@ export default defineConfig({
         ],
       },
     }),
-    Inspect(),
+    Inspect({
+      // include: /\.vue$/,
+    }),
     PkgConfig({
       packageJsonPath: 'vite.config.json',
     }),
