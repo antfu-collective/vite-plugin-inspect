@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Network, Data, Options } from 'vis-network'
 import type { ModuleInfo } from '../../types'
+import { isDark } from '../logic'
 
 const props = defineProps<{
   modules?: ModuleInfo[]
@@ -18,6 +19,7 @@ const data = computed<Data>(() => {
       label: path.split('/').splice(-1)[0],
       group: path.split('/').slice(0, -1).join('/'),
       size: 15 + Math.min(mod.deps.length / 2, 8),
+      font: { color: isDark.value ? 'white' : 'black' },
       shape: mod.id.includes('/node_modules/')
         ? 'hexagon'
         : mod.virtual
