@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { listMode } from '../logic'
+import { listMode, searchText } from '../logic'
 
 defineProps<{
   modules: any[]
@@ -8,6 +8,14 @@ defineProps<{
 
 <template>
   <div v-if="modules">
+    <div v-if="!modules.length" class="px-6 py-4 opacity-50 italic">
+      <div v-if="searchText">
+        No search result
+      </div>
+      <div v-else>
+        No module recorded yet, vist <a href="/" target="_blank">your app</a> first and then refresh this page.
+      </div>
+    </div>
     <RouterLink
       v-for="m in modules"
       :key="m.id"
