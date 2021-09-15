@@ -6,6 +6,8 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 
 <img width="1304" src="https://user-images.githubusercontent.com/11247099/129639115-07f9f087-8098-455d-b277-fb9449a31f6d.png">
 
+![](https://s9.gifyu.com/images/Kapture-2021-09-11-at-07.33.36.gif)
+
 ## Install
 
 ```bash
