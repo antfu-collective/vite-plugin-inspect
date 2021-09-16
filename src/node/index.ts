@@ -62,8 +62,8 @@ function PluginInspect(options: Options = {}): Plugin {
         const start = Date.now()
         if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
           id = windowsIdMap[id]
-          args = new Array<any>(id)
-          args.unshift(...args.splice(1))
+          args = new Array<any>(...args.splice(1))
+          args.unshift(id)
           _result = await _transform.apply(this, args as any)
         }
         else {
@@ -93,11 +93,17 @@ function PluginInspect(options: Options = {}): Plugin {
       const _load = plugin.load
       plugin.load = async function(this: any, ...args: any[]) {
         let id = args[0]
-        if (isWindows && id && id.startsWith(WindowResolveIdPrefix))
-          id = windowsIdMap[id]
-
+        let _result
         const start = Date.now()
-        const _result = await _load.apply(this, args as any)
+        if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
+          id = windowsIdMap[id]
+          args = new Array<any>(...args.splice(1))
+          args.unshift(id)
+          _result = await _load.apply(this, args as any)
+        }
+        else {
+          _result = await _load.apply(this, args as any)
+        }
         const end = Date.now()
 
         const result = typeof _result === 'string' ? _result : _result?.code
@@ -117,8 +123,8 @@ function PluginInspect(options: Options = {}): Plugin {
         let _result
         if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
           id = windowsIdMap[id]
-          args = new Array<any>(id)
-          args.unshift(...args.splice(1))
+          args = new Array<any>(...args.splice(1))
+          args.unshift(id)
           _result = await _resolveId.apply(this, args as any)
         }
         else {
