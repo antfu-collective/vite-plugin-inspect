@@ -10,6 +10,10 @@ import { ModuleInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
+const isWindows = process.platform === 'win32'
+const windowsRe = /^([A-Z]+):\/(.*)/
+const WindowResolveIdPrefix = '/__resolve_windows/'
+
 export interface Options {
   /**
    * Enable the inspect plugin (could be some performance overhead)
@@ -45,6 +49,7 @@ function PluginInspect(options: Options = {}): Plugin {
 
   const transformMap: Record<string, TransformInfo[]> = {}
   const idMap: Record<string, string> = {}
+  const windowsIdMap: Record<string, string> = {}
 
   function hijackPlugin(plugin: Plugin) {
     if (plugin.transform) {
@@ -52,9 +57,18 @@ function PluginInspect(options: Options = {}): Plugin {
       const _transform = plugin.transform
       plugin.transform = async function(this: any, ...args: any[]) {
         const code = args[0]
-        const id = args[1]
+        let id = args[0]
+        let _result
         const start = Date.now()
-        const _result = await _transform.apply(this, args as any)
+        if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
+          id = windowsIdMap[id]
+          args = new Array<any>(id)
+          args.unshift(...args.splice(1))
+          _result = await _transform.apply(this, args as any)
+        }
+        else {
+          _result = await _transform.apply(this, args as any)
+        }
         const end = Date.now()
 
         const result = typeof _result === 'string' ? _result : _result?.code
@@ -78,7 +92,10 @@ function PluginInspect(options: Options = {}): Plugin {
       debug('hijack plugin load', plugin.name)
       const _load = plugin.load
       plugin.load = async function(this: any, ...args: any[]) {
-        const id = args[0]
+        let id = args[0]
+        if (isWindows && id && id.startsWith(WindowResolveIdPrefix))
+          id = windowsIdMap[id]
+
         const start = Date.now()
         const _result = await _load.apply(this, args as any)
         const end = Date.now()
@@ -96,8 +113,17 @@ function PluginInspect(options: Options = {}): Plugin {
       debug('hijack plugin resolveId', plugin.name)
       const _resolveId = plugin.resolveId
       plugin.resolveId = async function(this: any, ...args: any[]) {
-        const id = args[0]
-        const _result = await _resolveId.apply(this, args as any)
+        let id = args[0]
+        let _result
+        if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
+          id = windowsIdMap[id]
+          args = new Array<any>(id)
+          args.unshift(...args.splice(1))
+          _result = await _resolveId.apply(this, args as any)
+        }
+        else {
+          _result = await _resolveId.apply(this, args as any)
+        }
 
         const result = typeof _result === 'object' ? _result?.id : _result
 
@@ -177,8 +203,16 @@ function PluginInspect(options: Options = {}): Plugin {
         res.end()
       }
       else if (pathname === '/resolve') {
-        const id = parseQuery(search).id as string
-        res.write(JSON.stringify({ id: resolveId(id) }, null, 2))
+        let id = resolveId(parseQuery(search).id as string)
+        if (isWindows) {
+          const match = id.match(windowsRe)
+          if (match) {
+            const original = id
+            id = `${WindowResolveIdPrefix}${match[1]}/${match[2]}`
+            windowsIdMap[id] = original
+          }
+        }
+        res.write(JSON.stringify({ id }, null, 2))
         res.end()
       }
       else if (pathname === '/clear') {
