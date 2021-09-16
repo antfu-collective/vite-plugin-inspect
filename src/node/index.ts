@@ -53,11 +53,10 @@ function PluginInspect(options: Options = {}): Plugin {
 
   function hijackPlugin(plugin: Plugin) {
     function resolveArguments(...args: any[]) {
-      let id = args[0]
-      if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
-        id = windowsIdMap[id]
-        args = new Array<any>(id, ...args.splice(1))
-      }
+      const id = args[0]
+      if (isWindows && id && id.startsWith(WindowResolveIdPrefix))
+        args[0] = windowsIdMap[id]
+
       return args
     }
     if (plugin.transform) {
@@ -68,7 +67,7 @@ function PluginInspect(options: Options = {}): Plugin {
         let id = args[1]
         if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
           id = windowsIdMap[id]
-          args = new Array<any>(code, id, ...args.splice(2))
+          args[1] = id
         }
 
         const start = Date.now()
