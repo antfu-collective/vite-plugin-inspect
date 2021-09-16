@@ -56,8 +56,7 @@ function PluginInspect(options: Options = {}): Plugin {
       let id = args[0]
       if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
         id = windowsIdMap[id]
-        args = new Array<any>(...args.splice(1))
-        args.unshift(id)
+        args = new Array<any>(id, ...args.splice(1))
       }
       return args
     }
@@ -69,8 +68,7 @@ function PluginInspect(options: Options = {}): Plugin {
         let id = args[1]
         if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
           id = windowsIdMap[id]
-          args = new Array<any>(...args.splice(2))
-          args.unshift(code, id)
+          args = new Array<any>(code, id, ...args.splice(2))
         }
 
         const start = Date.now()
