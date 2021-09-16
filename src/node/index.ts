@@ -66,8 +66,12 @@ function PluginInspect(options: Options = {}): Plugin {
       const _transform = plugin.transform
       plugin.transform = async function(this: any, ...args: any[]) {
         const code = args[0]
-        args = resolveArguments(args.splice(1))
-        const id = args[1]
+        let id = args[1]
+        if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
+          id = windowsIdMap[id]
+          args = new Array<any>(...args.splice(2))
+          args.unshift(code, id)
+        }
 
         const start = Date.now()
         const _result = await _transform.apply(this, args as any)
