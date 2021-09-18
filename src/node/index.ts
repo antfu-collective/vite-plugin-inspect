@@ -51,25 +51,30 @@ function PluginInspect(options: Options = {}): Plugin {
   const idMap: Record<string, string> = {}
   const windowsIdMap: Record<string, string> = {}
 
-  function hijackPlugin(plugin: Plugin) {
-    function resolveArguments(args: any[]) {
+  function resolveArguments(transform: boolean, args: any[]) {
+    if (transform) {
+      const code = args[0]
+      const id = args[1]
+      if (isWindows && id && id.startsWith(WindowResolveIdPrefix))
+        return new Array<any>(code, windowsIdMap[id], ...args.slice(2))
+    }
+    else {
       const id = args[0]
       if (isWindows && id && id.startsWith(WindowResolveIdPrefix))
         return new Array<any>(windowsIdMap[id], ...args.slice(1))
-
-      return args
     }
+
+    return args
+  }
+
+  function hijackPlugin(plugin: Plugin) {
     if (plugin.transform) {
       debug('hijack plugin transform', plugin.name)
       const _transform = plugin.transform
       plugin.transform = async function(this: any, ...args: any[]) {
-        const code = args[0]
-        let id = args[1]
-        let resolvedArgs = args
-        if (isWindows && id && id.startsWith(WindowResolveIdPrefix)) {
-          id = windowsIdMap[id]
-          resolvedArgs = new Array<any>(code, id, ...args.slice(2))
-        }
+        const resolvedArgs = resolveArguments(true, args)
+        const code = resolvedArgs[0]
+        const id = resolvedArgs[1]
 
         const start = Date.now()
         const _result = await _transform.apply(this, resolvedArgs as any)
@@ -96,7 +101,7 @@ function PluginInspect(options: Options = {}): Plugin {
       debug('hijack plugin load', plugin.name)
       const _load = plugin.load
       plugin.load = async function(this: any, ...args: any[]) {
-        const resolvedArgs = resolveArguments(args)
+        const resolvedArgs = resolveArguments(false, args)
         const id = resolvedArgs[0]
         const start = Date.now()
         const _result = await _load.apply(this, resolvedArgs as any)
@@ -115,7 +120,7 @@ function PluginInspect(options: Options = {}): Plugin {
       debug('hijack plugin resolveId', plugin.name)
       const _resolveId = plugin.resolveId
       plugin.resolveId = async function(this: any, ...args: any[]) {
-        const resolvedArgs = resolveArguments(args)
+        const resolvedArgs = resolveArguments(false, args)
         const id = resolvedArgs[0]
         const _result = await _resolveId.apply(this, resolvedArgs as any)
 
