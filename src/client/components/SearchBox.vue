@@ -16,7 +16,7 @@ import { searchText, includeNodeModules, includeVirtual } from '../logic'
     </label>
     <label class="flex">
       <input v-model="includeVirtual" type="checkbox" class="my-auto" />
-      <div class="ml-1">virutal</div>
+      <div class="ml-1">virtual</div>
     </label>
   </div>
 </template>
