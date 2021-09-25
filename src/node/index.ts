@@ -193,18 +193,20 @@ function PluginInspect(options: Options = {}): Plugin {
       }
     })
 
-    // hijack httpServer.listen to print the log
-    const _listen = server.httpServer!.listen
-    let port = config.server.port || 3000
-    let timer: any
-    server.httpServer!.listen = function(this: any, ...args: any) {
-      port ||= args[0]
-      clearTimeout(timer)
-      timer = setTimeout(() => {
+    if (server.httpServer?.listen) {
+      // hijack httpServer.listen to print the log
+      const _listen = server.httpServer.listen
+      let port = config.server.port || 3000
+      let timer: any
+      server.httpServer.listen = function(this: any, ...args: any) {
+        port ||= args[0]
+        clearTimeout(timer)
+        timer = setTimeout(() => {
         // eslint-disable-next-line no-console
-        console.log(`  > Inspect: ${yellow(`http://localhost:${port}/__inspect/`)}\n`)
-      }, 0)
-      return _listen.apply(this, args)
+          console.log(`  > Inspect: ${yellow(`http://localhost:${port}/__inspect/`)}\n`)
+        }, 0)
+        return _listen.apply(this, args)
+      }
     }
   }
 
