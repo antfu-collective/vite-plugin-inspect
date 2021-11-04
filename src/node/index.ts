@@ -198,9 +198,8 @@ function PluginInspect(options: Options = {}): Plugin {
         const port = config.server.port
         setTimeout(() => {
              // eslint-disable-next-line no-console
-         console.log(`  > Inspect: ${yellow(`${protocol}://localhost:${port}/__inspect/`)}\n`)
+             console.log(`  > Inspect: ${yellow(`${protocol}://localhost:${port}/__inspect/`)}\n`)
         }, 0);
-        
     })
   }
 
