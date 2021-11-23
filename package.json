@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-inspect",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Inspect the intermediate state of Vite plugins",
   "keywords": [
     "vite-plugin"
