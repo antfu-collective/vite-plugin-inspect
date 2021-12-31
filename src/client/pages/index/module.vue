@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ref } from 'vue'
+import type { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { msToTime } from '../../logic/utils'
 import { onRefetch } from '../../logic'
@@ -17,9 +17,15 @@ const currentIndex = computed(() => +index.value ?? (data.value?.transforms.leng
 async function refetch() {
   const { id: resolved } = await fetch(`/__inspect_api/resolve?id=${id.value}`).then(r => r.json())
   if (resolved) {
-  // revaluate the module (if it's not initialized by the module graph)
-    try { await fetch(resolved) }
-    catch (e) {}
+    // revaluate the module (if it's not initialized by the module graph)
+    let resolvedId = resolved.value
+    if (resolvedId && resolvedId.startsWith('file:///'))
+      resolvedId = `/@fs/${resolvedId.slice(8)}`
+
+    try {
+      await fetch(resolvedId)
+    }
+    catch (_) {}
   }
   await execute()
 }

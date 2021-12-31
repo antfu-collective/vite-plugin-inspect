@@ -1,14 +1,20 @@
-import { resolve } from 'path'
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
 import _debug from 'debug'
-import { yellow } from 'chalk'
+import { yellow } from 'kolorist'
 import type { ModuleNode, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
-import { parseURL } from 'ufo'
-import { parseQuery } from 'vue-router'
-import { createFilter, FilterPattern } from '@rollup/pluginutils'
-import { ModuleInfo, TransformInfo } from '../types'
+import { parseQuery, parseURL } from 'ufo'
+import { createFilter } from '@rollup/pluginutils'
+import type { ModuleInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
+
+const _dirname = typeof __dirname !== 'undefined'
+  ? __dirname
+  : dirname(fileURLToPath(import.meta.url))
+
+export type FilterPattern = ReadonlyArray<string | RegExp> | string | RegExp | null
 
 export interface Options {
   /**
@@ -139,12 +145,10 @@ function PluginInspect(options: Options = {}): Plugin {
       return _invalidateModule.apply(this, args)
     }
 
-    if (process.env.NODE_ENV === 'production') {
-      server.middlewares.use('/__inspect', sirv(resolve(__dirname, 'client'), {
-        single: true,
-        dev: true,
-      }))
-    }
+    server.middlewares.use('/__inspect', sirv(resolve(_dirname, '../dist/client'), {
+      single: true,
+      dev: true,
+    }))
 
     server.middlewares.use('/__inspect_api', (req, res) => {
       const { pathname, search } = parseURL(req.url)
@@ -193,13 +197,13 @@ function PluginInspect(options: Options = {}): Plugin {
       }
     })
 
-    server.httpServer?.once('listening',()=>{
-        const protocol = config.server.https ? 'https' : 'http'
-        const port = config.server.port
-        setTimeout(() => {
-             // eslint-disable-next-line no-console
-             console.log(`  > Inspect: ${yellow(`${protocol}://localhost:${port}/__inspect/`)}\n`)
-        }, 0);
+    server.httpServer?.once('listening', () => {
+      const protocol = config.server.https ? 'https' : 'http'
+      const port = config.server.port
+      setTimeout(() => {
+        // eslint-disable-next-line no-console
+        console.log(`  > Inspect: ${yellow(`${protocol}://localhost:${port}/__inspect/`)}\n`)
+      }, 0)
     })
   }
 
