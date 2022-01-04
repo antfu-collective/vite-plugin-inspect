@@ -4,7 +4,7 @@ export default defineBuildConfig({
   entries: [
     'src/node/index',
   ],
-  clean: true,
+  clean: false,
   declaration: true,
   externals: [
     'vite',
