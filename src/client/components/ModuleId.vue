@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { root, list } from '../logic'
+import { list, root } from '../logic'
 
 const props = defineProps<{ id?: string }>()
 

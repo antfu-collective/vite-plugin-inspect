@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, toRefs, watchEffect, nextTick } from 'vue'
+import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
 import { diff_match_patch as Diff } from 'diff-match-patch'
 import { useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
@@ -98,7 +98,7 @@ onMounted(() => {
 <template>
   <div class="grid grid-cols-[1fr,min-content,1fr] h-full overflow-auto">
     <textarea ref="fromEl" v-text="from" />
-    <div class="border-main border-r"></div>
+    <div class="border-main border-r" />
     <textarea ref="toEl" v-text="to" />
   </div>
 </template>
