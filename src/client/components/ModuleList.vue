@@ -13,7 +13,7 @@ defineProps<{
         No search result
       </div>
       <div v-else>
-        No module recorded yet, vist <a href="/" target="_blank">your app</a> first and then refresh this page.
+        No module recorded yet, visit <a href="/" target="_blank">your app</a> first and then refresh this page.
       </div>
     </div>
     <RouterLink
