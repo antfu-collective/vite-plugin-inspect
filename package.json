@@ -38,7 +38,7 @@
     "dev": "vite src/client",
     "dev:client": "vite build src/client --watch",
     "dev:js": "nr build:js --watch src",
-    "lint": "eslint \"{src,test}/**/*.ts\"",
+    "lint": "eslint \"{src,test}/**/*.{vue,ts}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run build",
     "release": "bumpp --commit --push --tag && npm publish"

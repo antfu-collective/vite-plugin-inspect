@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Network, Data, Options } from 'vis-network'
+import type { Data, Options } from 'vis-network'
+import { Network } from 'vis-network'
 import type { ModuleInfo } from '../../types'
 import { isDark } from '../logic'
 
@@ -81,6 +82,6 @@ onMounted(() => {
 
 <template>
   <div v-if="modules">
-    <div ref="container" class="w-full h-100vh"></div>
+    <div ref="container" class="w-full h-100vh" />
   </div>
 </template>

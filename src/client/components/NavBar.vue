@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isDark, toggleDark, enableDiff, lineWrapping, refetch, toggleMode, listMode } from '../logic'
+import { enableDiff, isDark, lineWrapping, listMode, refetch, toggleDark, toggleMode } from '../logic'
 
 defineProps<{
   id?: string
@@ -13,7 +13,7 @@ defineProps<{
         <carbon-arrow-left />
       </router-link>
       <ModuleId v-if="id" :id="id" />
-      <div class="flex-auto"></div>
+      <div class="flex-auto" />
       <button class="icon-btn text-lg" title="Line Wrapping" @click="lineWrapping = !lineWrapping">
         <carbon:text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
       </button>
@@ -24,7 +24,7 @@ defineProps<{
     <template v-else>
       <span class="text-md">Vite Inspect</span>
       <SearchBox />
-      <div class="flex-auto"></div>
+      <div class="flex-auto" />
       <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
         <carbon:list-boxes v-if="listMode === 'detailed'" />
         <carbon:list v-else-if="listMode === 'list'" />
