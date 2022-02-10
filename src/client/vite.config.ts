@@ -1,5 +1,4 @@
-import { resolve } from 'path'
-import { join } from 'path/posix'
+import { join, resolve } from 'path'
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Pages from 'vite-plugin-pages'
