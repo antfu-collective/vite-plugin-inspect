@@ -56,11 +56,11 @@ function PluginInspect(options: Options = {}): Plugin {
     if (plugin.transform) {
       debug('hijack plugin transform', plugin.name)
       const _transform = plugin.transform
-      plugin.transform = async function(this: any, ...args: any[]) {
+      plugin.transform = async function(...args) {
         const code = args[0]
         const id = args[1]
         const start = Date.now()
-        const _result = await _transform.apply(this, args as any)
+        const _result = await _transform.apply(this, args)
         const end = Date.now()
 
         const result = typeof _result === 'string' ? _result : _result?.code
@@ -83,10 +83,10 @@ function PluginInspect(options: Options = {}): Plugin {
     if (plugin.load) {
       debug('hijack plugin load', plugin.name)
       const _load = plugin.load
-      plugin.load = async function(this: any, ...args: any[]) {
+      plugin.load = async function(...args) {
         const id = args[0]
         const start = Date.now()
-        const _result = await _load.apply(this, args as any)
+        const _result = await _load.apply(this, args)
         const end = Date.now()
 
         const result = typeof _result === 'string' ? _result : _result?.code
@@ -101,9 +101,9 @@ function PluginInspect(options: Options = {}): Plugin {
     if (plugin.resolveId) {
       debug('hijack plugin resolveId', plugin.name)
       const _resolveId = plugin.resolveId
-      plugin.resolveId = async function(this: any, ...args: any[]) {
+      plugin.resolveId = async function(...args) {
         const id = args[0]
-        const _result = await _resolveId.apply(this, args as any)
+        const _result = await _resolveId.apply(this, args)
 
         const result = typeof _result === 'object' ? _result?.id : _result
 
@@ -138,8 +138,8 @@ function PluginInspect(options: Options = {}): Plugin {
 
   function configureServer(server: ViteDevServer) {
     const _invalidateModule = server.moduleGraph.invalidateModule
-    server.moduleGraph.invalidateModule = function(this: any, ...args: any) {
-      const mod = args[0] as ModuleNode
+    server.moduleGraph.invalidateModule = function(...args) {
+      const mod = args[0]
       if (mod?.id)
         delete transformMap[mod.id]
       return _invalidateModule.apply(this, args)
