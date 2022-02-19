@@ -49,48 +49,58 @@ onMounted(() => {
 
     await nextTick()
 
-    // clean up marks
-    cm1.getAllMarks().forEach(i => i.clear())
-    cm2.getAllMarks().forEach(i => i.clear())
-    new Array(cm1.lineCount() + 2).fill(null!).map((_, i) => cm1.removeLineClass(i, 'background', 'diff-removed'))
-    new Array(cm2.lineCount() + 2).fill(null!).map((_, i) => cm2.removeLineClass(i, 'background', 'diff-added'))
+    cm1.operation(() => {
+      cm2.operation(() => {
+        // clean up marks
+        cm1.getAllMarks().forEach(i => i.clear())
+        cm2.getAllMarks().forEach(i => i.clear())
+        new Array(cm1.lineCount() + 2)
+          .fill(null!)
+          .map((_, i) => cm1.removeLineClass(i, 'background', 'diff-removed'))
+        new Array(cm2.lineCount() + 2)
+          .fill(null!)
+          .map((_, i) => cm2.removeLineClass(i, 'background', 'diff-added'))
 
-    if (showDiff) {
-      const diff = new Diff()
-      const changes = diff.diff_main(l, r)
-      diff.diff_cleanupSemantic(changes)
+        if (showDiff) {
+          const diff = new Diff()
+          const changes = diff.diff_main(l, r)
+          diff.diff_cleanupSemantic(changes)
 
-      const addedLines = new Set()
-      const removedLines = new Set()
+          const addedLines = new Set()
+          const removedLines = new Set()
 
-      let indexL = 0
-      let indexR = 0
-      changes.forEach(([type, change]) => {
-        if (type === 1) {
-          const start = cm2.posFromIndex(indexR)
-          indexR += change.length
-          const end = cm2.posFromIndex(indexR)
-          cm2.markText(start, end, { className: 'diff-added-inline' })
-          for (let i = start.line; i <= end.line; i++)
-            addedLines.add(i)
-        }
-        else if (type === -1) {
-          const start = cm1.posFromIndex(indexL)
-          indexL += change.length
-          const end = cm1.posFromIndex(indexL)
-          cm1.markText(start, end, { className: 'diff-removed-inline' })
-          for (let i = start.line; i <= end.line; i++)
-            removedLines.add(i)
-        }
-        else {
-          indexL += change.length
-          indexR += change.length
+          let indexL = 0
+          let indexR = 0
+          changes.forEach(([type, change]) => {
+            if (type === 1) {
+              const start = cm2.posFromIndex(indexR)
+              indexR += change.length
+              const end = cm2.posFromIndex(indexR)
+              cm2.markText(start, end, { className: 'diff-added-inline' })
+              for (let i = start.line; i <= end.line; i++) addedLines.add(i)
+            }
+            else if (type === -1) {
+              const start = cm1.posFromIndex(indexL)
+              indexL += change.length
+              const end = cm1.posFromIndex(indexL)
+              cm1.markText(start, end, { className: 'diff-removed-inline' })
+              for (let i = start.line; i <= end.line; i++) removedLines.add(i)
+            }
+            else {
+              indexL += change.length
+              indexR += change.length
+            }
+          })
+
+          Array.from(removedLines).forEach(i =>
+            cm1.addLineClass(i, 'background', 'diff-removed'),
+          )
+          Array.from(addedLines).forEach(i =>
+            cm2.addLineClass(i, 'background', 'diff-added'),
+          )
         }
       })
-
-      Array.from(removedLines).forEach(i => cm1.addLineClass(i, 'background', 'diff-removed'))
-      Array.from(addedLines).forEach(i => cm2.addLineClass(i, 'background', 'diff-added'))
-    }
+    })
   })
 })
 </script>
