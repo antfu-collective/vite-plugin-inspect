@@ -14,6 +14,7 @@
         "codemirror/mode/sass/sass",
         "codemirror/mode/vue/vue",
         "codemirror/mode/xml/xml",
+        "comlink",
         "diff-match-patch",
         "fuse.js",
         "vis-network"
