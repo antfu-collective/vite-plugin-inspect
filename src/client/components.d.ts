@@ -22,6 +22,7 @@ declare module 'vue' {
     ModuleId: typeof import('./components/ModuleId.vue')['default']
     ModuleList: typeof import('./components/ModuleList.vue')['default']
     NavBar: typeof import('./components/NavBar.vue')['default']
+    PluginCol: typeof import('./components/PluginCol.vue')['default']
     SearchBox: typeof import('./components/SearchBox.vue')['default']
   }
 }

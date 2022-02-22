@@ -11,6 +11,9 @@ onMounted(() => {
 <template>
   <NavBar>
     <span class="text-md">Vite Inspect</span>
+    <router-link to="/plugin">
+      Plugins
+    </router-link>
     <SearchBox />
     <div class="flex-auto" />
     <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">

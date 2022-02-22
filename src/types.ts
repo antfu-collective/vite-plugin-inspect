@@ -16,3 +16,8 @@ export interface ModulesList {
   root: string
   modules: ModuleInfo[]
 }
+
+export interface PluginInfo {
+  name: string
+  latency: number
+}
