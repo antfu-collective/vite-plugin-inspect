@@ -2,7 +2,10 @@
 import { listMode, searchText } from '../logic'
 
 defineProps<{
-  modules: any[]
+  modules: Array<{
+    id: string
+    plugins: any[]
+  }>
 }>()
 </script>
 
