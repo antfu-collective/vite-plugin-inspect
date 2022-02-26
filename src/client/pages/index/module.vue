@@ -2,7 +2,7 @@
 import type { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { msToTime } from '../../logic/utils'
-import { onRefetch } from '../../logic'
+import { enableDiff, lineWrapping, onRefetch } from '../../logic'
 
 const route = useRoute()
 const id = computed(() => route?.query.id as string)
@@ -42,7 +42,19 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
 </script>
 
 <template>
-  <NavBar :id="id" />
+  <NavBar>
+    <router-link class="icon-btn !outline-none my-auto" to="/">
+      <carbon-arrow-left />
+    </router-link>
+    <ModuleId v-if="id" :id="id" />
+    <div class="flex-auto" />
+    <button class="icon-btn text-lg" title="Line Wrapping" @click="lineWrapping = !lineWrapping">
+      <carbon:text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+    </button>
+    <button class="icon-btn text-lg" title="Toggle Diff" @click="enableDiff = !enableDiff">
+      <carbon:compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+    </button>
+  </NavBar>
   <Container
     v-if="data && data.transforms"
     class="grid grid-cols-[300px,3fr] overflow-hidden"
@@ -59,7 +71,9 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
           :class="currentIndex === idx ? 'bg-main bg-opacity-10' : ''"
           @click="index = idx.toString()"
         >
-          <span :class="currentIndex === idx ? 'font-bold' : ''">{{ tr.name }}</span>
+          <span :class="currentIndex === idx ? 'font-bold' : ''">
+            <PluginName :name="tr.name" />
+          </span>
           <span class="ml-2 text-xs opacity-50">{{ msToTime(tr.end - tr.start) }}</span>
           <Badge
             v-if="tr.result === data.transforms[idx - 1]?.result"

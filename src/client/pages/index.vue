@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { listMode, refetch, searchResults } from '../logic'
+import { listMode, refetch, searchResults, toggleMode } from '../logic'
 
 const route = useRoute()
 const isRoot = computed(() => route.path === '/')
@@ -9,7 +9,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <NavBar />
+  <NavBar>
+    <span class="text-md">Vite Inspect</span>
+
+    <SearchBox />
+    <div class="flex-auto" />
+    <router-link class="icon-btn text-lg" to="/plugins-metric">
+      <carbon:timer />
+    </router-link>
+    <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
+      <carbon:list-boxes v-if="listMode === 'detailed'" />
+      <carbon:list v-else-if="listMode === 'list'" />
+      <carbon:network-4 v-else />
+    </button>
+    <a
+      class="icon-btn text-lg"
+      href="https://github.com/antfu/vite-plugin-inspect"
+      target="_blank"
+    >
+      <carbon:logo-github />
+    </a>
+  </NavBar>
   <Container class="overflow-auto">
     <KeepAlive>
       <Graph v-if="listMode === 'graph'" :modules="searchResults" />

@@ -16,3 +16,10 @@ export interface ModulesList {
   root: string
   modules: ModuleInfo[]
 }
+
+export interface PluginMetricInfo {
+  name: string
+  latency: number
+  invokeCount: number
+  enforce?: string
+}

@@ -6,7 +6,7 @@ import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { parseQuery, parseURL } from 'ufo'
 import { createFilter } from '@rollup/pluginutils'
-import type { ModuleInfo, TransformInfo } from '../types'
+import type { ModuleInfo, PluginMetricInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
@@ -15,6 +15,9 @@ const _dirname = typeof __dirname !== 'undefined'
   : dirname(fileURLToPath(import.meta.url))
 
 export type FilterPattern = ReadonlyArray<string | RegExp> | string | RegExp | null
+
+// initial tranform (load from fs)
+const dummyLoadPluginName = '__load__'
 
 export interface Options {
   /**
@@ -71,7 +74,7 @@ function PluginInspect(options: Options = {}): Plugin {
             delete transformMap[id]
           // initial tranform (load from fs), add a dummy
           if (!transformMap[id])
-            transformMap[id] = [{ name: '__load__', result: code, start, end: start }]
+            transformMap[id] = [{ name: dummyLoadPluginName, result: code, start, end: start }]
           // record transform
           transformMap[id].push({ name: plugin.name, result, start, end })
         }
@@ -183,6 +186,27 @@ function PluginInspect(options: Options = {}): Plugin {
       else if (pathname === '/resolve') {
         const id = parseQuery(search).id as string
         res.write(JSON.stringify({ id: resolveId(id) }, null, 2))
+        res.end()
+      }
+      else if (pathname === '/plugins-metric') {
+        const map: Record<string, PluginMetricInfo> = {}
+
+        Object.values(transformMap)
+          .forEach((transformInfos) => {
+            transformInfos.forEach(({ name, start, end }) => {
+              if (name === dummyLoadPluginName)
+                return
+              const plugin = config.plugins.find(i => i.name === name)
+              if (!map[name])
+                map[name] = { name, latency: 0, invokeCount: 0, enforce: plugin?.enforce }
+              map[name].latency += end - start
+              map[name].invokeCount += 1
+            })
+          })
+
+        const metrics = Object.values(map).filter(Boolean).sort((a, b) => b.latency - a.latency)
+
+        res.write(JSON.stringify({ metrics }, null, 2))
         res.end()
       }
       else if (pathname === '/clear') {
