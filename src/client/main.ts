@@ -4,13 +4,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import routes from 'virtual:generated-pages'
 import App from './App.vue'
 
-// windicss layers
-import 'virtual:windi-base.css'
-import 'virtual:windi-components.css'
+import '@unocss/reset/tailwind.css'
 import './styles/main.css'
 import './styles/cm.css'
-import 'virtual:windi-utilities.css'
-import 'virtual:windi-devtools'
+import 'uno.css'
 
 const app = createApp(App)
 const router = createRouter({

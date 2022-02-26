@@ -6,7 +6,7 @@ import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
-import WindiCSS from 'vite-plugin-windicss'
+import Unocss from 'unocss/vite'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
 import Inspect from '../node'
@@ -37,13 +37,7 @@ export default defineConfig({
       ],
     }),
     Icons(),
-    WindiCSS({
-      scan: {
-        dirs: [
-          __dirname,
-        ],
-      },
-    }),
+    Unocss(),
     Inspect({
       // include: /\.vue$/,
     }),

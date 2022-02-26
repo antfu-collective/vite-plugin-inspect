@@ -106,7 +106,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-[1fr,min-content,1fr] h-full overflow-auto">
+  <div class="grid grid-cols-[1fr_min-content_1fr] h-full overflow-auto">
     <textarea ref="fromEl" v-text="from" />
     <div class="border-main border-r" />
     <textarea ref="toEl" v-text="to" />

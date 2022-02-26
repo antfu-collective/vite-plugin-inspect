@@ -36,7 +36,7 @@ onRefetch.on(async() => {
     <div class="flex-auto" />
   </NavBar>
   <Container v-if="data" class="overflow-auto">
-    <div class="mb-4 grid grid-cols-[1fr,max-content,max-content,max-content,max-content,max-content,1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
+    <div class="mb-4 grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
       <div />
       <div class="font-bold text-xs">
         Name ({{ plugins.length }})
@@ -64,13 +64,10 @@ onRefetch.on(async() => {
         <div class="text-center p0!">
           <Badge
             v-if="enforce"
-            class="m-auto text-base"
-            :class="[enforce === 'post' ? 'bg-purple-500/10 text-purple-500': 'bg-green-500/10 text-green-500']"
+            class="m-auto text-sm"
+            :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5': 'bg-green5/10 text-green5']"
           >
             {{ enforce }}
-          </Badge>
-          <Badge v-else-if="name.startsWith('vite:')" class="opacity-80 m-auto text-base bg-yellow-500/10 text-yellow-500">
-            core
           </Badge>
         </div>
         <template v-if="invokeCount">
@@ -78,10 +75,10 @@ onRefetch.on(async() => {
             {{ invokeCount }}
           </div>
           <div class="text-right" :class="getLatencyColor(totalTime / invokeCount)">
-            {{ +(totalTime / invokeCount).toFixed(1) }} ms
+            {{ +(totalTime / invokeCount).toFixed(1) }}<span op50 ml-1 text-xs>ms</span>
           </div>
           <div class="text-right" :class="getLatencyColor(totalTime / invokeCount)">
-            {{ totalTime }} ms
+            {{ totalTime }}<span op50 ml-1 text-xs>ms</span>
           </div>
         </template>
         <template v-else>

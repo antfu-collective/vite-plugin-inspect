@@ -57,7 +57,7 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
   </NavBar>
   <Container
     v-if="data && data.transforms"
-    class="grid grid-cols-[300px,3fr] overflow-hidden"
+    class="grid grid-cols-[300px_3fr] overflow-hidden"
   >
     <div class="flex flex-col border-r border-main">
       <div
