@@ -6,7 +6,7 @@ import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { parseQuery, parseURL } from 'ufo'
 import { createFilter } from '@rollup/pluginutils'
-import type { ModuleInfo, PluginInfo, TransformInfo } from '../types'
+import type { ModuleInfo, PluginMetricInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
@@ -188,21 +188,25 @@ function PluginInspect(options: Options = {}): Plugin {
         res.write(JSON.stringify({ id: resolveId(id) }, null, 2))
         res.end()
       }
-      else if (pathname === '/plugin') {
-        const plugins: Record<string, PluginInfo> = {
-          [dummyLoadPluginName]: { name: dummyLoadPluginName, latency: 0 },
-        }
-        Object.values(config.plugins).forEach(({ name }) => {
-          plugins[name] = { name, latency: 0 }
-        })
+      else if (pathname === '/plugins-metric') {
+        const map: Record<string, PluginMetricInfo> = {}
 
-        Object.values(transformMap).forEach((transformInfos) => {
-          transformInfos.forEach(({ name, start, end }) => {
-            plugins[name].latency += end - start
+        Object.values(transformMap)
+          .forEach((transformInfos) => {
+            transformInfos.forEach(({ name, start, end }) => {
+              if (name === dummyLoadPluginName)
+                return
+              const plugin = config.plugins.find(i => i.name === name)
+              if (!map[name])
+                map[name] = { name, latency: 0, invokeCount: 0, enforce: plugin?.enforce }
+              map[name].latency += end - start
+              map[name].invokeCount += 1
+            })
           })
-        })
 
-        res.write(JSON.stringify({ plugins: Object.values(plugins) }, null, 2))
+        const metrics = Object.values(map).filter(Boolean).sort((a, b) => b.latency - a.latency)
+
+        res.write(JSON.stringify({ metrics }, null, 2))
         res.end()
       }
       else if (pathname === '/clear') {

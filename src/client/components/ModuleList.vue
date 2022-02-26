@@ -26,10 +26,12 @@ defineProps<{
       :to="`/module?id=${encodeURIComponent(m.id)}`"
     >
       <ModuleId :id="m.id" />
-      <div v-if="listMode === 'detailed'" class="text-xs">
+      <div v-if="listMode === 'detailed'" class="text-xs opacity-50">
         <template v-for="i, idx in m.plugins.slice(1)" :key="i">
-          <span v-if="idx !== 0">|</span>
-          <span class="mx-0.5 text-gray-400">{{ i }}</span>
+          <span v-if="idx !== 0" class="opacity-20">|</span>
+          <span class="mx-0.5">
+            <PluginName :name="i" :hide="true" />
+          </span>
         </template>
       </div>
     </RouterLink>

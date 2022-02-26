@@ -71,7 +71,9 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
           :class="currentIndex === idx ? 'bg-main bg-opacity-10' : ''"
           @click="index = idx.toString()"
         >
-          <span :class="currentIndex === idx ? 'font-bold' : ''">{{ tr.name }}</span>
+          <span :class="currentIndex === idx ? 'font-bold' : ''">
+            <PluginName :name="tr.name" />
+          </span>
           <span class="ml-2 text-xs opacity-50">{{ msToTime(tr.end - tr.start) }}</span>
           <Badge
             v-if="tr.result === data.transforms[idx - 1]?.result"

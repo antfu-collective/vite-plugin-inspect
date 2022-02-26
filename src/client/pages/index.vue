@@ -11,11 +11,12 @@ onMounted(() => {
 <template>
   <NavBar>
     <span class="text-md">Vite Inspect</span>
-    <router-link to="/plugin">
-      Plugins
-    </router-link>
+
     <SearchBox />
     <div class="flex-auto" />
+    <router-link class="icon-btn text-lg" to="/plugins-metric">
+      <carbon:timer />
+    </router-link>
     <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
       <carbon:list-boxes v-if="listMode === 'detailed'" />
       <carbon:list v-else-if="listMode === 'list'" />
