@@ -39,10 +39,10 @@ onRefetch.on(async() => {
     <div class="mb-4 grid grid-cols-[1fr,max-content,max-content,max-content,max-content,max-content,1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
       <div />
       <div class="font-bold text-xs">
-        Plugin Name
+        Name
       </div>
       <div class="font-bold text-xs text-center">
-        Enforce
+        Type
       </div>
       <div class="font-bold text-xs text-right">
         Passes
@@ -56,7 +56,7 @@ onRefetch.on(async() => {
       </div>
       <div />
 
-      <template v-for="{ name, latency, invokeCount, enforce } in plugins" :key="name">
+      <template v-for="{ name, totalTime, invokeCount, enforce } in plugins" :key="name">
         <div />
         <div>
           <PluginName :name="name" />
@@ -65,20 +65,36 @@ onRefetch.on(async() => {
           <Badge
             v-if="enforce"
             class="m-auto text-base"
-            :class="[enforce === 'post' ? 'bg-purple-400/10 text-purple-400': 'bg-green-400/10 text-green-400']"
+            :class="[enforce === 'post' ? 'bg-purple-500/10 text-purple-500': 'bg-green-500/10 text-green-500']"
           >
             {{ enforce }}
           </Badge>
+          <Badge v-else-if="name.startsWith('vite:')" class="opacity-80 m-auto text-base bg-yellow-500/10 text-yellow-500">
+            core
+          </Badge>
         </div>
-        <div class="text-right">
-          {{ invokeCount }}
-        </div>
-        <div class="text-right" :class="getLatencyColor(latency / invokeCount)">
-          {{ +(latency / invokeCount).toFixed(1) }} ms
-        </div>
-        <div class="text-right" :class="getLatencyColor(latency / invokeCount)">
-          {{ latency }} ms
-        </div>
+        <template v-if="invokeCount">
+          <div class="text-right">
+            {{ invokeCount }}
+          </div>
+          <div class="text-right" :class="getLatencyColor(totalTime / invokeCount)">
+            {{ +(totalTime / invokeCount).toFixed(1) }} ms
+          </div>
+          <div class="text-right" :class="getLatencyColor(totalTime / invokeCount)">
+            {{ totalTime }} ms
+          </div>
+        </template>
+        <template v-else>
+          <div class="text-right">
+            -
+          </div>
+          <div class="text-right">
+            -
+          </div>
+          <div class="text-right">
+            -
+          </div>
+        </template>
         <div />
       </template>
     </div>

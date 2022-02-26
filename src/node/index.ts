@@ -191,20 +191,31 @@ function PluginInspect(options: Options = {}): Plugin {
       else if (pathname === '/plugins-metric') {
         const map: Record<string, PluginMetricInfo> = {}
 
+        config.plugins.forEach((i) => {
+          map[i.name] = {
+            name: i.name,
+            enforce: i.enforce,
+            invokeCount: 0,
+            totalTime: 0,
+          }
+        })
+
         Object.values(transformMap)
           .forEach((transformInfos) => {
             transformInfos.forEach(({ name, start, end }) => {
               if (name === dummyLoadPluginName)
                 return
-              const plugin = config.plugins.find(i => i.name === name)
               if (!map[name])
-                map[name] = { name, latency: 0, invokeCount: 0, enforce: plugin?.enforce }
-              map[name].latency += end - start
+                map[name] = { name, totalTime: 0, invokeCount: 0 }
+              map[name].totalTime += end - start
               map[name].invokeCount += 1
             })
           })
 
-        const metrics = Object.values(map).filter(Boolean).sort((a, b) => b.latency - a.latency)
+        const metrics = Object.values(map).filter(Boolean)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => b.invokeCount - a.invokeCount)
+          .sort((a, b) => b.totalTime - a.totalTime)
 
         res.write(JSON.stringify({ metrics }, null, 2))
         res.end()

@@ -19,7 +19,7 @@ export interface ModulesList {
 
 export interface PluginMetricInfo {
   name: string
-  latency: number
+  totalTime: number
   invokeCount: number
   enforce?: string
 }
