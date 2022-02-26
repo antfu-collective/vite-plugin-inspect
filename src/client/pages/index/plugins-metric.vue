@@ -36,23 +36,28 @@ onRefetch.on(async() => {
     <div class="flex-auto" />
   </NavBar>
   <Container v-if="data" class="overflow-auto">
-    <div class="mb-4 grid grid-cols-5 border-main border-t whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
-      <div class="font-bold">
+    <div class="mb-4 grid grid-cols-[1fr,max-content,max-content,max-content,max-content,max-content,1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
+      <div />
+      <div class="font-bold text-xs">
         Plugin Name
       </div>
-      <div class="font-bold text-center">
+      <div class="font-bold text-xs text-center">
         Enforce
       </div>
-      <div class="font-bold text-center">
-        Transform Counts
+      <div class="font-bold text-xs text-right">
+        Passes
       </div>
-      <div class="font-bold text-right">
-        Total Time
-      </div>
-      <div class="font-bold text-right">
+
+      <div class="font-bold text-xs text-right">
         Average Time
       </div>
+      <div class="font-bold text-xs text-right">
+        Total Time
+      </div>
+      <div />
+
       <template v-for="{ name, latency, invokeCount, enforce } in plugins" :key="name">
+        <div />
         <div>
           <PluginName :name="name" />
         </div>
@@ -65,15 +70,16 @@ onRefetch.on(async() => {
             {{ enforce }}
           </Badge>
         </div>
-        <div class="text-center">
+        <div class="text-right">
           {{ invokeCount }}
-        </div>
-        <div class="text-right" :class="getLatencyColor(latency / invokeCount)">
-          {{ latency }} ms
         </div>
         <div class="text-right" :class="getLatencyColor(latency / invokeCount)">
           {{ +(latency / invokeCount).toFixed(1) }} ms
         </div>
+        <div class="text-right" :class="getLatencyColor(latency / invokeCount)">
+          {{ latency }} ms
+        </div>
+        <div />
       </template>
     </div>
   </Container>
