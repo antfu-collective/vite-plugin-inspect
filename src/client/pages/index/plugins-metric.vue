@@ -39,7 +39,7 @@ onRefetch.on(async() => {
     <div class="mb-4 grid grid-cols-[1fr,max-content,max-content,max-content,max-content,max-content,1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
       <div />
       <div class="font-bold text-xs">
-        Name
+        Name ({{ plugins.length }})
       </div>
       <div class="font-bold text-xs text-center">
         Type
