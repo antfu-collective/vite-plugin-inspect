@@ -4,9 +4,9 @@ import _debug from 'debug'
 import { yellow } from 'kolorist'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
-import { parseQuery, parseURL } from 'ufo'
 import { createFilter } from '@rollup/pluginutils'
-import type { ModuleInfo, PluginMetricInfo, TransformInfo } from '../types'
+import { createRPCServer } from 'vite-dev-rpc'
+import type { ModuleInfo, PRCFunctions, PluginMetricInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
@@ -132,7 +132,6 @@ function PluginInspect(options: Options = {}): Plugin {
 
   function getIdInfo(id: string) {
     const resolvedId = resolveId(id)
-
     return {
       resolvedId,
       transforms: transformMap[resolvedId] || [],
@@ -153,84 +152,76 @@ function PluginInspect(options: Options = {}): Plugin {
       dev: true,
     }))
 
-    server.middlewares.use('/__inspect_api', (req, res) => {
-      const { pathname, search } = parseURL(req.url)
+    createRPCServer<PRCFunctions>('vite-plugin-inspect', server.ws, {
+      list,
+      getIdInfo,
+      getPluginMetics,
+      resolveId,
+      clear,
+    })
 
-      if (pathname === '/list') {
-        const modules = Object.keys(transformMap).sort()
-          .map((id): ModuleInfo => {
-            const plugins = transformMap[id]?.map(i => i.name)
-            const deps = Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
-              .map(i => i.id || '')
-              .filter(Boolean)
-
-            return {
-              id,
-              plugins,
-              deps,
-              virtual: plugins[0] !== '__load__',
-            }
-          })
-
-        res.write(JSON.stringify({
-          root: config.root,
-          modules,
-        }, null, 2))
-        res.end()
-      }
-      else if (pathname === '/module') {
-        const id = parseQuery(search).id as string
-        res.write(JSON.stringify(getIdInfo(id), null, 2))
-        res.end()
-      }
-      else if (pathname === '/resolve') {
-        const id = parseQuery(search).id as string
-        res.write(JSON.stringify({ id: resolveId(id) }, null, 2))
-        res.end()
-      }
-      else if (pathname === '/plugins-metric') {
-        const map: Record<string, PluginMetricInfo> = {}
-
-        config.plugins.forEach((i) => {
-          map[i.name] = {
-            name: i.name,
-            enforce: i.enforce,
-            invokeCount: 0,
-            totalTime: 0,
+    function list() {
+      const modules = Object.keys(transformMap).sort()
+        .map((id): ModuleInfo => {
+          const plugins = transformMap[id]?.map(i => i.name)
+          const deps = Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
+            .map(i => i.id || '')
+            .filter(Boolean)
+          return {
+            id,
+            plugins,
+            deps,
+            virtual: plugins[0] !== '__load__',
           }
         })
 
-        Object.values(transformMap)
-          .forEach((transformInfos) => {
-            transformInfos.forEach(({ name, start, end }) => {
-              if (name === dummyLoadPluginName)
-                return
-              if (!map[name])
-                map[name] = { name, totalTime: 0, invokeCount: 0 }
-              map[name].totalTime += end - start
-              map[name].invokeCount += 1
-            })
-          })
-
-        const metrics = Object.values(map).filter(Boolean)
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .sort((a, b) => b.invokeCount - a.invokeCount)
-          .sort((a, b) => b.totalTime - a.totalTime)
-
-        res.write(JSON.stringify({ metrics }, null, 2))
-        res.end()
+      return {
+        root: config.root,
+        modules,
       }
-      else if (pathname === '/clear') {
-        const id = resolveId(parseQuery(search).id as string)
-        if (id) {
-          const mod = server.moduleGraph.getModuleById(id)
-          if (mod)
-            server.moduleGraph.invalidateModule(mod)
-          delete transformMap[id]
+    }
+
+    function getPluginMetics() {
+      const map: Record<string, PluginMetricInfo> = {}
+
+      config.plugins.forEach((i) => {
+        map[i.name] = {
+          name: i.name,
+          enforce: i.enforce,
+          invokeCount: 0,
+          totalTime: 0,
         }
-        res.end()
+      })
+
+      Object.values(transformMap)
+        .forEach((transformInfos) => {
+          transformInfos.forEach(({ name, start, end }) => {
+            if (name === dummyLoadPluginName)
+              return
+            if (!map[name])
+              map[name] = { name, totalTime: 0, invokeCount: 0 }
+            map[name].totalTime += end - start
+            map[name].invokeCount += 1
+          })
+        })
+
+      const metrics = Object.values(map).filter(Boolean)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .sort((a, b) => b.invokeCount - a.invokeCount)
+        .sort((a, b) => b.totalTime - a.totalTime)
+
+      return metrics
+    }
+
+    function clear(_id?: string) {
+      const id = resolveId(_id)
+      if (id) {
+        const mod = server.moduleGraph.getModuleById(id)
+        if (mod)
+          server.moduleGraph.invalidateModule(mod)
+        delete transformMap[id]
       }
-    })
+    }
 
     server.httpServer?.once('listening', () => {
       const protocol = config.server.https ? 'https' : 'http'

@@ -7,8 +7,6 @@ import IconsResolver from 'unplugin-icons/resolver'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Unocss from 'unocss/vite'
-import OptimizationPersist from 'vite-plugin-optimize-persist'
-import PkgConfig from 'vite-plugin-package-config'
 import Inspect from '../node'
 
 export default defineConfig({
@@ -38,13 +36,7 @@ export default defineConfig({
     }),
     Icons(),
     Unocss(),
-    Inspect({
-      // include: /\.vue$/,
-    }),
-    PkgConfig({
-      packageJsonPath: 'vite.config.json',
-    }),
-    OptimizationPersist(),
+    Inspect(),
     AutoImport({
       dts: join(__dirname, 'auto-imports.d.ts'),
       imports: [
@@ -55,26 +47,10 @@ export default defineConfig({
     }),
   ],
 
-  server: {
-    fs: {
-      strict: true,
-    },
-  },
-
   build: {
+    target: 'esnext',
     outDir: resolve(__dirname, '../../dist/client'),
     minify: true,
     emptyOutDir: true,
-  },
-
-  optimizeDeps: {
-    include: [
-      'vue',
-      'vue-router',
-      '@vueuse/core',
-    ],
-    exclude: [
-      'vue-demi',
-    ],
   },
 })

@@ -45,11 +45,16 @@ onMounted(() => {
       class="bg-white dark:bg-[#111] border-main border-l h-full overflow-hidden shadow-lg transition-transform transform duration-300"
       :class="isRoot ? 'translate-x-1/2' : 'translate-x-0'"
     >
-      <router-view v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </router-view>
+      <Suspense>
+        <router-view v-slot="{ Component }">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </router-view>
+        <template #fallback>
+          Loading...
+        </template>
+      </Suspense>
     </div>
   </div>
 </template>

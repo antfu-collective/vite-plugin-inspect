@@ -3,35 +3,32 @@ import type { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { msToTime } from '../../logic/utils'
 import { enableDiff, lineWrapping, onRefetch } from '../../logic'
+import { rpc } from '../../logic/rpc'
 
 const route = useRoute()
 const id = computed(() => route?.query.id as string)
 
-const { data, execute } = useFetch(computed(() => `/__inspect_api/module?id=${encodeURIComponent(id.value)}`), { immediate: false })
-  .get()
-  .json<{ resolvedId: string; transforms: { name: string; end: number; start: number; result: string }[] }>()
-
+const data = ref(await rpc.getIdInfo(id.value))
 const index = useRouteQuery('index') as Ref<string>
 const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
 
 async function refetch() {
-  const { id: resolved } = await fetch(`/__inspect_api/resolve?id=${id.value}`).then(r => r.json())
+  let resolved = await rpc.resolveId(id.value)
   if (resolved) {
     // revaluate the module (if it's not initialized by the module graph)
-    let resolvedId = resolved.value
-    if (resolvedId && resolvedId.startsWith('file:///'))
-      resolvedId = `/@fs/${resolvedId.slice(8)}`
+    if (resolved)
+      resolved = `/@fs/${resolved.slice(8)}`
 
     try {
-      await fetch(resolvedId)
+      await fetch(resolved)
     }
     catch (_) {}
   }
-  await execute()
+  data.value = await rpc.getIdInfo(id.value)
 }
 
 onRefetch.on(async() => {
-  await fetch(`/__inspect_api/clear?id=${id.value}`)
+  await rpc.clear(id.value)
   await refetch()
 })
 
