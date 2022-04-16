@@ -14,6 +14,8 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 npm i -D vite-plugin-inspect
 ```
 
+> Since `vite-plugin-inspect@v0.5.0`, Vite v2.9 or above is required.
+
 Add plugin to your `vite.config.ts`:
 
 ```ts
@@ -22,8 +24,8 @@ import Inspect from 'vite-plugin-inspect'
 
 export default {
   plugins: [
-    Inspect() // only applies in dev mode
-  ]
+    Inspect(), // only applies in dev mode
+  ],
 }
 ```
 

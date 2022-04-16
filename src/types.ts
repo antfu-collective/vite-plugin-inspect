@@ -23,3 +23,14 @@ export interface PluginMetricInfo {
   invokeCount: number
   enforce?: string
 }
+
+export interface PRCFunctions {
+  list(): ModulesList
+  getIdInfo(id: string): {
+    resolvedId: string
+    transforms: TransformInfo[]
+  }
+  resolveId(id: string): string
+  getPluginMetics(): PluginMetricInfo[]
+  clear(id: string): void
+}

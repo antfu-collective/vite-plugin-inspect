@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import type { PluginMetricInfo } from '../../../types'
 import { onRefetch } from '../../logic'
+import { rpc } from '../../logic/rpc'
 
-const { data, execute } = useFetch(computed(() => '/__inspect_api/plugins-metric'), { immediate: true })
-  .get()
-  .json<{ metrics: PluginMetricInfo[] }>()
+const data = ref(await rpc.getPluginMetics())
 
 const plugins = computed(
-  () => data.value?.metrics ?? [],
+  () => data.value || [],
 )
 
 function getLatencyColor(latency: number) {
@@ -21,7 +19,7 @@ function getLatencyColor(latency: number) {
 }
 
 onRefetch.on(async() => {
-  await execute()
+  data.value = await rpc.getPluginMetics()
 })
 </script>
 

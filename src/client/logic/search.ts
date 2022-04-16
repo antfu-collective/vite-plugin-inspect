@@ -8,7 +8,7 @@ export const includeNodeModules = useStorage('vite-inspect-include-node-modules'
 export const includeVirtual = useStorage('vite-inspect-include-virtual', false)
 
 export const searchResults = computed(() => {
-  let data = list.data?.modules || []
+  let data = list.value?.modules || []
 
   if (!includeNodeModules.value)
     data = data.filter(item => !item.id.includes('/node_modules/'))
