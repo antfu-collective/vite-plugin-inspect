@@ -6,7 +6,7 @@ import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
-import type { ModuleInfo, PRCFunctions, PluginMetricInfo, TransformInfo } from '../types'
+import type { ModuleInfo, RPCFunctions, PluginMetricInfo, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
@@ -152,7 +152,7 @@ function PluginInspect(options: Options = {}): Plugin {
       dev: true,
     }))
 
-    createRPCServer<PRCFunctions>('vite-plugin-inspect', server.ws, {
+    createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, {
       list,
       getIdInfo,
       getPluginMetics,
