@@ -1,5 +1,5 @@
 import { createRPCClient } from 'vite-dev-rpc'
 import { hot } from 'vite-hot-client'
-import type { PRCFunctions } from '../../types'
+import type { RPCFunctions } from '../../types'
 
-export const rpc = createRPCClient<PRCFunctions>('vite-plugin-inspect', hot as any)
+export const rpc = createRPCClient<RPCFunctions>('vite-plugin-inspect', hot as any)

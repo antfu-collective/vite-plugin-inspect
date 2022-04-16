@@ -24,7 +24,7 @@ export interface PluginMetricInfo {
   enforce?: string
 }
 
-export interface PRCFunctions {
+export interface RPCFunctions {
   list(): ModulesList
   getIdInfo(id: string): {
     resolvedId: string
