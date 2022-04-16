@@ -9,13 +9,16 @@
   "bugs": {
     "url": "https://github.com/antfu/vite-plugin-inspect/issues"
   },
+  "license": "MIT",
+  "author": "Anthony Fu <anthonyfu117@hotmail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/antfu/vite-plugin-inspect.git"
   },
   "funding": "https://github.com/sponsors/antfu",
-  "license": "MIT",
-  "author": "Anthony Fu <anthonyfu117@hotmail.com>",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/index.cjs",
@@ -24,9 +27,6 @@
     },
     "./*": "./*"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
   "files": [
     "dist",
     "*.d.ts"
@@ -38,10 +38,12 @@
     "dev": "nr stub && vite src/client",
     "dev:client": "vite build src/client --watch",
     "stub": "unbuild --stub",
-    "lint": "eslint \"{src,test}/**/*.{vue,ts}\"",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "eslint .",
     "prepublishOnly": "npm run build",
     "release": "bumpp --commit --push --tag && npm publish"
+  },
+  "peerDependencies": {
+    "vite": "^2.9.0"
   },
   "dependencies": {
     "@rollup/pluginutils": "^4.2.1",
@@ -89,9 +91,6 @@
     "vite-plugin-pages": "^0.22.0",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14"
-  },
-  "peerDependencies": {
-    "vite": "^2.9.0"
   },
   "engines": {
     "node": ">=14"
