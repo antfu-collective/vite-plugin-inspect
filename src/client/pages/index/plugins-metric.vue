@@ -59,7 +59,7 @@ onRefetch.on(async() => {
         <div>
           <PluginName :name="name" />
         </div>
-        <div class="text-center p0!">
+        <div class="text-center p0! flex items-center">
           <Badge
             v-if="enforce"
             class="m-auto text-sm"
