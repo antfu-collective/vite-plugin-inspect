@@ -4,6 +4,7 @@ import _debug from 'debug'
 import { bold, green } from 'kolorist'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
+import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
 import type { ModuleInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
@@ -13,8 +14,6 @@ const debug = _debug('vite-plugin-inspect')
 const _dirname = typeof __dirname !== 'undefined'
   ? __dirname
   : dirname(fileURLToPath(import.meta.url))
-
-export type FilterPattern = ReadonlyArray<string | RegExp> | string | RegExp | null
 
 // initial tranform (load from fs)
 const dummyLoadPluginName = '__load__'
@@ -37,7 +36,7 @@ export interface Options {
   exclude?: FilterPattern
 }
 
-function PluginInspect(options: Options = {}): Plugin {
+export default function PluginInspect(options: Options = {}): Plugin {
   const {
     enabled = true,
   } = options
@@ -138,6 +137,38 @@ function PluginInspect(options: Options = {}): Plugin {
     }
   }
 
+  function getPluginMetics() {
+    const map: Record<string, PluginMetricInfo> = {}
+
+    config.plugins.forEach((i) => {
+      map[i.name] = {
+        name: i.name,
+        enforce: i.enforce,
+        invokeCount: 0,
+        totalTime: 0,
+      }
+    })
+
+    Object.values(transformMap)
+      .forEach((transformInfos) => {
+        transformInfos.forEach(({ name, start, end }) => {
+          if (name === dummyLoadPluginName)
+            return
+          if (!map[name])
+            map[name] = { name, totalTime: 0, invokeCount: 0 }
+          map[name].totalTime += end - start
+          map[name].invokeCount += 1
+        })
+      })
+
+    const metrics = Object.values(map).filter(Boolean)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => b.invokeCount - a.invokeCount)
+      .sort((a, b) => b.totalTime - a.totalTime)
+
+    return metrics
+  }
+
   function configureServer(server: ViteDevServer) {
     const _invalidateModule = server.moduleGraph.invalidateModule
     server.moduleGraph.invalidateModule = function (...args) {
@@ -181,38 +212,6 @@ function PluginInspect(options: Options = {}): Plugin {
       }
     }
 
-    function getPluginMetics() {
-      const map: Record<string, PluginMetricInfo> = {}
-
-      config.plugins.forEach((i) => {
-        map[i.name] = {
-          name: i.name,
-          enforce: i.enforce,
-          invokeCount: 0,
-          totalTime: 0,
-        }
-      })
-
-      Object.values(transformMap)
-        .forEach((transformInfos) => {
-          transformInfos.forEach(({ name, start, end }) => {
-            if (name === dummyLoadPluginName)
-              return
-            if (!map[name])
-              map[name] = { name, totalTime: 0, invokeCount: 0 }
-            map[name].totalTime += end - start
-            map[name].invokeCount += 1
-          })
-        })
-
-      const metrics = Object.values(map).filter(Boolean)
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .sort((a, b) => b.invokeCount - a.invokeCount)
-        .sort((a, b) => b.totalTime - a.totalTime)
-
-      return metrics
-    }
-
     function clear(_id?: string) {
       const id = resolveId(_id)
       if (id) {
@@ -243,5 +242,3 @@ function PluginInspect(options: Options = {}): Plugin {
     configureServer,
   }
 }
-
-export default PluginInspect
