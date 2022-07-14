@@ -27,7 +27,7 @@ async function refetch() {
   data.value = await rpc.getIdInfo(id.value)
 }
 
-onRefetch.on(async() => {
+onRefetch.on(async () => {
   await rpc.clear(id.value)
   await refetch()
 })

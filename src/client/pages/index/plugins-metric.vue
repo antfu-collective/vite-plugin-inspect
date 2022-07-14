@@ -18,7 +18,7 @@ function getLatencyColor(latency: number) {
   return ''
 }
 
-onRefetch.on(async() => {
+onRefetch.on(async () => {
   data.value = await rpc.getPluginMetics()
 })
 </script>
@@ -63,7 +63,7 @@ onRefetch.on(async() => {
           <Badge
             v-if="enforce"
             class="m-auto text-sm"
-            :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5': 'bg-green5/10 text-green5']"
+            :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5' : 'bg-green5/10 text-green5']"
           >
             {{ enforce }}
           </Badge>

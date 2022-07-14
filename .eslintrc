@@ -1,7 +1,6 @@
 {
-  "extends": ["@antfu"],
+  "extends": "@antfu",
   "rules": {
-    "no-undef": "off",
-    "import/named": "off"
+    "vue/no-v-text-v-html-on-component": "off"
   }
 }

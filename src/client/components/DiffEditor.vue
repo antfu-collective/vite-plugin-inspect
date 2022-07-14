@@ -3,7 +3,7 @@ import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
 import { useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 import { enableDiff, lineWrapping } from '../logic/state'
-import { calucateDiffWithWorker } from '../worker/diff'
+import { calculateDiffWithWorker } from '../worker/diff'
 
 const props = defineProps<{ from: string; to: string }>()
 const { from, to } = toRefs(props)
@@ -39,7 +39,7 @@ onMounted(() => {
     cm2.setOption('lineWrapping', lineWrapping.value)
   })
 
-  watchEffect(async() => {
+  watchEffect(async () => {
     const l = from.value
     const r = to.value
     const showDiff = enableDiff.value
@@ -63,7 +63,7 @@ onMounted(() => {
       .map((_, i) => cm2.removeLineClass(i, 'background', 'diff-added'))
 
     if (showDiff) {
-      const changes = await calucateDiffWithWorker(l, r)
+      const changes = await calculateDiffWithWorker(l, r)
 
       const addedLines = new Set()
       const removedLines = new Set()

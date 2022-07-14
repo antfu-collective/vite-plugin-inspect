@@ -4,7 +4,7 @@ import { list, root } from '../logic'
 
 const props = defineProps<{ id?: string }>()
 
-const isVirtual = computed(() => list.data?.modules.find(i => i.id === props.id)?.virtual)
+const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id)?.virtual)
 </script>
 
 <template>

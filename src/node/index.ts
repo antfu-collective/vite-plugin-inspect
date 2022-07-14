@@ -1,12 +1,12 @@
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 import _debug from 'debug'
-import { bold, green, yellow } from 'kolorist'
+import { bold, green } from 'kolorist'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
-import type { ModuleInfo, RPCFunctions, PluginMetricInfo, TransformInfo } from '../types'
+import type { ModuleInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
@@ -59,7 +59,7 @@ function PluginInspect(options: Options = {}): Plugin {
     if (plugin.transform) {
       debug('hijack plugin transform', plugin.name)
       const _transform = plugin.transform
-      plugin.transform = async function(...args) {
+      plugin.transform = async function (...args) {
         const code = args[0]
         const id = args[1]
         const start = Date.now()
@@ -86,7 +86,7 @@ function PluginInspect(options: Options = {}): Plugin {
     if (plugin.load) {
       debug('hijack plugin load', plugin.name)
       const _load = plugin.load
-      plugin.load = async function(...args) {
+      plugin.load = async function (...args) {
         const id = args[0]
         const start = Date.now()
         const _result = await _load.apply(this, args)
@@ -104,7 +104,7 @@ function PluginInspect(options: Options = {}): Plugin {
     if (plugin.resolveId) {
       debug('hijack plugin resolveId', plugin.name)
       const _resolveId = plugin.resolveId
-      plugin.resolveId = async function(...args) {
+      plugin.resolveId = async function (...args) {
         const id = args[0]
         const _result = await _resolveId.apply(this, args)
 
@@ -140,7 +140,7 @@ function PluginInspect(options: Options = {}): Plugin {
 
   function configureServer(server: ViteDevServer) {
     const _invalidateModule = server.moduleGraph.invalidateModule
-    server.moduleGraph.invalidateModule = function(...args) {
+    server.moduleGraph.invalidateModule = function (...args) {
       const mod = args[0]
       if (mod?.id)
         delete transformMap[mod.id]
@@ -223,14 +223,14 @@ function PluginInspect(options: Options = {}): Plugin {
       }
     }
 
-    server.httpServer?.once('listening', () => {
-      const protocol = config.server.https ? 'https' : 'http'
-      const port = config.server.port || ''
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(`  ${green('➜')}  ${bold('Inspect')}: ${yellow(`${protocol}://localhost:${bold(port)}/__inspect/`)}\n`)
-      }, 0)
-    })
+    const _print = server.printUrls
+    server.printUrls = () => {
+      const colorUrl = (url: string) => green(url.replace(/:(\d+)\//, (_, port) => `:${bold(port)}/`))
+      const host = server.resolvedUrls?.local[0] || `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}/`
+      _print()
+      // eslint-disable-next-line no-console
+      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}__inspect/`)}\n`)
+    }
   }
 
   return <Plugin>{

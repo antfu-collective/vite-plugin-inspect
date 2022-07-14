@@ -3,6 +3,8 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 import '@vue/runtime-core'
 
+export {}
+
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Badge: typeof import('./components/Badge.vue')['default']
@@ -30,5 +32,3 @@ declare module '@vue/runtime-core' {
     SearchBox: typeof import('./components/SearchBox.vue')['default']
   }
 }
-
-export {}

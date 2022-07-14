@@ -47,6 +47,12 @@ export default defineConfig({
     }),
   ],
 
+  optimizeDeps: {
+    exclude: [
+      'vite-hot-client',
+    ],
+  },
+
   build: {
     target: 'esnext',
     outDir: resolve(__dirname, '../../dist/client'),
