@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 import _debug from 'debug'
-import { yellow } from 'kolorist'
+import { bold, green, yellow } from 'kolorist'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { createFilter } from '@rollup/pluginutils'
@@ -225,10 +225,10 @@ function PluginInspect(options: Options = {}): Plugin {
 
     server.httpServer?.once('listening', () => {
       const protocol = config.server.https ? 'https' : 'http'
-      const port = config.server.port
+      const port = config.server.port || ''
       setTimeout(() => {
         // eslint-disable-next-line no-console
-        console.log(`  > Inspect: ${yellow(`${protocol}://localhost:${port}/__inspect/`)}\n`)
+        console.log(`  ${green('➜')}  ${bold('Inspect')}: ${yellow(`${protocol}://localhost:${bold(port)}/__inspect/`)}\n`)
       }, 0)
     })
   }
