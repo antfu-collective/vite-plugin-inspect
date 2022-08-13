@@ -2,33 +2,35 @@
 import type { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { msToTime } from '../../logic/utils'
-import { enableDiff, lineWrapping, onRefetch } from '../../logic'
+import { enableDiff, lineWrapping, onRefetch, ssr } from '../../logic'
 import { rpc } from '../../logic/rpc'
 
 const route = useRoute()
 const id = computed(() => route?.query.id as string)
 
-const data = ref(await rpc.getIdInfo(id.value))
+const data = ref(await rpc.getIdInfo(id.value, ssr.value))
 const index = useRouteQuery('index') as Ref<string>
 const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
 
 async function refetch() {
-  let resolved = await rpc.resolveId(id.value)
-  if (resolved) {
+  let resolved = await rpc.resolveId(id.value, ssr.value)
+  if (resolved && !ssr.value) {
     // revaluate the module (if it's not initialized by the module graph)
-    if (resolved)
-      resolved = `/@fs/${resolved.slice(8)}`
+    if (resolved) resolved = `/@fs/${resolved}`
 
     try {
       await fetch(resolved)
-    }
-    catch (_) {}
+    } catch (_) {}
+  } else {
+    try {
+      await rpc.preloadSSRModule(resolved)
+    } catch (_) {}
   }
-  data.value = await rpc.getIdInfo(id.value)
+  data.value = await rpc.getIdInfo(id.value, ssr.value)
 }
 
 onRefetch.on(async () => {
-  await rpc.clear(id.value)
+  await rpc.clear(id.value, ssr.value)
   await refetch()
 })
 
@@ -52,17 +54,12 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
       <carbon:compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
     </button>
   </NavBar>
-  <Container
-    v-if="data && data.transforms"
-    class="grid grid-cols-[300px_3fr] overflow-hidden"
-  >
+  <Container v-if="data && data.transforms" class="grid grid-cols-[300px_3fr] overflow-hidden">
     <div class="flex flex-col border-r border-main">
-      <div
-        class="border-b border-main px-3 py-2 text-center text-sm tracking-widest text-gray-400"
-      >
+      <div class="border-b border-main px-3 py-2 text-center text-sm tracking-widest text-gray-400">
         TRANSFORM STACK
       </div>
-      <template v-for="tr, idx of data.transforms" :key="tr.name">
+      <template v-for="(tr, idx) of data.transforms" :key="tr.name">
         <button
           class="block border-b border-main px-3 py-2 text-left font-mono text-sm !outline-none"
           :class="currentIndex === idx ? 'bg-main bg-opacity-10' : ''"
@@ -77,7 +74,11 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
             class="bg-orange-400/10 text-orange-400"
             v-text="'no change'"
           />
-          <Badge v-if="idx === 0" class="bg-light-blue-400/10 text-light-blue-400" v-text="'load'" />
+          <Badge
+            v-if="idx === 0"
+            class="bg-light-blue-400/10 text-light-blue-400"
+            v-text="'load'"
+          />
         </button>
       </template>
     </div>

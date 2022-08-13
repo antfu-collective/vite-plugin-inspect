@@ -10,11 +10,12 @@ export interface ModuleInfo {
   plugins: string[]
   deps: string[]
   virtual: boolean
+  ssr: boolean
 }
 
 export interface ModulesList {
   root: string
-  modules: ModuleInfo[]
+  modules: { client: ModuleInfo; ssr: ModuleInfo }[]
 }
 
 export interface PluginMetricInfo {
@@ -25,12 +26,16 @@ export interface PluginMetricInfo {
 }
 
 export interface RPCFunctions {
-  list(): ModulesList
-  getIdInfo(id: string): {
+  list(ssr?: boolean): ModulesList
+  getIdInfo(
+    id: string,
+    ssr?: boolean
+  ): {
     resolvedId: string
     transforms: TransformInfo[]
   }
-  resolveId(id: string): string
-  getPluginMetics(): PluginMetricInfo[]
-  clear(id: string): void
+  resolveId(id: string, ssr?: boolean): string
+  getPluginMetics(ssr?: boolean): PluginMetricInfo[]
+  preloadSSRModule(id: string): void
+  clear(id: string, ssr?: boolean): void
 }

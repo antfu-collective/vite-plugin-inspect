@@ -6,14 +6,11 @@ export const onRefetch = createEventHook<void>()
 export const enableDiff = useStorage('vite-inspect-diff', true)
 export const listMode = useStorage<'graph' | 'list' | 'detailed'>('vite-inspect-mode', 'detailed')
 export const lineWrapping = useStorage('vite-inspect-line-wrapping', false)
+export const ssr = useStorage('vite-inspect-ssr', true)
 
 export const list = ref(await rpc.list())
 
-const modes = [
-  'detailed',
-  'graph',
-  'list',
-] as const
+const modes = ['detailed', 'graph', 'list'] as const
 
 export function toggleMode() {
   listMode.value = modes[(modes.indexOf(listMode.value) + 1) % modes.length]
