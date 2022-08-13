@@ -14,8 +14,14 @@ function getLatencyColor(latency: number) {
 }
 
 onRefetch.on(async () => {
-  data.value = await rpc.getPluginMetics(ssr.value)
+  await refetch()
 })
+
+async function refetch() {
+  data.value = await rpc.getPluginMetics(ssr.value)
+}
+
+watch(ssr, refetch, { immediate: true })
 </script>
 
 <template>

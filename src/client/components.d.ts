@@ -22,6 +22,8 @@ declare module '@vue/runtime-core' {
     CarbonSun: typeof import('~icons/carbon/sun')['default']
     Container: typeof import('./components/Container.vue')['default']
     DiffEditor: typeof import('./components/DiffEditor.vue')['default']
+    EntypoBrowser: typeof import('~icons/entypo/browser')['default']
+    'FaSolid:server': typeof import('~icons/fa-solid/server')['default']
     Graph: typeof import('./components/Graph.vue')['default']
     ModuleId: typeof import('./components/ModuleId.vue')['default']
     ModuleList: typeof import('./components/ModuleList.vue')['default']
