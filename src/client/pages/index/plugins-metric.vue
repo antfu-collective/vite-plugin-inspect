@@ -1,25 +1,20 @@
 <script setup lang="ts">
-import { onRefetch } from '../../logic'
+import { onRefetch, ssr } from '../../logic'
 import { rpc } from '../../logic/rpc'
 
-const data = ref(await rpc.getPluginMetics())
+const data = ref(await rpc.getPluginMetics(ssr.value))
 
-const plugins = computed(
-  () => data.value || [],
-)
+const plugins = computed(() => data.value || [])
 
 function getLatencyColor(latency: number) {
-  if (latency > 1000)
-    return 'text-red-400'
-  if (latency > 500)
-    return 'text-orange-400'
-  if (latency > 200)
-    return 'text-yellow-400'
+  if (latency > 1000) return 'text-red-400'
+  if (latency > 500) return 'text-orange-400'
+  if (latency > 200) return 'text-yellow-400'
   return ''
 }
 
 onRefetch.on(async () => {
-  data.value = await rpc.getPluginMetics()
+  data.value = await rpc.getPluginMetics(ssr.value)
 })
 </script>
 
@@ -28,30 +23,32 @@ onRefetch.on(async () => {
     <router-link class="icon-btn !outline-none my-auto" to="/">
       <carbon-arrow-left />
     </router-link>
-    <div class="text-sm font-mono my-auto">
-      Plugins Metrics
-    </div>
+    <div class="text-sm font-mono my-auto">Plugins Metrics</div>
     <div class="flex-auto" />
   </NavBar>
   <Container v-if="data" class="overflow-auto">
-    <div class="mb-4 grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
+    <div
+      class="
+        mb-4
+        grid
+        grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr]
+        mt-2
+        whitespace-nowrap
+        text-sm
+        font-mono
+        children:(px-4
+        py-2
+        border-b border-main
+        align-middle)
+      "
+    >
       <div />
-      <div class="font-bold text-xs">
-        Name ({{ plugins.length }})
-      </div>
-      <div class="font-bold text-xs text-center">
-        Type
-      </div>
-      <div class="font-bold text-xs text-right">
-        Passes
-      </div>
+      <div class="font-bold text-xs">Name ({{ plugins.length }})</div>
+      <div class="font-bold text-xs text-center">Type</div>
+      <div class="font-bold text-xs text-right">Passes</div>
 
-      <div class="font-bold text-xs text-right">
-        Average Time
-      </div>
-      <div class="font-bold text-xs text-right">
-        Total Time
-      </div>
+      <div class="font-bold text-xs text-right">Average Time</div>
+      <div class="font-bold text-xs text-right">Total Time</div>
       <div />
 
       <template v-for="{ name, totalTime, invokeCount, enforce } in plugins" :key="name">
@@ -63,7 +60,9 @@ onRefetch.on(async () => {
           <Badge
             v-if="enforce"
             class="m-auto text-sm"
-            :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5' : 'bg-green5/10 text-green5']"
+            :class="[
+              enforce === 'post' ? 'bg-purple5/10 text-purple5' : 'bg-green5/10 text-green5',
+            ]"
           >
             {{ enforce }}
           </Badge>
@@ -80,15 +79,9 @@ onRefetch.on(async () => {
           </div>
         </template>
         <template v-else>
-          <div class="text-right">
-            -
-          </div>
-          <div class="text-right">
-            -
-          </div>
-          <div class="text-right">
-            -
-          </div>
+          <div class="text-right">-</div>
+          <div class="text-right">-</div>
+          <div class="text-right">-</div>
         </template>
         <div />
       </template>

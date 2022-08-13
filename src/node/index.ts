@@ -7,19 +7,12 @@ import sirv from 'sirv'
 import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
-import type {
-  ModuleInfo,
-  PluginMetricInfo,
-  RPCFunctions,
-  TransformInfo,
-} from '../types'
+import type { ModuleInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
 
 const debug = _debug('vite-plugin-inspect')
 
 const _dirname =
-  typeof __dirname !== 'undefined'
-    ? __dirname
-    : dirname(fileURLToPath(import.meta.url))
+  typeof __dirname !== 'undefined' ? __dirname : dirname(fileURLToPath(import.meta.url))
 
 // initial tranform (load from fs)
 const dummyLoadPluginName = '__load__'
@@ -78,13 +71,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
         if (filter(id) && result != null) {
           // the last plugin must be `vite:import-analysis`, if it's already there, we reset the stack
-          if (map[id] && map[id].slice(-1)[0]?.name === 'vite:import-analysis')
-            delete map[id]
+          if (map[id] && map[id].slice(-1)[0]?.name === 'vite:import-analysis') delete map[id]
           // initial tranform (load from fs), add a dummy
-          if (!map[id])
-            map[id] = [
-              { name: dummyLoadPluginName, result: code, start, end: start },
-            ]
+          if (!map[id]) map[id] = [{ name: dummyLoadPluginName, result: code, start, end: start }]
           // record transform
           map[id].push({ name: plugin.name, result, start, end })
         }
@@ -106,8 +95,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
         const result = typeof _result === 'string' ? _result : _result?.code
 
         let map = ssr ? ssrTransformMap : transformMap
-        if (filter(id) && result != null)
-          map[id] = [{ name: plugin.name, result, start, end }]
+        if (filter(id) && result != null) map[id] = [{ name: plugin.name, result, start, end }]
 
         return _result
       }
@@ -123,8 +111,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
         const result = typeof _result === 'object' ? _result?.id : _result
 
-        if (!id.startsWith('./') && result && result !== id)
-          (ssr ? ssrIdMap : idMap)[id] = result
+        if (!id.startsWith('./') && result && result !== id) (ssr ? ssrIdMap : idMap)[id] = result
 
         return _result
       }
@@ -149,7 +136,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     }
   }
 
-  function getPluginMetics() {
+  function getPluginMetics(ssr?: boolean) {
     const map: Record<string, PluginMetricInfo> = {}
 
     config.plugins.forEach((i) => {
@@ -161,7 +148,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     })
 
-    Object.values(transformMap).forEach((transformInfos) => {
+    Object.values(ssr ? ssrTransformMap : transformMap).forEach((transformInfos) => {
       transformInfos.forEach(({ name, start, end }) => {
         if (name === dummyLoadPluginName) return
         if (!map[name]) map[name] = { name, totalTime: 0, invokeCount: 0 }
@@ -224,9 +211,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
       Object.keys(transformMap).forEach((id) => {
         const plugins = transformMap[id]?.map((i) => i.name)
-        const deps = Array.from(
-          server.moduleGraph.getModuleById(id)?.importedModules || []
-        )
+        const deps = Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
           .map((i) => i.id || '')
           .filter(Boolean)
 
@@ -242,9 +227,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
       Object.keys(ssrTransformMap).forEach((id) => {
         const plugins = ssrTransformMap[id]?.map((i) => i.name)
-        const deps = Array.from(
-          server.moduleGraph.getModuleById(id)?.importedModules || []
-        )
+        const deps = Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
           .map((i) => i.id || '')
           .filter(Boolean)
 
@@ -284,16 +267,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
         green(url.replace(/:(\d+)\//, (_, port) => `:${bold(port)}/`))
       const host =
         server.resolvedUrls?.local[0] ||
-        `${config.server.https ? 'https' : 'http'}://localhost:${
-          config.server.port || '80'
-        }/`
+        `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}/`
       _print()
       // eslint-disable-next-line no-console
-      console.log(
-        `  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(
-          `${host}__inspect/`
-        )}\n`
-      )
+      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}__inspect/`)}\n`)
     }
   }
 
