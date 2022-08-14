@@ -35,7 +35,7 @@ export interface RPCFunctions {
     transforms: TransformInfo[]
   }
   resolveId(id: string, ssr?: boolean): string
-  getPluginMetics(ssr?: boolean): PluginMetricInfo[]
+  getPluginMetrics(ssr?: boolean): PluginMetricInfo[]
   preloadSSRModule(id: string): void
   clear(id: string, ssr?: boolean): void
 }

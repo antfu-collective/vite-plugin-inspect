@@ -2,7 +2,7 @@
 import { onRefetch, ssr } from '../../logic'
 import { rpc } from '../../logic/rpc'
 
-const data = ref(await rpc.getPluginMetics(ssr.value))
+const data = ref(await rpc.getPluginMetrics(ssr.value))
 
 const plugins = computed(() => data.value || [])
 
@@ -18,7 +18,7 @@ onRefetch.on(async () => {
 })
 
 async function refetch() {
-  data.value = await rpc.getPluginMetics(ssr.value)
+  data.value = await rpc.getPluginMetrics(ssr.value)
 }
 
 watch(ssr, refetch, { immediate: true })

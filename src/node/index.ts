@@ -136,7 +136,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     }
   }
 
-  function getPluginMetics(ssr?: boolean) {
+  function getPluginMetrics(ssr?: boolean) {
     const map: Record<string, PluginMetricInfo> = {}
 
     config.plugins.forEach((i) => {
@@ -198,7 +198,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, {
       list,
       getIdInfo,
-      getPluginMetics,
+      getPluginMetrics,
       resolveId,
       clear,
       preloadSSRModule,
