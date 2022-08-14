@@ -36,8 +36,6 @@ export default defineConfig((env) => ({
     Unocss(),
     Inspect({
       clientDir: env.command === 'serve' ? '../dist/client' : '../client',
-      enabled: 'serve',
-      // build: false,
     }),
     AutoImport({
       dts: join(__dirname, 'auto-imports.d.ts'),
