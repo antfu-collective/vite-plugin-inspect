@@ -13,11 +13,11 @@ const index = useRouteQuery('index') as Ref<string>
 const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
 
 async function refetch() {
-  let resolved = await rpc.resolveId(id.value)
+  const resolved = await rpc.resolveId(id.value)
   if (resolved) {
     // revaluate the module (if it's not initialized by the module graph)
-    if (resolved)
-      resolved = `/@fs/${resolved.slice(8)}`
+    // if (resolved)
+    // resolved = `/@fs/${resolved.slice(8)}`
 
     try {
       await fetch(resolved)
