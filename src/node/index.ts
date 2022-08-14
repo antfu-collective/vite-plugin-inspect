@@ -38,14 +38,18 @@ export interface Options {
   exclude?: FilterPattern
 
   /**
-   * Location of inspect plugin client directory to be served
+   * Location of inspect plugin client directory to be copied from/served in dev
    */
-
   clientDir?: string
+
+  /**
+   * Location of build out
+   */
+  outDir?: string
 }
 
 export default function PluginInspect(options: Options = {}): Plugin {
-  const { enabled = true, clientDir = '../dist/client' } = options
+  const { enabled = true, clientDir = '../dist/client', outDir } = options
 
   if (!enabled) {
     return {
@@ -285,21 +289,20 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   async function generateBuild() {
     // outputs data to `node_modules/.vite/inspect folder
-    let folder = join(process.cwd(), 'node_modules', '.vite')
+    let folder = outDir
+      ? resolve(config.root, outDir)
+      : join(process.cwd(), 'node_modules', '.vite', 'inspect')
 
     mkdirSync(folder, { recursive: true })
 
-    copySync(join(_dirname, clientDir), join(folder, 'inspect', '__inspect'))
+    copySync(join(_dirname, clientDir), join(folder, '__inspect'))
 
     writeFileSync(
-      join(folder, 'inspect', '__inspect', 'index.html'),
-      readFileSync(join(folder, 'inspect', '__inspect', 'index.html'), 'utf8').replace(
-        'DEV',
-        'BUILD'
-      )
+      join(folder, '__inspect', 'index.html'),
+      readFileSync(join(folder, '__inspect', 'index.html'), 'utf8').replace('DEV', 'BUILD')
     )
 
-    const transforms = join(folder, 'inspect', 'transforms', config.build.ssr ? 'ssr' : 'client')
+    const transforms = join(folder, 'transforms', config.build.ssr ? 'ssr' : 'client')
 
     await rm(transforms, {
       recursive: true,
