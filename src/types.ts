@@ -11,6 +11,7 @@ export interface ModuleInfo {
   deps: string[]
   virtual: boolean
   ssr: boolean
+  index?: number
 }
 
 export interface ModulesList {

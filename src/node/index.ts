@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url'
-import { dirname, resolve } from 'path'
+import { dirname, resolve, join } from 'path'
 import _debug from 'debug'
 import { bold, green } from 'kolorist'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
@@ -8,7 +8,8 @@ import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
 import type { ModuleInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
-
+import { mkdirSync, writeFileSync, readFileSync } from 'fs'
+import { copySync, rm } from 'fs-extra'
 const debug = _debug('vite-plugin-inspect')
 
 const _dirname =
@@ -21,9 +22,11 @@ export interface Options {
   /**
    * Enable the inspect plugin (could be some performance overhead)
    *
+   * Use a boolean to enable or disable the plugin completely (both 'server' and 'client' modes)
+   * Use 'serve' or 'build' to enable the plugin for only the given mode
    * @default true
    */
-  enabled?: boolean
+  enabled?: boolean | 'serve' | 'build'
 
   /**
    * Filter for modules to be inspected
@@ -33,10 +36,16 @@ export interface Options {
    * Filter for modules to not be inspected
    */
   exclude?: FilterPattern
+
+  /**
+   * Location of inspect plugin client directory to be served
+   */
+
+  clientDir?: string
 }
 
 export default function PluginInspect(options: Options = {}): Plugin {
-  const { enabled = true } = options
+  const { enabled = true, clientDir = '../dist/client' } = options
 
   if (!enabled) {
     return {
@@ -274,13 +283,87 @@ export default function PluginInspect(options: Options = {}): Plugin {
     }
   }
 
+  async function generateBuild() {
+    // outputs data to `node_modules/.vite/inspect folder
+    let folder = join(process.cwd(), 'node_modules', '.vite')
+
+    mkdirSync(folder, { recursive: true })
+
+    copySync(join(_dirname, clientDir), join(folder, 'inspect', '__inspect'))
+
+    writeFileSync(
+      join(folder, 'inspect', '__inspect', 'index.html'),
+      readFileSync(join(folder, 'inspect', '__inspect', 'index.html'), 'utf8').replace(
+        'DEV',
+        'BUILD'
+      )
+    )
+
+    const transforms = join(folder, 'inspect', 'transforms', config.build.ssr ? 'ssr' : 'client')
+
+    await rm(transforms, {
+      recursive: true,
+      force: true,
+    })
+
+    mkdirSync(transforms, { recursive: true })
+
+    function list() {
+      let map = config.build.ssr ? ssrTransformMap : transformMap
+
+      return {
+        root: config.root,
+        modules: Object.keys(map)
+          .sort()
+          .map((id) => ({
+            id,
+            deps: [],
+            plugins: map[id]?.map((i) => i.name) || [],
+            transforms: map[id],
+            virtual: map[id][0].name !== '__load__' && map[id][0].name !== 'vite:load-fallback',
+          })),
+      }
+    }
+
+    let { root, modules } = list()
+
+    writeFileSync(
+      join(transforms, '_modules.json'),
+      JSON.stringify(
+        {
+          root,
+          modules: modules.map((props, index) => ({
+            ...props,
+            index,
+            transforms: undefined,
+          })),
+        },
+        null,
+        2
+      )
+    )
+
+    modules.forEach((mod, index) => {
+      const file = join(transforms, `${index}.json`)
+      writeFileSync(file, JSON.stringify(mod, null, 2))
+    })
+  }
+
   return <Plugin>{
+    apply: (config, mode) => {
+      if (enabled === true) {
+        return true
+      } else if (mode.command === enabled) {
+        return true
+      }
+      return false
+    },
     name: 'vite-plugin-inspect',
-    apply: 'serve',
     configResolved(_config) {
       config = _config
       config.plugins.forEach(hijackPlugin)
     },
     configureServer,
+    buildEnd: generateBuild,
   }
 }

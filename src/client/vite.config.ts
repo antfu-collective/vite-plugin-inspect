@@ -9,7 +9,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Unocss from 'unocss/vite'
 import Inspect from '../node'
 
-export default defineConfig({
+export default defineConfig((env) => ({
   base: '/__inspect/',
 
   resolve: {
@@ -24,9 +24,7 @@ export default defineConfig({
       pagesDir: 'pages',
     }),
     Components({
-      dirs: [
-        'components',
-      ],
+      dirs: ['components'],
       dts: join(__dirname, 'components.d.ts'),
       resolvers: [
         IconsResolver({
@@ -36,21 +34,19 @@ export default defineConfig({
     }),
     Icons(),
     Unocss(),
-    Inspect(),
+    Inspect({
+      clientDir: env.command === 'serve' ? '../dist/client' : '../client',
+      enabled: 'serve',
+      // build: false,
+    }),
     AutoImport({
       dts: join(__dirname, 'auto-imports.d.ts'),
-      imports: [
-        'vue',
-        'vue-router',
-        '@vueuse/core',
-      ],
+      imports: ['vue', 'vue-router', '@vueuse/core'],
     }),
   ],
 
   optimizeDeps: {
-    exclude: [
-      'vite-hot-client',
-    ],
+    exclude: ['vite-hot-client'],
   },
 
   build: {
@@ -59,4 +55,4 @@ export default defineConfig({
     minify: true,
     emptyOutDir: true,
   },
-})
+}))

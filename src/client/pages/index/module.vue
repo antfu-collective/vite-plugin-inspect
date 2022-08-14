@@ -14,17 +14,19 @@ const currentIndex = computed(() => +index.value ?? (data.value?.transforms.leng
 
 async function refetch() {
   let resolved = await rpc.resolveId(id.value, ssr.value)
-  if (resolved && !ssr.value) {
-    // revaluate the module (if it's not initialized by the module graph)
-    if (resolved) resolved = `/@fs/${resolved}`
+  if (document.documentElement.dataset.mode === 'DEV') {
+    if (resolved && !ssr.value) {
+      // revaluate the module (if it's not initialized by the module graph)
+      if (resolved) resolved = `/@fs/${resolved}`
 
-    try {
-      await fetch(resolved)
-    } catch (_) {}
-  } else {
-    try {
-      await rpc.preloadSSRModule(resolved)
-    } catch (_) {}
+      try {
+        await fetch(resolved)
+      } catch (_) {}
+    } else {
+      try {
+        await rpc.preloadSSRModule(resolved)
+      } catch (_) {}
+    }
   }
   data.value = await rpc.getIdInfo(id.value, ssr.value)
 }
