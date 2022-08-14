@@ -342,6 +342,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
         2
       )
     )
+    writeFileSync(
+      join(transforms, '_metrics.json'),
+      JSON.stringify(getPluginMetrics(Boolean(config.build.ssr)), null, 2)
+    )
 
     modules.forEach((mod, index) => {
       const file = join(transforms, `${index}.json`)

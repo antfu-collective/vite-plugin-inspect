@@ -50,9 +50,13 @@ async function createBuildRpcClient(): Promise<RPC> {
     async clear() {},
     async preloadSSRModule() {},
     async getPluginMetrics(ssr: boolean) {
-      return (await (
-        await fetch(`/metrics/${ssr ? 'ssr' : 'client'}.json`)
-      ).json()) as PluginMetricInfo[]
+      try {
+        return (await (
+          await fetch(`/transforms/${ssr ? 'ssr' : 'client'}/_metrics.json`)
+        ).json()) as PluginMetricInfo[]
+      } catch (e) {
+        return []
+      }
     },
     async getIdInfo(id, ssr) {
       let mod = modules.find((i: any) => i.id === id)
@@ -84,4 +88,4 @@ type RPC = {
 export const rpc =
   document.documentElement.dataset.mode === 'DEV'
     ? (createRPCClient<RPCFunctions>('vite-plugin-inspect', hot as any) as any)
-    : (createBuildRpcClient() as any)
+    : ((await createBuildRpcClient()) as any)
