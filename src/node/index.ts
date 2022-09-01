@@ -240,5 +240,12 @@ export default function PluginInspect(options: Options = {}): Plugin {
       config.plugins.forEach(hijackPlugin)
     },
     configureServer,
+    handleHotUpdate({ modules, server }) {
+      server.ws.send({
+        type: 'custom',
+        event: 'special-update'
+      })
+      return modules
+    },
   }
 }

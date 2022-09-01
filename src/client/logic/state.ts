@@ -1,5 +1,6 @@
 import { createEventHook, useStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
+import { hot } from 'vite-hot-client'
 import { rpc } from './rpc'
 
 export const onRefetch = createEventHook<void>()
@@ -26,3 +27,4 @@ export async function refetch() {
   list.value = await rpc.list()
   return list.value
 }
+hot?.on('special-update', refetch)
