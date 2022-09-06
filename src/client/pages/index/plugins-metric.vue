@@ -62,7 +62,7 @@ onRefetch.on(async () => {
         <div class="text-center p0! flex items-center">
           <Badge
             v-if="enforce"
-            class="m-auto text-sm"
+            class="m-auto text-xs"
             :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5' : 'bg-green5/10 text-green5']"
           >
             {{ enforce }}

@@ -3,6 +3,7 @@ import { dirname, resolve } from 'path'
 import _debug from 'debug'
 import { bold, green } from 'kolorist'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
+import type { ObjectHook } from 'rollup'
 import sirv from 'sirv'
 import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
@@ -36,6 +37,14 @@ export interface Options {
   exclude?: FilterPattern
 }
 
+export type HookHandler<T> = T extends ObjectHook<infer F> ? F : T
+export type HookWrapper<K extends keyof Plugin> = (
+  fn: NonNullable<HookHandler<Plugin[K]>>,
+  context: ThisParameterType<NonNullable<HookHandler<Plugin[K]>>>,
+  args: NonNullable<Parameters<HookHandler<Plugin[K]>>>,
+  order: string
+) => ReturnType<HookHandler<Plugin[K]>>
+
 export default function PluginInspect(options: Options = {}): Plugin {
   const {
     enabled = true,
@@ -54,67 +63,81 @@ export default function PluginInspect(options: Options = {}): Plugin {
   const transformMap: Record<string, TransformInfo[]> = {}
   const idMap: Record<string, string> = {}
 
+  function hijackHook<K extends keyof Plugin>(plugin: Plugin, name: K, wrapper: HookWrapper<K>) {
+    if (!plugin[name])
+      return
+
+    debug(`hijack plugin "${name}"`, plugin.name)
+
+    // @ts-expect-error future
+    let order = plugin.order || plugin.enforce || 'normal'
+
+    const hook = plugin[name] as any
+    if ('handler' in hook) {
+      // rollup hook
+      const oldFn = hook.handler
+      order += `-${hook.order || hook.enforce || 'normal'}`
+      hook.handler = function (this: any, ...args: any) { return wrapper(oldFn, this, args, order) }
+    }
+    else if ('transform' in hook) {
+      // transformIndexHTML
+      const oldFn = hook.transform
+      order += `-${hook.order || hook.enforce || 'normal'}`
+      hook.transform = function (this: any, ...args: any) { return wrapper(oldFn, this, args, order) }
+    }
+    else {
+      // vite hook
+      const oldFn = hook
+      plugin[name] = function (this: any, ...args: any) { return wrapper(oldFn, this, args, order) }
+    }
+  }
+
   function hijackPlugin(plugin: Plugin) {
-    if (plugin.transform) {
-      debug('hijack plugin transform', plugin.name)
-      const _transform = plugin.transform
-      plugin.transform = async function (...args) {
-        const code = args[0]
-        const id = args[1]
-        const start = Date.now()
-        const _result = await _transform.apply(this, args)
-        const end = Date.now()
+    hijackHook(plugin, 'transform', async (fn, context, args, order) => {
+      const code = args[0]
+      const id = args[1]
+      const start = Date.now()
+      const _result = await fn.apply(context, args)
+      const end = Date.now()
 
-        const result = typeof _result === 'string' ? _result : _result?.code
+      const result = typeof _result === 'string' ? _result : _result?.code
 
-        if (filter(id) && result != null) {
-          // the last plugin must be `vite:import-analysis`, if it's already there, we reset the stack
-          if (transformMap[id] && transformMap[id].slice(-1)[0]?.name === 'vite:import-analysis')
-            delete transformMap[id]
-          // initial tranform (load from fs), add a dummy
-          if (!transformMap[id])
-            transformMap[id] = [{ name: dummyLoadPluginName, result: code, start, end: start }]
-          // record transform
-          transformMap[id].push({ name: plugin.name, result, start, end })
-        }
-
-        return _result
+      if (filter(id) && result != null) {
+        // initial tranform (load from fs), add a dummy
+        if (!transformMap[id])
+          transformMap[id] = [{ name: dummyLoadPluginName, result: code, start, end: start }]
+        // record transform
+        transformMap[id].push({ name: plugin.name, result, start, end, order })
       }
-    }
 
-    if (plugin.load) {
-      debug('hijack plugin load', plugin.name)
-      const _load = plugin.load
-      plugin.load = async function (...args) {
-        const id = args[0]
-        const start = Date.now()
-        const _result = await _load.apply(this, args)
-        const end = Date.now()
+      return _result
+    })
 
-        const result = typeof _result === 'string' ? _result : _result?.code
+    hijackHook(plugin, 'load', async (fn, context, args) => {
+      const id = args[0]
+      const start = Date.now()
+      const _result = await fn.apply(context, args)
+      const end = Date.now()
 
-        if (filter(id) && result != null)
-          transformMap[id] = [{ name: plugin.name, result, start, end }]
+      const result = typeof _result === 'string' ? _result : _result?.code
 
-        return _result
-      }
-    }
+      if (filter(id) && result != null)
+        transformMap[id] = [{ name: plugin.name, result, start, end }]
 
-    if (plugin.resolveId) {
-      debug('hijack plugin resolveId', plugin.name)
-      const _resolveId = plugin.resolveId
-      plugin.resolveId = async function (...args) {
-        const id = args[0]
-        const _result = await _resolveId.apply(this, args)
+      return _result
+    })
 
-        const result = typeof _result === 'object' ? _result?.id : _result
+    hijackHook(plugin, 'resolveId', async (fn, context, args) => {
+      const id = args[0]
+      const _result = await fn.apply(context, args)
 
-        if (!id.startsWith('./') && result && result !== id)
-          idMap[id] = result
+      const result = typeof _result === 'object' ? _result?.id : _result
 
-        return _result
-      }
-    }
+      if (!id.startsWith('./') && result && result !== id)
+        idMap[id] = result
+
+      return _result
+    })
   }
 
   function resolveId(id = ''): string {
@@ -234,11 +257,19 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   return <Plugin>{
     name: 'vite-plugin-inspect',
+    enforce: 'pre',
     apply: 'serve',
     configResolved(_config) {
       config = _config
       config.plugins.forEach(hijackPlugin)
     },
     configureServer,
+    load: {
+      order: 'pre',
+      handler(id) {
+        delete transformMap[id]
+        return null
+      },
+    },
   }
 }

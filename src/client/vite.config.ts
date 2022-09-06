@@ -19,6 +19,16 @@ export default defineConfig({
   },
 
   plugins: [
+    {
+      name: 'local-object-transform',
+      transform: {
+        order: 'post',
+        async handler(code) {
+          return `${code}\n/* Injected with object hook! */`
+        },
+      },
+    },
+
     Vue(),
     Pages({
       pagesDir: 'pages',

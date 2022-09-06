@@ -78,6 +78,12 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
             v-text="'no change'"
           />
           <Badge v-if="idx === 0" class="bg-light-blue-400/10 text-light-blue-400" v-text="'load'" />
+          <Badge
+            v-if="tr.order && tr.order !== 'normal'"
+            class="bg-rose-400/10 text-rose-400"
+            :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
+            v-text="tr.order"
+          />
         </button>
       </template>
     </div>

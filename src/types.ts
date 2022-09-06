@@ -3,6 +3,7 @@ export interface TransformInfo {
   result: string
   start: number
   end: number
+  order?: string
 }
 
 export interface ModuleInfo {
