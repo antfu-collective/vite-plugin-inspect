@@ -14,7 +14,7 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 npm i -D vite-plugin-inspect
 ```
 
-> Since `vite-plugin-inspect@v0.5.0`, Vite v2.9 or above is required.
+> Since `vite-plugin-inspect@v0.7.0`, Vite v3.1 or above is required.
 
 Add plugin to your `vite.config.ts`:
 
@@ -24,12 +24,33 @@ import Inspect from 'vite-plugin-inspect'
 
 export default {
   plugins: [
-    Inspect(), // only applies in dev mode
+    Inspect()
   ],
 }
 ```
 
 Then visit [localhost:3000/__inspect/](http://localhost:3000/__inspect/) to inspect the modules.
+
+## Build Mode
+
+To inspect transformation in build mode, you can pass the `build: true` option:
+
+
+```ts
+// vite.config.ts
+import Inspect from 'vite-plugin-inspect'
+
+export default {
+  plugins: [
+    Inspect({
+      build: true,
+      outputDir: '.vite-inspect'
+    })
+  ],
+}
+```
+
+After running `vite build`, the inspector client will be generated under `.vite-inspect`, where you can use `npx serve .vite-inspect` to check the result.
 
 ## Sponsors
 

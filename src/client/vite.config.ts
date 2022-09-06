@@ -10,7 +10,7 @@ import Unocss from 'unocss/vite'
 import Inspect from '../node'
 
 export default defineConfig({
-  base: '/__inspect/',
+  base: './',
 
   resolve: {
     alias: {
@@ -66,7 +66,7 @@ export default defineConfig({
   build: {
     target: 'esnext',
     outDir: resolve(__dirname, '../../dist/client'),
-    minify: 'esbuild',
+    minify: false, // 'esbuild',
     emptyOutDir: true,
   },
 })

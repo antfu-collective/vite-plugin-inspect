@@ -1,3 +1,5 @@
+import type { Awaitable } from '@antfu/utils'
+
 export interface TransformInfo {
   name: string
   result: string
@@ -19,6 +21,11 @@ export interface ModulesList {
   ssrModules: ModuleInfo[]
 }
 
+export interface ModuleTransformInfo {
+  resolvedId: string
+  transforms: TransformInfo[]
+}
+
 export interface PluginMetricInfo {
   name: string
   totalTime: number
@@ -27,12 +34,9 @@ export interface PluginMetricInfo {
 }
 
 export interface RPCFunctions {
-  list(): ModulesList
-  getIdInfo(id: string, ssr: boolean, clear?: boolean): {
-    resolvedId: string
-    transforms: TransformInfo[]
-  }
-  resolveId(id: string, ssr: boolean): string
-  clear(id: string, ssr: boolean): void
-  getPluginMetrics(ssr: boolean): PluginMetricInfo[]
+  list(): Awaitable<ModulesList>
+  getIdInfo(id: string, ssr: boolean, clear?: boolean): Awaitable<ModuleTransformInfo>
+  resolveId(id: string, ssr: boolean): Awaitable<string>
+  clear(id: string, ssr: boolean): Awaitable<void>
+  getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
 }

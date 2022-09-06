@@ -1,36 +1,55 @@
-import { fileURLToPath } from 'url'
-import { dirname, resolve } from 'path'
+import { join, resolve } from 'path'
+import fs from 'fs-extra'
 import _debug from 'debug'
-import { bold, green } from 'kolorist'
+import { bold, dim, green } from 'kolorist'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import type { ObjectHook } from 'rollup'
 import sirv from 'sirv'
 import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
-import type { ModuleInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
+import { hash } from 'ohash'
+import type { ModuleInfo, ModuleTransformInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
+import { DIR_CLIENT } from '../dir'
 
 const debug = _debug('vite-plugin-inspect')
-
-const _dirname = typeof __dirname !== 'undefined'
-  ? __dirname
-  : dirname(fileURLToPath(import.meta.url))
 
 // initial tranform (load from fs)
 const dummyLoadPluginName = '__load__'
 
 export interface Options {
   /**
-   * Enable the inspect plugin (could be some performance overhead)
+   * Enable the inspect plugin in dev mode (could be some performance overhead)
    *
    * @default true
    */
+  dev?: boolean
+
+  /**
+   * Enable the inspect plugin in build mode, and output the report to `.vite-inspect`
+   *
+   * @default false
+   */
+  build?: boolean
+
+  /**
+   * @deprecated use `dev` or `build` option instead.
+   */
   enabled?: boolean
+
+  /**
+   * Directory for build inspector UI output
+   * Only work in build mode
+   *
+   * @default '.vite-inspect'
+   */
+  outputDir?: string
 
   /**
    * Filter for modules to be inspected
    */
   include?: FilterPattern
+
   /**
    * Filter for modules to not be inspected
    */
@@ -47,10 +66,12 @@ type HookWrapper<K extends keyof Plugin> = (
 
 export default function PluginInspect(options: Options = {}): Plugin {
   const {
-    enabled = true,
+    dev = true,
+    build = false,
+    outputDir = '.vite-inspect',
   } = options
 
-  if (!enabled) {
+  if (!dev && !build) {
     return {
       name: 'vite-plugin-inspect',
     }
@@ -209,7 +230,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       return _invalidateModule.apply(this, args)
     }
 
-    server.middlewares.use('/__inspect', sirv(resolve(_dirname, '../dist/client'), {
+    server.middlewares.use('/__inspect', sirv(DIR_CLIENT, {
       single: true,
       dev: true,
     }))
@@ -283,10 +304,99 @@ export default function PluginInspect(options: Options = {}): Plugin {
     }
   }
 
+  async function generateBuild() {
+    // outputs data to `node_modules/.vite/inspect folder
+    const targetDir = join(config.root, outputDir)
+    const reportsDir = join(targetDir, 'reports')
+
+    await fs.mkdir(targetDir, { recursive: true })
+
+    await fs.copy(DIR_CLIENT, targetDir, { overwrite: true })
+
+    await fs.writeFile(
+      join(targetDir, 'index.html'),
+      (await fs.readFile(join(targetDir, 'index.html'), 'utf-8'))
+        .replace(
+          'data-vite-inspect-mode="DEV"',
+          'data-vite-inspect-mode="BUILD"',
+        ),
+    )
+
+    await fs.rm(reportsDir, {
+      recursive: true,
+      force: true,
+    })
+
+    await fs.mkdir(reportsDir, { recursive: true })
+
+    function getModulesInfo(map: TransformMap) {
+      return Object.keys(map).sort()
+        .map((id): ModuleInfo => {
+          const plugins = map[id]?.map(i => i.name)
+          return {
+            id,
+            deps: [],
+            plugins,
+            virtual: plugins[0] !== '__load__' && map[id][0].name !== 'vite:load-fallback',
+          }
+        })
+    }
+
+    function list() {
+      return {
+        root: config.root,
+        modules: getModulesInfo(transformMap),
+        ssrModules: getModulesInfo(transformMapSSR),
+      }
+    }
+
+    await fs.writeFile(
+      join(reportsDir, 'list.json'),
+      JSON.stringify(list(), null, 2),
+      'utf-8',
+    )
+
+    await fs.writeFile(
+      join(reportsDir, 'metrics.json'),
+      JSON.stringify(getPluginMetrics(false), null, 2),
+      'utf-8',
+    )
+
+    await fs.writeFile(
+      join(reportsDir, 'metrics-ssr.json'),
+      JSON.stringify(getPluginMetrics(true), null, 2),
+      'utf-8',
+    )
+
+    async function dumpModuleInfo(dir: string, map: TransformMap, ssr = false) {
+      await fs.ensureDir(dir)
+      return Promise.all(Object.entries(map)
+        .map(([id, info]) => fs.writeJSON(
+          join(dir, `${hash(id)}.json`),
+          <ModuleTransformInfo>{
+            resolvedId: resolveId(id, ssr),
+            transforms: info,
+          }),
+        ),
+      )
+    }
+
+    await dumpModuleInfo(join(reportsDir, 'transform'), transformMap)
+    await dumpModuleInfo(join(reportsDir, 'transform-ssr'), transformMapSSR, true)
+
+    return targetDir
+  }
+
   return <Plugin>{
     name: 'vite-plugin-inspect',
     enforce: 'pre',
-    apply: 'serve',
+    apply(_, { command }) {
+      if (command === 'serve' && dev)
+        return true
+      if (command === 'build' && build)
+        return true
+      return false
+    },
     configResolved(_config) {
       config = _config
       config.plugins.forEach(hijackPlugin)
@@ -299,6 +409,11 @@ export default function PluginInspect(options: Options = {}): Plugin {
         delete map[id]
         return null
       },
+    },
+    async buildEnd() {
+      const dir = await generateBuild()
+      // eslint-disable-next-line no-console
+      console.log(green('Inspect report generated at'), dim(`${dir}`))
     },
   }
 }

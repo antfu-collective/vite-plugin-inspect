@@ -6,10 +6,10 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <title>Vite Inspect</title>
 </head>
-<body>
+<body data-vite-inspect-mode="DEV">
   <div id="app"></div>
   <script>
-    (function() {
+    (function () {
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
       const setting = localStorage.getItem('color-schema') || 'auto'
       if (setting === 'dark' || (prefersDark && setting !== 'light'))
