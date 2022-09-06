@@ -166,15 +166,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
       : id
   }
 
-  function getIdInfo(id: string, ssr = false) {
-    const resolvedId = resolveId(id, ssr)
-    const map = ssr ? transformMapSSR : transformMap
-    return {
-      resolvedId,
-      transforms: map[resolvedId] || [],
-    }
-  }
-
   function getPluginMetrics(ssr = false) {
     const map: Record<string, PluginMetricInfo> = {}
 
@@ -228,8 +219,24 @@ export default function PluginInspect(options: Options = {}): Plugin {
       getIdInfo,
       getPluginMetrics,
       resolveId,
-      clear,
+      clear: clearId,
     })
+
+    async function getIdInfo(id: string, ssr = false, clear = false) {
+      if (clear) {
+        clearId(id, ssr)
+        try {
+          await server.transformRequest(id, { ssr })
+        }
+        catch {}
+      }
+      const resolvedId = resolveId(id, ssr)
+      const map = ssr ? transformMapSSR : transformMap
+      return {
+        resolvedId,
+        transforms: map[resolvedId] || [],
+      }
+    }
 
     function getModulesInfo(map: TransformMap) {
       return Object.keys(map).sort()
@@ -255,7 +262,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     }
 
-    function clear(_id?: string, ssr = false) {
+    function clearId(_id: string, ssr = false) {
       const id = resolveId(_id)
       if (id) {
         const mod = server.moduleGraph.getModuleById(id)

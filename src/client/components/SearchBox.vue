@@ -9,7 +9,7 @@ import { includeNodeModules, includeVirtual, inspectSSR, searchText } from '../l
     class="border border-main px-3 py-1 rounded bg-transparent !outline-none"
     placeholder="Search..."
   >
-  <div class="text-xs flex flex-col h-min">
+  <div class="text-xs flex flex-col h-min select-none">
     <label class="flex">
       <input v-model="includeNodeModules" type="checkbox" class="my-auto">
       <div class="ml-1">node_modules</div>

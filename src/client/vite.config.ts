@@ -66,7 +66,7 @@ export default defineConfig({
   build: {
     target: 'esnext',
     outDir: resolve(__dirname, '../../dist/client'),
-    minify: true,
+    minify: 'esbuild',
     emptyOutDir: true,
   },
 })

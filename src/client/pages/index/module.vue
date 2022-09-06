@@ -13,26 +13,14 @@ const index = useRouteQuery('index') as Ref<string>
 const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
 
 async function refetch() {
-  const resolved = await rpc.resolveId(id.value, inspectSSR.value)
-  if (resolved) {
-    // revaluate the module (if it's not initialized by the module graph)
-    // if (resolved)
-    // resolved = `/@fs/${resolved.slice(8)}`
-
-    try {
-      await fetch(resolved)
-    }
-    catch (_) {}
-  }
-  data.value = await rpc.getIdInfo(id.value, inspectSSR.value)
+  data.value = await rpc.getIdInfo(id.value, inspectSSR.value, true)
 }
 
 onRefetch.on(async () => {
-  await rpc.clear(id.value)
   await refetch()
 })
 
-watch(id, () => refetch(), { immediate: true })
+watch([id, inspectSSR], refetch)
 
 const from = computed(() => data.value?.transforms[currentIndex.value - 1]?.result || '')
 const to = computed(() => data.value?.transforms[currentIndex.value]?.result || '')
@@ -44,7 +32,16 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
       <carbon-arrow-left />
     </router-link>
     <ModuleId v-if="id" :id="id" />
+    <Badge
+      v-if="inspectSSR"
+      class="bg-teal-400/10 text-teal-400 font-bold"
+    >
+      SSR
+    </Badge>
     <div class="flex-auto" />
+    <button class="icon-btn text-lg" title="Inspect SSR" @click="inspectSSR = !inspectSSR">
+      <carbon:cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
+    </button>
     <button class="icon-btn text-lg" title="Line Wrapping" @click="lineWrapping = !lineWrapping">
       <carbon:text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
@@ -60,7 +57,7 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
       <div
         class="border-b border-main px-3 py-2 text-center text-sm tracking-widest text-gray-400"
       >
-        TRANSFORM STACK
+        {{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK
       </div>
       <template v-for="tr, idx of data.transforms" :key="tr.name">
         <button

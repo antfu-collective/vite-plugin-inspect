@@ -2,7 +2,7 @@
 import { inspectSSR, onRefetch } from '../../logic'
 import { rpc } from '../../logic/rpc'
 
-const data = ref(await rpc.getPluginMetrics())
+const data = ref(await rpc.getPluginMetrics(inspectSSR.value))
 
 const plugins = computed(
   () => data.value || [],

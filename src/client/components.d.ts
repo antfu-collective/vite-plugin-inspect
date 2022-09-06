@@ -8,6 +8,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Badge: typeof import('./components/Badge.vue')['default']
+    'Carbon:cloudServices': typeof import('~icons/carbon/cloud-services')['default']
     'Carbon:compare': typeof import('~icons/carbon/compare')['default']
     'Carbon:list': typeof import('~icons/carbon/list')['default']
     'Carbon:listBoxes': typeof import('~icons/carbon/list-boxes')['default']

@@ -28,11 +28,11 @@ export interface PluginMetricInfo {
 
 export interface RPCFunctions {
   list(): ModulesList
-  getIdInfo(id: string, ssr: boolean): {
+  getIdInfo(id: string, ssr: boolean, clear?: boolean): {
     resolvedId: string
     transforms: TransformInfo[]
   }
   resolveId(id: string, ssr: boolean): string
-  getPluginMetrics(ssr?: boolean): PluginMetricInfo[]
-  clear(id: string, ssr?: boolean): void
+  clear(id: string, ssr: boolean): void
+  getPluginMetrics(ssr: boolean): PluginMetricInfo[]
 }
