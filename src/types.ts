@@ -16,6 +16,7 @@ export interface ModuleInfo {
 export interface ModulesList {
   root: string
   modules: ModuleInfo[]
+  ssrModules: ModuleInfo[]
 }
 
 export interface PluginMetricInfo {
@@ -27,11 +28,11 @@ export interface PluginMetricInfo {
 
 export interface RPCFunctions {
   list(): ModulesList
-  getIdInfo(id: string): {
+  getIdInfo(id: string, ssr: boolean): {
     resolvedId: string
     transforms: TransformInfo[]
   }
-  resolveId(id: string): string
-  getPluginMetics(): PluginMetricInfo[]
-  clear(id: string): void
+  resolveId(id: string, ssr: boolean): string
+  getPluginMetrics(ssr?: boolean): PluginMetricInfo[]
+  clear(id: string, ssr?: boolean): void
 }

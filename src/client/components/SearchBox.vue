@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { includeNodeModules, includeVirtual, searchText } from '../logic'
+import { includeNodeModules, includeVirtual, inspectSSR, searchText } from '../logic'
 </script>
 
 <template>
@@ -14,9 +14,15 @@ import { includeNodeModules, includeVirtual, searchText } from '../logic'
       <input v-model="includeNodeModules" type="checkbox" class="my-auto">
       <div class="ml-1">node_modules</div>
     </label>
-    <label class="flex">
-      <input v-model="includeVirtual" type="checkbox" class="my-auto">
-      <div class="ml-1">virtual</div>
-    </label>
+    <div class="flex gap-2">
+      <label class="flex">
+        <input v-model="includeVirtual" type="checkbox" class="my-auto">
+        <div class="ml-1">virtual</div>
+      </label>
+      <label class="flex">
+        <input v-model="inspectSSR" type="checkbox" class="my-auto">
+        <div class="ml-1">ssr</div>
+      </label>
+    </div>
   </div>
 </template>

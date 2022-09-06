@@ -37,8 +37,8 @@ export interface Options {
   exclude?: FilterPattern
 }
 
-export type HookHandler<T> = T extends ObjectHook<infer F> ? F : T
-export type HookWrapper<K extends keyof Plugin> = (
+type HookHandler<T> = T extends ObjectHook<infer F> ? F : T
+type HookWrapper<K extends keyof Plugin> = (
   fn: NonNullable<HookHandler<Plugin[K]>>,
   context: ThisParameterType<NonNullable<HookHandler<Plugin[K]>>>,
   args: NonNullable<Parameters<HookHandler<Plugin[K]>>>,
@@ -60,8 +60,12 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   let config: ResolvedConfig
 
-  const transformMap: Record<string, TransformInfo[]> = {}
+  type TransformMap = Record<string, TransformInfo[]>
+
+  const transformMap: TransformMap = {}
+  const transformMapSSR: TransformMap = {}
   const idMap: Record<string, string> = {}
+  const idMapSSR: Record<string, string> = {}
 
   function hijackHook<K extends keyof Plugin>(plugin: Plugin, name: K, wrapper: HookWrapper<K>) {
     if (!plugin[name])
@@ -96,18 +100,21 @@ export default function PluginInspect(options: Options = {}): Plugin {
     hijackHook(plugin, 'transform', async (fn, context, args, order) => {
       const code = args[0]
       const id = args[1]
+      const ssr = args[2]?.ssr
+
       const start = Date.now()
       const _result = await fn.apply(context, args)
       const end = Date.now()
 
       const result = typeof _result === 'string' ? _result : _result?.code
 
+      const map = ssr ? transformMapSSR : transformMap
       if (filter(id) && result != null) {
         // initial tranform (load from fs), add a dummy
-        if (!transformMap[id])
-          transformMap[id] = [{ name: dummyLoadPluginName, result: code, start, end: start }]
+        if (!map[id])
+          map[id] = [{ name: dummyLoadPluginName, result: code, start, end: start }]
         // record transform
-        transformMap[id].push({ name: plugin.name, result, start, end, order })
+        map[id].push({ name: plugin.name, result, start, end, order })
       }
 
       return _result
@@ -115,52 +122,60 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
     hijackHook(plugin, 'load', async (fn, context, args) => {
       const id = args[0]
+      const ssr = args[1]?.ssr
+
       const start = Date.now()
       const _result = await fn.apply(context, args)
       const end = Date.now()
 
       const result = typeof _result === 'string' ? _result : _result?.code
 
+      const map = ssr ? transformMapSSR : transformMap
       if (filter(id) && result != null)
-        transformMap[id] = [{ name: plugin.name, result, start, end }]
+        map[id] = [{ name: plugin.name, result, start, end }]
 
       return _result
     })
 
     hijackHook(plugin, 'resolveId', async (fn, context, args) => {
       const id = args[0]
+      const ssr = args[2]?.ssr
+
       const _result = await fn.apply(context, args)
 
       const result = typeof _result === 'object' ? _result?.id : _result
 
+      const map = ssr ? idMapSSR : idMap
       if (!id.startsWith('./') && result && result !== id)
-        idMap[id] = result
+        map[id] = result
 
       return _result
     })
   }
 
-  function resolveId(id = ''): string {
+  function resolveId(id = '', ssr = false): string {
     if (id.startsWith('./'))
       id = resolve(config.root, id).replace(/\\/g, '/')
-    return resolveIdRec(id)
+    return resolveIdRec(id, ssr)
   }
 
-  function resolveIdRec(id: string): string {
-    return idMap[id]
-      ? resolveIdRec(idMap[id])
+  function resolveIdRec(id: string, ssr = false): string {
+    const map = ssr ? idMapSSR : idMap
+    return map[id]
+      ? resolveIdRec(map[id], ssr)
       : id
   }
 
-  function getIdInfo(id: string) {
-    const resolvedId = resolveId(id)
+  function getIdInfo(id: string, ssr = false) {
+    const resolvedId = resolveId(id, ssr)
+    const map = ssr ? transformMapSSR : transformMap
     return {
       resolvedId,
-      transforms: transformMap[resolvedId] || [],
+      transforms: map[resolvedId] || [],
     }
   }
 
-  function getPluginMetics() {
+  function getPluginMetrics(ssr = false) {
     const map: Record<string, PluginMetricInfo> = {}
 
     config.plugins.forEach((i) => {
@@ -172,7 +187,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     })
 
-    Object.values(transformMap)
+    Object.values(ssr ? transformMapSSR : transformMap)
       .forEach((transformInfos) => {
         transformInfos.forEach(({ name, start, end }) => {
           if (name === dummyLoadPluginName)
@@ -196,8 +211,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
     const _invalidateModule = server.moduleGraph.invalidateModule
     server.moduleGraph.invalidateModule = function (...args) {
       const mod = args[0]
-      if (mod?.id)
+      if (mod?.id) {
         delete transformMap[mod.id]
+        delete transformMapSSR[mod.id]
+      }
       return _invalidateModule.apply(this, args)
     }
 
@@ -209,15 +226,15 @@ export default function PluginInspect(options: Options = {}): Plugin {
     createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, {
       list,
       getIdInfo,
-      getPluginMetics,
+      getPluginMetrics,
       resolveId,
       clear,
     })
 
-    function list() {
-      const modules = Object.keys(transformMap).sort()
+    function getModulesInfo(map: TransformMap) {
+      return Object.keys(map).sort()
         .map((id): ModuleInfo => {
-          const plugins = transformMap[id]?.map(i => i.name)
+          const plugins = map[id]?.map(i => i.name)
           const deps = Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
             .map(i => i.id || '')
             .filter(Boolean)
@@ -228,20 +245,24 @@ export default function PluginInspect(options: Options = {}): Plugin {
             virtual: plugins[0] !== '__load__',
           }
         })
+    }
 
+    function list() {
       return {
         root: config.root,
-        modules,
+        modules: getModulesInfo(transformMap),
+        ssrModules: getModulesInfo(transformMapSSR),
       }
     }
 
-    function clear(_id?: string) {
+    function clear(_id?: string, ssr = false) {
       const id = resolveId(_id)
       if (id) {
         const mod = server.moduleGraph.getModuleById(id)
         if (mod)
           server.moduleGraph.invalidateModule(mod)
-        delete transformMap[id]
+        const map = ssr ? transformMapSSR : transformMap
+        delete map[id]
       }
     }
 
@@ -266,8 +287,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
     configureServer,
     load: {
       order: 'pre',
-      handler(id) {
-        delete transformMap[id]
+      handler(id, { ssr } = {}) {
+        const map = ssr ? transformMapSSR : transformMap
+        delete map[id]
         return null
       },
     },

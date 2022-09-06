@@ -2,18 +2,18 @@
 import type { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { msToTime } from '../../logic/utils'
-import { enableDiff, lineWrapping, onRefetch } from '../../logic'
+import { enableDiff, inspectSSR, lineWrapping, onRefetch } from '../../logic'
 import { rpc } from '../../logic/rpc'
 
 const route = useRoute()
 const id = computed(() => route?.query.id as string)
 
-const data = ref(await rpc.getIdInfo(id.value))
+const data = ref(await rpc.getIdInfo(id.value, inspectSSR.value))
 const index = useRouteQuery('index') as Ref<string>
 const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
 
 async function refetch() {
-  const resolved = await rpc.resolveId(id.value)
+  const resolved = await rpc.resolveId(id.value, inspectSSR.value)
   if (resolved) {
     // revaluate the module (if it's not initialized by the module graph)
     // if (resolved)
@@ -24,7 +24,7 @@ async function refetch() {
     }
     catch (_) {}
   }
-  data.value = await rpc.getIdInfo(id.value)
+  data.value = await rpc.getIdInfo(id.value, inspectSSR.value)
 }
 
 onRefetch.on(async () => {

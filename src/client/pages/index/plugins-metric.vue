@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { onRefetch } from '../../logic'
+import { inspectSSR, onRefetch } from '../../logic'
 import { rpc } from '../../logic/rpc'
 
-const data = ref(await rpc.getPluginMetics())
+const data = ref(await rpc.getPluginMetrics())
 
 const plugins = computed(
   () => data.value || [],
@@ -19,7 +19,7 @@ function getLatencyColor(latency: number) {
 }
 
 onRefetch.on(async () => {
-  data.value = await rpc.getPluginMetics()
+  data.value = await rpc.getPluginMetrics(inspectSSR.value)
 })
 </script>
 
