@@ -17,6 +17,8 @@ const debug = _debug('vite-plugin-inspect')
 // initial tranform (load from fs)
 const dummyLoadPluginName = '__load__'
 
+const CLIENT_ROUTE = '/__inspect'
+
 export interface Options {
   /**
    * Enable the inspect plugin in dev mode (could be some performance overhead)
@@ -230,7 +232,13 @@ export default function PluginInspect(options: Options = {}): Plugin {
       return _invalidateModule.apply(this, args)
     }
 
-    server.middlewares.use('/__inspect', sirv(DIR_CLIENT, {
+    server.middlewares.use((req, res, next) => {
+      if (req.originalUrl?.includes(CLIENT_ROUTE))
+        req.url = req.originalUrl
+      next()
+    })
+
+    server.middlewares.use(CLIENT_ROUTE, sirv(DIR_CLIENT, {
       single: true,
       dev: true,
     }))
@@ -300,7 +308,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const host = server.resolvedUrls?.local[0] || `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}/`
       _print()
       // eslint-disable-next-line no-console
-      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}__inspect/`)}\n`)
+      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}${CLIENT_ROUTE}/`)}\n`)
     }
   }
 
