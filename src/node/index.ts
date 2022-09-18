@@ -411,6 +411,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
       },
     },
     async buildEnd() {
+      if (!build)
+        return
       const dir = await generateBuild()
       // eslint-disable-next-line no-console
       console.log(green('Inspect report generated at'), dim(`${dir}`))
