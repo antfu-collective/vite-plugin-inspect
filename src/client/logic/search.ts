@@ -6,6 +6,7 @@ import { inspectSSR, list } from './state'
 export const searchText = useStorage('vite-inspect-search-text', '')
 export const includeNodeModules = useStorage('vite-inspect-include-node-modules', false)
 export const includeVirtual = useStorage('vite-inspect-include-virtual', false)
+export const exactSearch = useStorage('vite-inspect-exact-search', false)
 
 export const searchResults = computed(() => {
   let data = (
@@ -23,10 +24,17 @@ export const searchResults = computed(() => {
   if (!searchText.value)
     return data
 
-  const fuse = new Fuse(data, {
-    shouldSort: true,
-    keys: ['id', 'plugins'],
-  })
-
-  return fuse.search(searchText.value).map(i => i.item)
+  if (exactSearch.value) {
+    return data.filter(item =>
+      item.id.includes(searchText.value)
+      || item.plugins.some(plugin => plugin.includes(searchText.value)),
+    )
+  }
+  else {
+    const fuse = new Fuse(data, {
+      shouldSort: true,
+      keys: ['id', 'plugins'],
+    })
+    return fuse.search(searchText.value).map(i => i.item)
+  }
 })
