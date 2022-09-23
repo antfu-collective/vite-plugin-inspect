@@ -402,14 +402,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
       config.plugins.forEach(hijackPlugin)
     },
     configureServer,
-    load: {
-      order: 'pre',
-      handler(id, { ssr } = {}) {
-        const map = ssr ? transformMapSSR : transformMap
-        delete map[id]
-        return null
-      },
-    },
     async buildEnd() {
       if (!build)
         return
