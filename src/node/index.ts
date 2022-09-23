@@ -270,7 +270,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
             id,
             plugins,
             deps,
-            virtual: plugins[0] !== '__load__',
+            virtual: plugins[0] !== dummyLoadPluginName,
           }
         })
     }
@@ -337,7 +337,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
             id,
             deps: [],
             plugins,
-            virtual: plugins[0] !== '__load__' && map[id][0].name !== 'vite:load-fallback',
+            virtual: plugins[0] !== dummyLoadPluginName && map[id][0].name !== 'vite:load-fallback',
           }
         })
     }
