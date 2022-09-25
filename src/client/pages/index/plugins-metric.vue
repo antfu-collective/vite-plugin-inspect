@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { hot } from 'vite-hot-client'
 import { inspectSSR, onRefetch } from '../../logic'
 import { rpc } from '../../logic/rpc'
 
@@ -18,9 +19,19 @@ function getLatencyColor(latency: number) {
   return ''
 }
 
-onRefetch.on(async () => {
+async function refetch() {
   data.value = await rpc.getPluginMetrics(inspectSSR.value)
+}
+
+onRefetch.on(async () => {
+  await refetch()
 })
+
+if (hot) {
+  hot.on('vite-plugin-inspect:update', () => {
+    refetch()
+  })
+}
 </script>
 
 <template>
