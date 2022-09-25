@@ -40,3 +40,7 @@ export interface RPCFunctions {
   clear(id: string, ssr: boolean): Awaitable<void>
   getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
 }
+
+export interface HMRData {
+  ids: (string | null)[]
+}

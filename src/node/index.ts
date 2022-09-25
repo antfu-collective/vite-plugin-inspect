@@ -9,7 +9,7 @@ import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
 import { hash } from 'ohash'
-import type { ModuleInfo, ModuleTransformInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
+import type { HMRData, ModuleInfo, ModuleTransformInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
 
 const debug = _debug('vite-plugin-inspect')
@@ -409,6 +409,15 @@ export default function PluginInspect(options: Options = {}): Plugin {
         delete map[id]
         return null
       },
+    },
+    handleHotUpdate({ modules, server }) {
+      const ids = modules.map(module => module.id)
+      server.ws.send({
+        type: 'custom',
+        event: 'vite-plugin-inspect:update',
+        data: { ids } as HMRData,
+      })
+      return []
     },
     async buildEnd() {
       if (!build)
