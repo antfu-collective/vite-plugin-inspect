@@ -417,7 +417,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
         event: 'vite-plugin-inspect:update',
         data: { ids } as HMRData,
       })
-      return []
     },
     async buildEnd() {
       if (!build)
