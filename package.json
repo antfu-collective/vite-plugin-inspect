@@ -1,0 +1,102 @@
+{
+  "name": "vite-plugin-inspect",
+  "version": "0.7.4",
+  "packageManager": "pnpm@7.5.0",
+  "description": "Inspect the intermediate state of Vite plugins",
+  "author": "Anthony Fu <anthonyfu117@hotmail.com>",
+  "license": "MIT",
+  "funding": "https://github.com/sponsors/antfu",
+  "homepage": "https://github.com/antfu/vite-plugin-inspect#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antfu/vite-plugin-inspect.git"
+  },
+  "bugs": {
+    "url": "https://github.com/antfu/vite-plugin-inspect/issues"
+  },
+  "keywords": [
+    "vite-plugin"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    },
+    "./*": "./*"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "build": "rimraf dist && run-s build:*",
+    "build:client": "vite build src/client",
+    "build:js": "unbuild",
+    "dev": "nr stub && cross-env INSPECT_DEV=true vite src/client",
+    "dev:client": "vite build src/client --watch",
+    "stub": "unbuild --stub",
+    "lint": "eslint .",
+    "prepublishOnly": "npm run build",
+    "release": "bumpp --commit --push --tag && npm publish"
+  },
+  "peerDependencies": {
+    "vite": "^3.1.0"
+  },
+  "dependencies": {
+    "@rollup/pluginutils": "^4.2.1",
+    "debug": "^4.3.4",
+    "fs-extra": "^10.1.0",
+    "kolorist": "^1.5.1",
+    "sirv": "^2.0.2",
+    "ufo": "^0.8.5"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^0.26.3",
+    "@antfu/ni": "^0.18.0",
+    "@antfu/utils": "^0.5.2",
+    "@iconify/json": "^2.1.103",
+    "@types/codemirror": "^5.60.5",
+    "@types/debug": "^4.1.7",
+    "@types/diff-match-patch": "^1.0.32",
+    "@types/fs-extra": "^9.0.13",
+    "@types/node": "^18.7.15",
+    "@vitejs/plugin-vue": "^3.1.0",
+    "@vue/compiler-sfc": "^3.2.38",
+    "@vueuse/core": "^9.2.0",
+    "@vueuse/router": "^9.2.0",
+    "bumpp": "^8.2.1",
+    "codemirror": "^5.65.8",
+    "codemirror-theme-vars": "^0.1.1",
+    "comlink": "^4.3.1",
+    "cross-env": "^7.0.3",
+    "diff-match-patch": "^1.0.5",
+    "eslint": "^8.23.0",
+    "esno": "^0.16.3",
+    "fuse.js": "^6.6.2",
+    "npm-run-all": "^4.1.5",
+    "ohash": "^0.1.5",
+    "prism-theme-vars": "^0.2.4",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.8.2",
+    "unbuild": "^0.8.10",
+    "unocss": "^0.45.18",
+    "unplugin-auto-import": "^0.11.2",
+    "unplugin-icons": "^0.14.9",
+    "unplugin-vue-components": "^0.22.4",
+    "vis-data": "7.1.4",
+    "vis-network": "9.1.2",
+    "vite": "^3.1.0",
+    "vite-dev-rpc": "^0.1.0",
+    "vite-hot-client": "^0.1.0",
+    "vite-plugin-pages": "^0.26.0",
+    "vue": "^3.2.38",
+    "vue-router": "^4.1.5"
+  }
+}

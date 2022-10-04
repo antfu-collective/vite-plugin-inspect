@@ -1,0 +1,6 @@
+{
+  "extends": "@antfu",
+  "rules": {
+    "vue/no-v-text-v-html-on-component": "off"
+  }
+}

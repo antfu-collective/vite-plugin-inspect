@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext", "DOM"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "jsx": "preserve",
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "types": [
+      "vite-plugin-pages/client",
+      "unplugin-icons/types/vue",
+      "vite/client"
+    ]
+  }
+}
