@@ -230,7 +230,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       return _invalidateModule.apply(this, args)
     }
 
-    server.middlewares.use('/__inspect', sirv(DIR_CLIENT, {
+    server.middlewares.use(`${config.base ? config.base : '/'}__inspect`, sirv(DIR_CLIENT, {
       single: true,
       dev: true,
     }))
