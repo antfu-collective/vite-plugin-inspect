@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
-import { useCodeMirror } from '../logic/codemirror'
+import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 import { enableDiff, lineWrapping } from '../logic/state'
 import { calculateDiffWithWorker } from '../worker/diff'
@@ -33,6 +33,8 @@ onMounted(() => {
       scrollbarStyle: 'null',
     },
   )
+
+  syncCmHorizontalScrolling(cm1, cm2)
 
   watchEffect(() => {
     cm1.setOption('lineWrapping', lineWrapping.value)

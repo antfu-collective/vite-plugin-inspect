@@ -51,3 +51,26 @@ export function useCodeMirror(
 
   return cm
 }
+
+export function syncCmHorizontalScrolling(
+  cm1: CodeMirror.EditorFromTextArea,
+  cm2: CodeMirror.EditorFromTextArea,
+) {
+  let activeCm = 1
+
+  cm1.getWrapperElement().addEventListener('mouseenter', () => {
+    activeCm = 1
+  })
+  cm2.getWrapperElement().addEventListener('mouseenter', () => {
+    activeCm = 2
+  })
+
+  cm1.on('scroll', (editor) => {
+    if (activeCm === 1)
+      cm2.scrollTo(editor.getScrollInfo().left)
+  })
+  cm2.on('scroll', (editor) => {
+    if (activeCm === 2)
+      cm1.scrollTo(editor.getScrollInfo().left)
+  })
+}
