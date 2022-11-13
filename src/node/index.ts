@@ -54,6 +54,13 @@ export interface Options {
    * Filter for modules to not be inspected
    */
   exclude?: FilterPattern
+
+  /**
+   * Base URL for inspector UI
+   *
+   * @default read from Vite's config
+   */
+  base?: string
 }
 
 type HookHandler<T> = T extends ObjectHook<infer F> ? F : T
@@ -230,7 +237,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
       return _invalidateModule.apply(this, args)
     }
 
-    server.middlewares.use(`${config.base ? config.base : '/'}__inspect`, sirv(DIR_CLIENT, {
+    const base = (options.base ?? server.config.base) || '/'
+
+    server.middlewares.use(`${base}__inspect`, sirv(DIR_CLIENT, {
       single: true,
       dev: true,
     }))
@@ -297,10 +306,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
     const _print = server.printUrls
     server.printUrls = () => {
       const colorUrl = (url: string) => green(url.replace(/:(\d+)\//, (_, port) => `:${bold(port)}/`))
-      const host = server.resolvedUrls?.local[0] || `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}/`
+      const host = server.resolvedUrls?.local[0] || `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
       _print()
       // eslint-disable-next-line no-console
-      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}__inspect/`)}\n`)
+      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}\n`)
     }
   }
 
