@@ -109,18 +109,24 @@ export default function PluginInspect(options: Options = {}): Plugin {
       // rollup hook
       const oldFn = hook.handler
       order += `-${hook.order || hook.enforce || 'normal'}`
-      hook.handler = function (this: any, ...args: any) { return wrapper(oldFn, this, args, order) }
+      hook.handler = function (this: any, ...args: any) {
+        return wrapper(oldFn, this, args, order)
+      }
     }
     else if ('transform' in hook) {
       // transformIndexHTML
       const oldFn = hook.transform
       order += `-${hook.order || hook.enforce || 'normal'}`
-      hook.transform = function (this: any, ...args: any) { return wrapper(oldFn, this, args, order) }
+      hook.transform = function (this: any, ...args: any) {
+        return wrapper(oldFn, this, args, order)
+      }
     }
     else {
       // vite hook
       const oldFn = hook
-      plugin[name] = function (this: any, ...args: any) { return wrapper(oldFn, this, args, order) }
+      plugin[name] = function (this: any, ...args: any) {
+        return wrapper(oldFn, this, args, order)
+      }
     }
   }
 
