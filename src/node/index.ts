@@ -315,7 +315,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const host = server.resolvedUrls?.local[0].replace(/\/$/, '') || `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
       _print()
       // eslint-disable-next-line no-console
-      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}\n`)
+      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
     }
   }
 
