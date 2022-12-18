@@ -7,15 +7,14 @@ import { enableDiff, inspectSSR, lineWrapping, onRefetch } from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 
-const route = useRoute()
-const id = computed(() => route?.query.id as string)
-
-const data = ref(await rpc.getIdInfo(id.value, inspectSSR.value))
+const id = useRouteQuery<string | undefined>('id')
+const data = ref(id.value ? await rpc.getIdInfo(id.value, inspectSSR.value) : undefined)
 const index = useRouteQuery('index') as Ref<string>
 const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
 
 async function refetch() {
-  data.value = await rpc.getIdInfo(id.value, inspectSSR.value, true)
+  if (id.value)
+    data.value = await rpc.getIdInfo(id.value, inspectSSR.value, true)
 }
 
 onRefetch.on(async () => {
@@ -29,7 +28,7 @@ const to = computed(() => data.value?.transforms[currentIndex.value]?.result || 
 
 if (hot) {
   hot.on('vite-plugin-inspect:update', ({ ids }: HMRData) => {
-    if (ids.includes(id.value))
+    if (id.value && ids.includes(id.value))
       refetch()
   })
 }
