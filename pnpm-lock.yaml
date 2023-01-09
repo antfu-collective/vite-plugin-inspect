@@ -51,6 +51,7 @@ importers:
       vue: ^3.2.45
       vue-router: ^4.1.6
     dependencies:
+      '@antfu/utils': 0.7.2
       '@rollup/pluginutils': 5.0.2
       debug: 4.3.4
       fs-extra: 11.1.0
@@ -60,7 +61,6 @@ importers:
     devDependencies:
       '@antfu/eslint-config': 0.34.1_iukboom6ndih5an6iafl45j2fe
       '@antfu/ni': 0.18.8
-      '@antfu/utils': 0.7.2
       '@iconify/json': 2.2.4
       '@types/codemirror': 5.60.6
       '@types/debug': 4.1.7
@@ -237,7 +237,6 @@ packages:
 
   /@antfu/utils/0.7.2:
     resolution: {integrity: sha512-vy9fM3pIxZmX07dL+VX1aZe7ynZ+YyB0jY+jE6r3hOK6GNY2t6W8rzpFC4tgpbXUYABkFQwgJq2XYXlxbXAI0g==}
-    dev: true
 
   /@babel/code-frame/7.18.6:
     resolution: {integrity: sha512-TDCmlK5eOvH+eH7cdAFlNXeVJqWIQ7gW9tY1GJIpUtFb6CmjVyq2VM3u71bOyR8CRihcCgMUYoDNyLXao3+70Q==}

@@ -459,6 +459,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
   return plugin
 }
 
-export function getViteInspectAPI(plugins: Plugin[]): ViteInspectAPI | undefined {
+PluginInspect.getViteInspectAPI = function (plugins: Plugin[]): ViteInspectAPI | undefined {
   return plugins.find(p => p.name === NAME)?.api
 }

@@ -50,6 +50,7 @@
     "vite": "^3.1.0 || ^4.0.0"
   },
   "dependencies": {
+    "@antfu/utils": "^0.7.2",
     "@rollup/pluginutils": "^5.0.2",
     "debug": "^4.3.4",
     "fs-extra": "^11.1.0",
@@ -60,7 +61,6 @@
   "devDependencies": {
     "@antfu/eslint-config": "^0.34.1",
     "@antfu/ni": "^0.18.8",
-    "@antfu/utils": "^0.7.2",
     "@iconify/json": "^2.2.4",
     "@types/codemirror": "^5.60.6",
     "@types/debug": "^4.1.7",
