@@ -13,6 +13,7 @@ import type { HMRData, ModuleInfo, ModuleTransformInfo, PluginMetricInfo, RPCFun
 import { DIR_CLIENT } from '../dir'
 
 const debug = _debug('vite-plugin-inspect')
+const NAME = 'vite-plugin-inspect'
 
 // initial tranform (load from fs)
 const dummyLoadPluginName = '__load__'
@@ -71,6 +72,10 @@ type HookWrapper<K extends keyof Plugin> = (
   order: string
 ) => ReturnType<HookHandler<Plugin[K]>>
 
+export interface ViteInspectAPI {
+  rpc: RPCFunctions
+}
+
 export default function PluginInspect(options: Options = {}): Plugin {
   const {
     dev = true,
@@ -80,7 +85,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   if (!dev && !build) {
     return {
-      name: 'vite-plugin-inspect',
+      name: NAME,
     }
   }
 
@@ -232,7 +237,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     return metrics
   }
 
-  function configureServer(server: ViteDevServer) {
+  function configureServer(server: ViteDevServer): RPCFunctions {
     const _invalidateModule = server.moduleGraph.invalidateModule
     server.moduleGraph.invalidateModule = function (...args) {
       const mod = args[0]
@@ -250,13 +255,15 @@ export default function PluginInspect(options: Options = {}): Plugin {
       dev: true,
     }))
 
-    createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, {
+    const rpcFunctions = {
       list,
       getIdInfo,
       getPluginMetrics,
       resolveId,
       clear: clearId,
-    })
+    }
+
+    createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
 
     async function getIdInfo(id: string, ssr = false, clear = false) {
       if (clear) {
@@ -317,6 +324,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
       // eslint-disable-next-line no-console
       console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
     }
+
+    return rpcFunctions
   }
 
   async function generateBuild() {
@@ -402,8 +411,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
     return targetDir
   }
 
-  return <Plugin>{
-    name: 'vite-plugin-inspect',
+  const plugin = <Plugin>{
+    name: NAME,
     enforce: 'pre',
     apply(_, { command }) {
       if (command === 'serve' && dev)
@@ -416,7 +425,12 @@ export default function PluginInspect(options: Options = {}): Plugin {
       config = _config
       config.plugins.forEach(hijackPlugin)
     },
-    configureServer,
+    configureServer(server) {
+      const rpc = configureServer(server)
+      plugin.api = {
+        rpc,
+      }
+    },
     load: {
       order: 'pre',
       handler(id, { ssr } = {}) {
@@ -441,4 +455,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
       console.log(green('Inspect report generated at'), dim(`${dir}`))
     },
   }
+
+  return plugin
+}
+
+export function getViteInspectAPI(plugins: Plugin[]): ViteInspectAPI | undefined {
+  return plugins.find(p => p.name === NAME)?.api
 }
