@@ -18,7 +18,7 @@ const data = computed<Data>(() => {
     return {
       id: mod.id,
       label: path.split('/').splice(-1)[0],
-      group: path.split('/').slice(0, -1).join('/'),
+      group: path.match(/\.(\w+)$/)?.[1] || 'unknown',
       size: 15 + Math.min(mod.deps.length / 2, 8),
       font: { color: isDark.value ? 'white' : 'black' },
       shape: mod.id.includes('/node_modules/')
@@ -63,6 +63,35 @@ onMounted(() => {
       stabilization: {
         enabled: true,
         iterations: 200,
+      },
+    },
+    groups: {
+      vue: {
+        color: '#42b883',
+      },
+      ts: {
+        color: '#41b1e0',
+      },
+      js: {
+        color: '#d6cb2d',
+      },
+      json: {
+        color: '#cf8f30',
+      },
+      css: {
+        color: '#e6659a',
+      },
+      html: {
+        color: '#e34c26',
+      },
+      svelte: {
+        color: '#ff3e00',
+      },
+      jsx: {
+        color: '#7d6fe8',
+      },
+      tsx: {
+        color: '#7d6fe8',
       },
     },
   }
