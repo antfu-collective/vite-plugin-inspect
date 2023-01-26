@@ -16,6 +16,7 @@ declare module '@vue/runtime-core' {
     'Carbon:network4': typeof import('~icons/carbon/network4')['default']
     'Carbon:openPanelFilledRight': typeof import('~icons/carbon/open-panel-filled-right')['default']
     'Carbon:openPanelRight': typeof import('~icons/carbon/open-panel-right')['default']
+    'Carbon:query': typeof import('~icons/carbon/query')['default']
     'Carbon:renew': typeof import('~icons/carbon/renew')['default']
     'Carbon:textWrap': typeof import('~icons/carbon/text-wrap')['default']
     'Carbon:timer': typeof import('~icons/carbon/timer')['default']

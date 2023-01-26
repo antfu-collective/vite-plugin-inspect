@@ -3,7 +3,7 @@ import { isDark, isStaticMode, refetch, toggleDark } from '../logic'
 </script>
 
 <template>
-  <nav class="font-light px-6 border-b border-main flex gap-4 h-54px children:my-auto">
+  <nav class="font-light pr-6 pl-4 border-b border-main flex gap-4 h-54px children:my-auto">
     <slot />
     <button v-if="!isStaticMode" class="icon-btn text-lg" title="Refetch" @click="refetch()">
       <carbon:renew />
