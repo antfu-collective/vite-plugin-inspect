@@ -25,7 +25,7 @@ import { exactSearch, includeNodeModules, includeVirtual, inspectSSR, searchText
       </label>
       <label class="flex">
         <input v-model="exactSearch" type="checkbox" class="my-auto">
-        <div class="ml-1">exact</div>
+        <div class="ml-1">exact search</div>
       </label>
     </div>
   </div>

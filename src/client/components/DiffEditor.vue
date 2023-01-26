@@ -2,10 +2,13 @@
 import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
 import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
-import { enableDiff, lineWrapping } from '../logic/state'
+import { enableDiff, lineWrapping, showOneColumn } from '../logic/state'
 import { calculateDiffWithWorker } from '../worker/diff'
 
-const props = defineProps<{ from: string; to: string }>()
+const props = defineProps<{
+  from: string
+  to: string
+}>()
 const { from, to } = toRefs(props)
 
 const fromEl = ref<HTMLTextAreaElement>()
@@ -41,6 +44,11 @@ onMounted(() => {
     cm2.setOption('lineWrapping', lineWrapping.value)
   })
 
+  watchEffect(() => {
+    // @ts-expect-error untyped
+    cm1.display.wrapper.style.display = showOneColumn.value ? 'none' : ''
+  })
+
   watchEffect(async () => {
     const l = from.value
     const r = to.value
@@ -64,7 +72,7 @@ onMounted(() => {
       .fill(null!)
       .map((_, i) => cm2.removeLineClass(i, 'background', 'diff-added'))
 
-    if (showDiff) {
+    if (showDiff && from.value) {
       const changes = await calculateDiffWithWorker(l, r)
 
       const addedLines = new Set()
@@ -108,9 +116,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-[1fr_min-content_1fr] h-full overflow-auto">
+  <div
+    class="grid h-full overflow-auto"
+    :class="showOneColumn ? 'grid-cols-[1fr]' : 'grid-cols-[1fr_min-content_1fr]'"
+  >
     <textarea ref="fromEl" v-text="from" />
-    <div class="border-main border-r" />
+    <div v-show="!showOneColumn" class="border-main border-r" />
     <textarea ref="toEl" v-text="to" />
   </div>
 </template>

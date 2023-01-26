@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { hot } from 'vite-hot-client'
 import { msToTime } from '../../logic/utils'
-import { enableDiff, inspectSSR, lineWrapping, onRefetch } from '../../logic'
+import { enableDiff, inspectSSR, lineWrapping, onRefetch, showOneColumn } from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 
@@ -47,11 +47,16 @@ if (hot) {
       SSR
     </Badge>
     <div class="flex-auto" />
+
     <button class="icon-btn text-lg" title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <carbon:cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button class="icon-btn text-lg" title="Line Wrapping" @click="lineWrapping = !lineWrapping">
       <carbon:text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+    </button>
+    <button class="icon-btn text-lg" title="Toggle one column" @click="showOneColumn = !showOneColumn">
+      <carbon-side-panel-open v-if="showOneColumn" />
+      <carbon-side-panel-close v-else />
     </button>
     <button class="icon-btn text-lg" title="Toggle Diff" @click="enableDiff = !enableDiff">
       <carbon:compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
