@@ -52,13 +52,8 @@ onMounted(() => {
       size: 16,
     },
     physics: {
-      repulsion: {
-        centralGravity: 0.7,
-        springLength: 100,
-        springConstant: 0.01,
-      },
       maxVelocity: 146,
-      solver: 'repulsion',
+      solver: 'forceAtlas2Based',
       timestep: 0.35,
       stabilization: {
         enabled: true,
