@@ -118,13 +118,13 @@ onMounted(() => {
 
 <template>
   <Splitpanes
-    class=" h-full overflow-auto flex "
+    class=" h-full overflow-auto flex"
   >
-    <Pane v-show="!showOneColumn" min-size="10">
+    <Pane v-show="!showOneColumn" min-size="10" class="h-fit">
       <textarea ref="fromEl" v-text="from" />
       <div class="border-main border-r" />
     </Pane>
-    <Pane min-size="10" class="flex">
+    <Pane min-size="10" class="h-fit">
       <textarea ref="toEl" v-text="to" />
     </Pane>
   </Splitpanes>
