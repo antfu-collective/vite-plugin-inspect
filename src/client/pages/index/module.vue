@@ -99,7 +99,7 @@ if (hot) {
           </button>
         </template>
       </Pane>
-      <Pane>
+      <Pane min-size="5">
         <DiffEditor :from="from" :to="to" />
       </Pane>
     </Splitpanes>
