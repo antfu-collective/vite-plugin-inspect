@@ -68,7 +68,7 @@ if (hot) {
     class="flex overflow-hidden"
   >
     <Splitpanes>
-      <Pane size="20" min-size="5" class="flex flex-col border-r border-main">
+      <Pane size="20" min-size="5" class="flex flex-col border-r border-main overflow-y-auto">
         <div
           class="border-b border-main px-3 py-2 text-center text-sm tracking-widest text-gray-400"
         >
