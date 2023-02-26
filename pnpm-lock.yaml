@@ -35,6 +35,7 @@ importers:
       prism-theme-vars: ^0.2.4
       rimraf: ^4.1.2
       sirv: ^2.0.2
+      splitpanes: ^3.1.5
       typescript: ^4.9.4
       ufo: ^1.0.1
       unbuild: ^1.1.1
@@ -84,6 +85,7 @@ importers:
       ohash: 1.0.0
       prism-theme-vars: 0.2.4
       rimraf: 4.1.2
+      splitpanes: 3.1.5
       typescript: 4.9.4
       unbuild: 1.1.1
       unocss: 0.49.0_vite@4.0.4
@@ -1520,7 +1522,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.0.4
+      vite: 4.0.4_@types+node@18.11.18
       vue: 3.2.45
     dev: true
 
@@ -4706,6 +4708,10 @@ packages:
 
   /spdx-license-ids/3.0.12:
     resolution: {integrity: sha512-rr+VVSXtRhO4OHbXUiAF7xW3Bo9DuuF6C5jH+q/x15j2jniycgKbxU09Hr0WqlSLUs4i4ltHGXqTe7VHclYWyA==}
+    dev: true
+
+  /splitpanes/3.1.5:
+    resolution: {integrity: sha512-r3Mq2ITFQ5a2VXLOy4/Sb2Ptp7OfEO8YIbhVJqJXoFc9hc5nTXXkCvtVDjIGbvC0vdE7tse+xTM9BMjsszP6bw==}
     dev: true
 
   /streamsearch/1.1.0:

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
+import { Pane, Splitpanes } from 'splitpanes'
 import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 import { enableDiff, lineWrapping, showOneColumn } from '../logic/state'
@@ -116,14 +117,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="grid h-full overflow-auto"
-    :class="showOneColumn ? 'grid-cols-[1fr]' : 'grid-cols-[1fr_min-content_1fr]'"
+  <Splitpanes
+    class=" h-full overflow-auto flex "
   >
-    <textarea ref="fromEl" v-text="from" />
-    <div v-show="!showOneColumn" class="border-main border-r" />
-    <textarea ref="toEl" v-text="to" />
-  </div>
+    <Pane v-show="!showOneColumn" min-size="10">
+      <textarea ref="fromEl" v-text="from" />
+      <div class="border-main border-r" />
+    </Pane>
+    <Pane min-size="10" class="flex">
+      <textarea ref="toEl" v-text="to" />
+    </Pane>
+  </Splitpanes>
 </template>
 
 <style lang="postcss">
