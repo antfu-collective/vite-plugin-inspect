@@ -12,6 +12,7 @@ const id = useRouteQuery<string | undefined>('id')
 const data = ref(id.value ? await rpc.getIdInfo(id.value, inspectSSR.value) : undefined)
 const index = useRouteQuery('index') as Ref<string>
 const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
+const panelSize = useLocalStorage('vite-inspect-module-panel-size', '20')
 
 async function refetch() {
   if (id.value)
@@ -67,8 +68,8 @@ if (hot) {
     v-if="data && data.transforms"
     class="flex overflow-hidden"
   >
-    <Splitpanes>
-      <Pane size="20" min-size="5" class="flex flex-col border-r border-main overflow-y-auto">
+    <Splitpanes @resize="panelSize = $event[0].size">
+      <Pane :size="panelSize" min-size="5" class="flex flex-col border-r border-main overflow-y-auto">
         <div
           class="border-b border-main px-3 py-2 text-center text-sm tracking-widest text-gray-400"
         >
