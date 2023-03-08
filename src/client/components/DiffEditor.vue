@@ -12,7 +12,7 @@ const props = defineProps<{
 }>()
 const { from, to } = toRefs(props)
 
-const size = useLocalStorage('vite-inspect-diff-panel-size', '30')
+const panelSize = useLocalStorage('vite-inspect-diff-panel-size', '30')
 
 const fromEl = ref<HTMLTextAreaElement>()
 const toEl = ref<HTMLTextAreaElement>()
@@ -121,9 +121,9 @@ onMounted(() => {
 <template>
   <Splitpanes
     class=" h-full overflow-auto flex"
-    @resize="size = $event[0].size"
+    @resize="panelSize = $event[0].size"
   >
-    <Pane v-show="!showOneColumn" min-size="10" :size="size" class="h-fit">
+    <Pane v-show="!showOneColumn" min-size="10" :size="panelSize" class="h-fit">
       <textarea ref="fromEl" v-text="from" />
       <div class="border-main border-r" />
     </Pane>
