@@ -135,15 +135,15 @@ onMounted(() => {
 
 <style lang="postcss">
 .diff-added {
-  @apply bg-green-400/15;
+  --at-apply: bg-green-400/15;
 }
 .diff-removed {
-  @apply bg-red-400/15;
+  --at-apply: bg-red-400/15;
 }
 .diff-added-inline {
-  @apply bg-green-400/30;
+  --at-apply: bg-green-400/30;
 }
 .diff-removed-inline {
-  @apply bg-red-400/30;
+  --at-apply: bg-red-400/30;
 }
 </style>
