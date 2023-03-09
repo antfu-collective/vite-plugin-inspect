@@ -1,4 +1,4 @@
-import { join, resolve } from 'path'
+import { join, resolve } from 'node:path'
 import fs from 'fs-extra'
 import _debug from 'debug'
 import { bold, dim, green } from 'kolorist'

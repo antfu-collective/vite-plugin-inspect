@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
-import { hot } from 'vite-hot-client'
 import { msToTime } from '../../logic/utils'
 import { enableDiff, inspectSSR, lineWrapping, onRefetch, showOneColumn } from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
+import { getHot } from '../../logic/hot'
 
 const id = useRouteQuery<string | undefined>('id')
 const data = ref(id.value ? await rpc.getIdInfo(id.value, inspectSSR.value) : undefined)
@@ -26,12 +26,14 @@ watch([id, inspectSSR], refetch)
 const from = computed(() => data.value?.transforms[currentIndex.value - 1]?.result || '')
 const to = computed(() => data.value?.transforms[currentIndex.value]?.result || '')
 
-if (hot) {
-  hot.on('vite-plugin-inspect:update', ({ ids }: HMRData) => {
-    if (id.value && ids.includes(id.value))
-      refetch()
-  })
-}
+getHot().then((hot) => {
+  if (hot) {
+    hot.on('vite-plugin-inspect:update', ({ ids }: HMRData) => {
+      if (id.value && ids.includes(id.value))
+        refetch()
+    })
+  }
+})
 </script>
 
 <template>

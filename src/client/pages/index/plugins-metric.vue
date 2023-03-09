@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { hot } from 'vite-hot-client'
 import { inspectSSR, onRefetch } from '../../logic'
+import { getHot } from '../../logic/hot'
 import { rpc } from '../../logic/rpc'
 
 const data = ref(await rpc.getPluginMetrics(inspectSSR.value))
@@ -27,11 +27,13 @@ onRefetch.on(async () => {
   await refetch()
 })
 
-if (hot) {
-  hot.on('vite-plugin-inspect:update', () => {
-    refetch()
-  })
-}
+getHot().then((hot) => {
+  if (hot) {
+    hot.on('vite-plugin-inspect:update', () => {
+      refetch()
+    })
+  }
+})
 </script>
 
 <template>
