@@ -10,6 +10,7 @@ declare module '@vue/runtime-core' {
     Badge: typeof import('./components/Badge.vue')['default']
     'Carbon:cloudServices': typeof import('~icons/carbon/cloud-services')['default']
     'Carbon:compare': typeof import('~icons/carbon/compare')['default']
+    'Carbon:ibmWatsonDiscovery': typeof import('~icons/carbon/ibm-watson-discovery')['default']
     'Carbon:list': typeof import('~icons/carbon/list')['default']
     'Carbon:listBoxes': typeof import('~icons/carbon/list-boxes')['default']
     'Carbon:logoGithub': typeof import('~icons/carbon/logo-github')['default']
