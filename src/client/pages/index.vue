@@ -10,7 +10,7 @@ onMounted(() => {
 
 <template>
   <NavBar>
-    <carbon:query title="Vite Inspect" text-xl />
+    <carbon:ibm-watson-discovery title="Vite Inspect" text-xl />
 
     <SearchBox />
     <div class="flex-auto" />
