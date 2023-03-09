@@ -120,14 +120,14 @@ onMounted(() => {
 
 <template>
   <Splitpanes
-    class=" h-full overflow-auto flex"
+    class="h-full overflow-auto flex"
     @resize="panelSize = $event[0].size"
   >
-    <Pane v-show="!showOneColumn" min-size="10" :size="panelSize" class="h-fit">
+    <Pane v-show="!showOneColumn" min-size="10" :size="panelSize" class="h-full" border="r main">
       <textarea ref="fromEl" v-text="from" />
       <div class="border-main border-r" />
     </Pane>
-    <Pane min-size="10" class="h-fit">
+    <Pane min-size="10" class="h-full" >
       <textarea ref="toEl" v-text="to" />
     </Pane>
   </Splitpanes>
