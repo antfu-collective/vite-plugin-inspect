@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
+import { Pane, Splitpanes } from 'splitpanes'
 import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 import { enableDiff, lineWrapping, showOneColumn } from '../logic/state'
@@ -10,6 +11,8 @@ const props = defineProps<{
   to: string
 }>()
 const { from, to } = toRefs(props)
+
+const panelSize = useLocalStorage('vite-inspect-diff-panel-size', '30')
 
 const fromEl = ref<HTMLTextAreaElement>()
 const toEl = ref<HTMLTextAreaElement>()
@@ -116,14 +119,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="grid h-full overflow-auto"
-    :class="showOneColumn ? 'grid-cols-[1fr]' : 'grid-cols-[1fr_min-content_1fr]'"
+  <Splitpanes
+    class="h-full overflow-auto flex"
+    @resize="panelSize = $event[0].size"
   >
-    <textarea ref="fromEl" v-text="from" />
-    <div v-show="!showOneColumn" class="border-main border-r" />
-    <textarea ref="toEl" v-text="to" />
-  </div>
+    <Pane v-show="!showOneColumn" min-size="10" :size="panelSize" class="h-full" border="r main">
+      <textarea ref="fromEl" v-text="from" />
+      <div class="border-main border-r" />
+    </Pane>
+    <Pane min-size="10" class="h-full" >
+      <textarea ref="toEl" v-text="to" />
+    </Pane>
+  </Splitpanes>
 </template>
 
 <style lang="postcss">
