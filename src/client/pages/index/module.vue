@@ -70,7 +70,7 @@ getHot().then((hot) => {
     v-if="data && data.transforms"
     class="flex overflow-hidden"
   >
-    <Splitpanes @resize="panelSize = $event[0].size">
+    <Splitpanes class="h-full of-hidden" @resize="panelSize = $event[0].size">
       <Pane :size="panelSize" min-size="5" class="flex flex-col border-r border-main overflow-y-auto">
         <div
           class="border-b border-main px-3 py-2 text-center text-sm tracking-widest text-gray-400"
@@ -103,7 +103,9 @@ getHot().then((hot) => {
         </template>
       </Pane>
       <Pane min-size="5">
-        <DiffEditor :from="from" :to="to" />
+        <div h-full of-auto>
+          <DiffEditor :from="from" :to="to" h-unset />
+        </div>
       </Pane>
     </Splitpanes>
   </Container>
