@@ -9,7 +9,7 @@ import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
 import { hash } from 'ohash'
-import type { HMRData, ModuleInfo, ModuleTransformInfo, PluginMetricInfo, RPCFunctions, TransformInfo } from '../types'
+import type { HMRData, ModuleInfo, ModuleTransformInfo, PluginMetricInfo, RPCFunctions, ResolveIdInfo, TransformInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
 
 const debug = _debug('vite-plugin-inspect')
@@ -94,11 +94,12 @@ export default function PluginInspect(options: Options = {}): Plugin {
   let config: ResolvedConfig
 
   type TransformMap = Record<string, TransformInfo[]>
+  type ResolveIdMap = Record<string, ResolveIdInfo[]>
 
   const transformMap: TransformMap = {}
   const transformMapSSR: TransformMap = {}
-  const idMap: Record<string, string> = {}
-  const idMapSSR: Record<string, string> = {}
+  const idMap: ResolveIdMap = {}
+  const idMapSSR: ResolveIdMap = {}
 
   function hijackHook<K extends keyof Plugin>(plugin: Plugin, name: K, wrapper: HookWrapper<K>) {
     if (!plugin[name])
@@ -180,13 +181,18 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const id = args[0]
       const ssr = args[2]?.ssr
 
+      const start = Date.now()
       const _result = await fn.apply(context, args)
+      const end = Date.now()
 
       const result = typeof _result === 'object' ? _result?.id : _result
 
       const map = ssr ? idMapSSR : idMap
-      if (!id.startsWith('./') && result && result !== id)
-        map[id] = result
+      if (result && result !== id) {
+        if (!map[id])
+          map[id] = []
+        map[id].push({ name: plugin.name, result, start, end })
+      }
 
       return _result
     })
@@ -207,13 +213,16 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   function getPluginMetrics(ssr = false) {
     const map: Record<string, PluginMetricInfo> = {}
+    const defaultMetricInfo = (): Pick<PluginMetricInfo, 'transform' | 'resolveId'> => ({
+      transform: { invokeCount: 0, totalTime: 0 },
+      resolveId: { invokeCount: 0, totalTime: 0 },
+    })
 
     config.plugins.forEach((i) => {
       map[i.name] = {
+        ...defaultMetricInfo(),
         name: i.name,
         enforce: i.enforce,
-        invokeCount: 0,
-        totalTime: 0,
       }
     })
 
@@ -223,16 +232,24 @@ export default function PluginInspect(options: Options = {}): Plugin {
           if (name === dummyLoadPluginName)
             return
           if (!map[name])
-            map[name] = { name, totalTime: 0, invokeCount: 0 }
-          map[name].totalTime += end - start
-          map[name].invokeCount += 1
+            map[name] = { ...defaultMetricInfo(), name }
+          map[name].transform.totalTime += end - start
+          map[name].transform.invokeCount += 1
+        })
+      })
+
+    Object.values(ssr ? idMapSSR : idMap)
+      .forEach((resolveIdInfos) => {
+        resolveIdInfos.forEach(({ name, start, end }) => {
+          if (!map[name])
+            map[name] = { ...defaultMetricInfo(), name }
+          map[name].resolveId.totalTime += end - start
+          map[name].resolveId.invokeCount += 1
         })
       })
 
     const metrics = Object.values(map).filter(Boolean)
       .sort((a, b) => a.name.localeCompare(b.name))
-      .sort((a, b) => b.invokeCount - a.invokeCount)
-      .sort((a, b) => b.totalTime - a.totalTime)
 
     return metrics
   }
@@ -424,6 +441,32 @@ export default function PluginInspect(options: Options = {}): Plugin {
     configResolved(_config) {
       config = _config
       config.plugins.forEach(hijackPlugin)
+
+      const _createResolver = config.createResolver
+      // @ts-expect-error mutate readonly
+      config.createResolver = function (this: any, ...args: any) {
+        const _resolver = _createResolver.apply(this, args)
+
+        return async function (this: any, ...args: any) {
+          const id = args[0]
+          const aliasOnly = args[2]
+          const ssr = args[3]
+
+          const start = Date.now()
+          const result = await _resolver.apply(this, args)
+          const end = Date.now()
+
+          const map = ssr ? idMapSSR : idMap
+          if (result && result !== id) {
+            const pluginName = aliasOnly ? 'alias' : 'vite:resolve (+alias)'
+            if (!map[id])
+              map[id] = []
+            map[id].push({ name: pluginName, result, start, end })
+          }
+
+          return result
+        }
+      }
     },
     configureServer(server) {
       const rpc = configureServer(server)

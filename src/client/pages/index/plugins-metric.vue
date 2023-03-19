@@ -1,13 +1,34 @@
 <script setup lang="ts">
-import { inspectSSR, onRefetch } from '../../logic'
+import { inspectSSR, metricDisplayHook, onRefetch } from '../../logic'
 import { getHot } from '../../logic/hot'
 import { rpc } from '../../logic/rpc'
 
 const data = ref(await rpc.getPluginMetrics(inspectSSR.value))
 
-const plugins = computed(
-  () => data.value || [],
-)
+const displayHookOptions = ['transform', 'resolveId'].map(h => ({ label: h, value: h }))
+
+const plugins = computed(() => {
+  return data.value.map((info) => {
+    if (metricDisplayHook.value === 'transform') {
+      return {
+        name: info.name,
+        enforce: info.enforce,
+        totalTime: info.transform.totalTime,
+        invokeCount: info.transform.invokeCount,
+      }
+    }
+    else {
+      return {
+        name: info.name,
+        enforce: info.enforce,
+        totalTime: info.resolveId.totalTime,
+        invokeCount: info.resolveId.invokeCount,
+      }
+    }
+  })
+    .sort((a, b) => b.invokeCount - a.invokeCount)
+    .sort((a, b) => b.totalTime - a.totalTime)
+})
 
 function getLatencyColor(latency: number) {
   if (latency > 1000)
@@ -44,6 +65,10 @@ getHot().then((hot) => {
     <div class="text-sm font-mono my-auto">
       Plugins Metrics
     </div>
+    <SegmentControl
+      v-model="metricDisplayHook"
+      :options="displayHookOptions"
+    />
     <div class="flex-auto" />
   </NavBar>
   <Container v-if="data" class="overflow-auto">

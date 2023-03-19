@@ -8,6 +8,14 @@ export interface TransformInfo {
   order?: string
 }
 
+export interface ResolveIdInfo {
+  name: string
+  result: string
+  start: number
+  end: number
+  order?: string
+}
+
 export interface ModuleInfo {
   id: string
   plugins: string[]
@@ -28,9 +36,15 @@ export interface ModuleTransformInfo {
 
 export interface PluginMetricInfo {
   name: string
-  totalTime: number
-  invokeCount: number
   enforce?: string
+  transform: {
+    invokeCount: number
+    totalTime: number
+  }
+  resolveId: {
+    invokeCount: number
+    totalTime: number
+  }
 }
 
 export interface RPCFunctions {
