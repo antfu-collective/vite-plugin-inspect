@@ -206,8 +206,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   function resolveIdRec(id: string, ssr = false): string {
     const map = ssr ? idMapSSR : idMap
-    return map[id]
-      ? resolveIdRec(map[id], ssr)
+    return map[id]?.[0]
+      ? resolveIdRec(map[id][0].result, ssr)
       : id
   }
 
@@ -345,7 +345,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
         try {
           const u = new URL(url)
           host = `${u.protocol}//${u.host}`
-        } catch (error) {
+        }
+        catch (error) {
           console.warn('Parse resolved url failed:', error)
         }
       }
