@@ -35,5 +35,6 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchBox: typeof import('./components/SearchBox.vue')['default']
+    SegmentControl: typeof import('./components/SegmentControl.vue')['default']
   }
 }
