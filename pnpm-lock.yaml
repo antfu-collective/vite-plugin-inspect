@@ -20,7 +20,7 @@ importers:
       '@vueuse/router': ^9.13.0
       bumpp: ^9.0.0
       codemirror: ^5.65.8
-      codemirror-theme-vars: ^0.1.1
+      codemirror-theme-vars: ^0.1.2
       comlink: ^4.4.1
       cross-env: ^7.0.3
       debug: ^4.3.4
@@ -74,7 +74,7 @@ importers:
       '@vueuse/router': 9.13.0_lavcef455lp3wtm2mcdrwhgymm
       bumpp: 9.0.0
       codemirror: 5.65.8
-      codemirror-theme-vars: 0.1.1
+      codemirror-theme-vars: 0.1.2
       comlink: 4.4.1
       cross-env: 7.0.3
       diff-match-patch: 1.0.5
@@ -2003,8 +2003,8 @@ packages:
       is-wsl: 2.2.0
     dev: true
 
-  /codemirror-theme-vars/0.1.1:
-    resolution: {integrity: sha512-Au0Ysn6tUMZB/1Jd5S8g4Or1kZxTuTnNx6MVs9H46Ad7w8IEjkHusH+4oyia/FBcVuAJO4DIlkDnPM8Qnnf1rg==}
+  /codemirror-theme-vars/0.1.2:
+    resolution: {integrity: sha512-WTau8X2q58b0SOAY9DO+iQVw8JKVEgyQIqArp2D732tcc+pobbMta3bnVMdQdmgwuvNrOFFr6HoxPRoQOgooFA==}
     dev: true
 
   /codemirror/5.65.8:

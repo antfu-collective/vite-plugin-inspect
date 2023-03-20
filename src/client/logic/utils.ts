@@ -23,12 +23,10 @@ export function clearRoot(path: string) {
 }
 
 export function guessMode(code: string) {
+  if (code.trimStart().startsWith('<'))
+    return 'htmlmixed'
   if (code.match(/^import\s/))
     return 'javascript'
-  if (code.includes('<template>\n'))
-    return 'vue'
-  if (code.includes('<html>\n'))
-    return 'html'
   if (code.match(/^[.#].+\{/))
     return 'css'
   return 'javascript'

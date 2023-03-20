@@ -73,7 +73,7 @@
     "@vueuse/router": "^9.13.0",
     "bumpp": "^9.0.0",
     "codemirror": "^5.65.8",
-    "codemirror-theme-vars": "^0.1.1",
+    "codemirror-theme-vars": "^0.1.2",
     "comlink": "^4.4.1",
     "cross-env": "^7.0.3",
     "diff-match-patch": "^1.0.5",

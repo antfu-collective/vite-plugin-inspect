@@ -5,7 +5,7 @@
 }
 
 html:not(.dark) {
-  --cm-foreground: #393a34;
+  --cm-foreground: #8e8f8b;
   --cm-background: #ffffff;
   --cm-comment: #a0ada0;
   --cm-string: #b56959;
@@ -30,7 +30,7 @@ html:not(.dark) {
 }
 
 html.dark {
-  --cm-foreground: #d4cfbf;
+  --cm-foreground: #858585;
   --cm-background: #111111;
   --cm-comment: #758575;
   --cm-string: #d48372;
