@@ -1,5 +1,5 @@
 <template>
-  <span class="text-10px whitespace-nowrap px-2 py-0.5 mx-1 rounded">
+  <span class="text-11px whitespace-nowrap px-1 leading-1.6em rounded">
     <slot />
   </span>
 </template>

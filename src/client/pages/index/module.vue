@@ -12,7 +12,7 @@ const id = useRouteQuery<string | undefined>('id')
 const data = ref(id.value ? await rpc.getIdInfo(id.value, inspectSSR.value) : undefined)
 const index = useRouteQuery('index') as Ref<string>
 const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
-const panelSize = useLocalStorage('vite-inspect-module-panel-size', '20')
+const panelSize = useLocalStorage('vite-inspect-module-panel-size', '10')
 
 async function refetch() {
   if (id.value)
@@ -71,7 +71,7 @@ getHot().then((hot) => {
     class="flex overflow-hidden"
   >
     <Splitpanes class="h-full of-hidden" @resize="panelSize = $event[0].size">
-      <Pane :size="panelSize" min-size="5" class="flex flex-col border-r border-main overflow-y-auto">
+      <Pane :size="panelSize" min-size="10" class="flex flex-col border-r border-main overflow-y-auto">
         <div
           class="border-b border-main px-3 py-2 text-center text-sm tracking-widest text-gray-400"
         >
@@ -79,26 +79,37 @@ getHot().then((hot) => {
         </div>
         <template v-for="tr, idx of data.transforms" :key="tr.name">
           <button
-            class="block border-b border-main px-3 py-2 text-left font-mono text-sm !outline-none"
-            :class="currentIndex === idx ? 'bg-main bg-opacity-10' : ''"
+            class="border-b border-main px-2 py-2 text-left font-mono text-xs !outline-none"
+            flex="~ gap-1 wrap" items-center
+            :class="
+              currentIndex === idx
+                ? 'bg-main bg-opacity-10'
+                : tr.result === data.transforms[idx - 1]?.result
+                  ? 'op50'
+                  : ''
+            "
             @click="index = idx.toString()"
           >
             <span :class="currentIndex === idx ? 'font-bold' : ''">
               <PluginName :name="tr.name" />
             </span>
-            <span class="ml-2 text-xs opacity-50">{{ msToTime(tr.end - tr.start) }}</span>
             <Badge
               v-if="tr.result === data.transforms[idx - 1]?.result"
               class="bg-orange-400/10 text-orange-400"
               v-text="'no change'"
             />
-            <Badge v-if="idx === 0" class="bg-light-blue-400/10 text-light-blue-400" v-text="'load'" />
+            <Badge
+              v-if="idx === 0"
+              class="bg-light-blue-400/10 text-light-blue-400"
+              v-text="'load'"
+            />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
               class="bg-rose-400/10 text-rose-400"
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
               v-text="tr.order"
             />
+            <span text-xs opacity-50 flex-auto text-right>{{ msToTime(tr.end - tr.start) }}</span>
           </button>
         </template>
       </Pane>
