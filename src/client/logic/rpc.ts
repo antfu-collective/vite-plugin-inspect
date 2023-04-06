@@ -2,6 +2,7 @@ import { createRPCClient } from 'vite-dev-rpc'
 import type { BirpcReturn } from 'birpc'
 import { createHotContext } from 'vite-hot-client'
 import type { ModuleTransformInfo, RPCFunctions } from '../../types'
+
 export const isStaticMode = document.body.getAttribute('data-vite-inspect-mode') === 'BUILD'
 
 function createStaticRpcClient(): RPCFunctions {

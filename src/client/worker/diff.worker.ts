@@ -1,7 +1,7 @@
 import { expose } from 'comlink'
 import { diff_match_patch as Diff } from 'diff-match-patch'
 
-const calculateDiff = (left: string, right: string) => {
+function calculateDiff(left: string, right: string) {
   const diff = new Diff()
   const changes = diff.diff_main(left, right)
   diff.diff_cleanupSemantic(changes)
