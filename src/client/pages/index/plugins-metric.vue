@@ -5,6 +5,8 @@ import { rpc } from '../../logic/rpc'
 
 const data = ref(await rpc.getPluginMetrics(inspectSSR.value))
 
+const selectedPlugin = ref('')
+
 const displayHookOptions = ['transform', 'resolveId'].map(h => ({ label: h, value: h }))
 
 const plugins = computed(() => {
@@ -48,6 +50,16 @@ onRefetch.on(async () => {
   await refetch()
 })
 
+function selectPlugin(plugin: string) {
+  selectedPlugin.value = plugin
+}
+
+function clearPlugin() {
+  selectedPlugin.value = ''
+}
+
+watch(metricDisplayHook, clearPlugin)
+
 getHot().then((hot) => {
   if (hot) {
     hot.on('vite-plugin-inspect:update', () => {
@@ -72,7 +84,8 @@ getHot().then((hot) => {
     <div class="flex-auto" />
   </NavBar>
   <Container v-if="data" class="overflow-auto">
-    <div class="mb-4 grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
+    <PluginChart v-if="selectedPlugin" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
+    <div v-else class="mb-4 grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
       <div />
       <div class="font-bold text-xs">
         Name ({{ plugins.length }})
@@ -94,7 +107,7 @@ getHot().then((hot) => {
 
       <template v-for="{ name, totalTime, invokeCount, enforce } in plugins" :key="name">
         <div />
-        <div>
+        <div :class="totalTime > 0 ? 'text-blue-400 cursor-pointer' : ''" @click="totalTime > 0 && selectPlugin(name)">
           <PluginName :name="name" />
         </div>
         <div class="text-center p0! flex items-center">

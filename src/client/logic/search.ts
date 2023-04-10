@@ -27,7 +27,7 @@ export const searchResults = computed(() => {
   if (exactSearch.value) {
     return data.filter(item =>
       item.id.includes(searchText.value)
-      || item.plugins.some(plugin => plugin.includes(searchText.value)),
+      || item.plugins.some(plugin => plugin.name.includes(searchText.value)),
     )
   }
   else {

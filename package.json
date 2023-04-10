@@ -53,10 +53,12 @@
     "@antfu/utils": "^0.7.2",
     "@rollup/pluginutils": "^5.0.2",
     "debug": "^4.3.4",
+    "echarts": "^5.4.2",
     "fs-extra": "^11.1.1",
     "kolorist": "^1.7.0",
     "sirv": "^2.0.2",
-    "ufo": "^1.1.1"
+    "ufo": "^1.1.1",
+    "vue-echarts": "^6.5.4"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.38.4",
