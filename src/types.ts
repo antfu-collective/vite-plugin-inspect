@@ -18,7 +18,7 @@ export interface ResolveIdInfo {
 
 export interface ModuleInfo {
   id: string
-  plugins: string[]
+  plugins: { name: string; transform?: number; resolveId?: number }[]
   deps: string[]
   virtual: boolean
 }
