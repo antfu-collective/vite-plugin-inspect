@@ -107,7 +107,10 @@ getHot().then((hot) => {
 
       <template v-for="{ name, totalTime, invokeCount, enforce } in plugins" :key="name">
         <div />
-        <div :class="totalTime > 0 ? 'text-blue-400 cursor-pointer' : ''" @click="totalTime > 0 && selectPlugin(name)">
+        <div v-if="totalTime > 0" class="text-lime-600 dark:text-lime-200 cursor-pointer hover:underline" @click="selectPlugin(name)">
+          <PluginName :name="name" />
+        </div>
+        <div v-else>
           <PluginName :name="name" />
         </div>
         <div class="text-center p0! flex items-center">

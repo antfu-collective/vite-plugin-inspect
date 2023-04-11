@@ -21,6 +21,8 @@ declare module '@vue/runtime-core' {
     'Carbon:textWrap': typeof import('~icons/carbon/text-wrap')['default']
     'Carbon:timer': typeof import('~icons/carbon/timer')['default']
     CarbonArrowLeft: typeof import('~icons/carbon/arrow-left')['default']
+    CarbonArrowUpLeft: typeof import('~icons/carbon/arrow-up-left')['default']
+    CarbonChevronLeft: typeof import('~icons/carbon/chevron-left')['default']
     CarbonMoon: typeof import('~icons/carbon/moon')['default']
     CarbonSidePanelClose: typeof import('~icons/carbon/side-panel-close')['default']
     CarbonSidePanelOpen: typeof import('~icons/carbon/side-panel-open')['default']
