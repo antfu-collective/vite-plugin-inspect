@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isDark, isStaticMode, refetch, toggleDark } from '../logic'
+import { isStaticMode, refetch, toggleDark } from '../logic'
 </script>
 
 <template>
@@ -7,11 +7,10 @@ import { isDark, isStaticMode, refetch, toggleDark } from '../logic'
     <slot />
     <slot name="actions">
       <button v-if="!isStaticMode" class="icon-btn text-lg" title="Refetch" @click="refetch()">
-        <carbon:renew />
+        <div i-carbon-renew />
       </button>
       <button class="icon-btn text-lg" title="Toggle Dark Mode" @click="toggleDark()">
-        <carbon-moon v-if="isDark" />
-        <carbon-sun v-else />
+        <div i-carbon-sun dark:i-carbon-moon />
       </button>
     </slot>
   </nav>

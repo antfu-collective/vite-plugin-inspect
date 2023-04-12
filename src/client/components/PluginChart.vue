@@ -141,7 +141,7 @@ const chartStyle = computed(() => {
   <div class="bg-white dark:bg-[#111] border-none h-full w-[calc(100vw-100px)] overflow-auto shadow-lg transition-transform transform duration-300 translate-x-0">
     <NavBar>
       <a class="icon-btn !outline-none my-auto" @click="props.exit()">
-        <carbon-chevron-left />
+        <div i-carbon-chevron-left />
       </a>
       <div class="text-sm font-mono my-auto">
         Metrics for {{ props.plugin }}

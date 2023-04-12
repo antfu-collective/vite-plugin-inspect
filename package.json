@@ -53,12 +53,9 @@
     "@antfu/utils": "^0.7.2",
     "@rollup/pluginutils": "^5.0.2",
     "debug": "^4.3.4",
-    "echarts": "^5.4.2",
     "fs-extra": "^11.1.1",
-    "kolorist": "^1.7.0",
-    "sirv": "^2.0.2",
-    "ufo": "^1.1.1",
-    "vue-echarts": "^6.5.4"
+    "picocolors": "^1.0.0",
+    "sirv": "^2.0.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.38.4",
@@ -79,6 +76,7 @@
     "comlink": "^4.4.1",
     "cross-env": "^7.0.3",
     "diff-match-patch": "^1.0.5",
+    "echarts": "^5.4.2",
     "eslint": "^8.37.0",
     "esno": "^0.16.3",
     "fuse.js": "^6.6.2",
@@ -91,7 +89,6 @@
     "unbuild": "^1.2.0",
     "unocss": "^0.50.6",
     "unplugin-auto-import": "^0.15.2",
-    "unplugin-icons": "^0.16.1",
     "unplugin-vue-components": "^0.24.1",
     "vis-data": "7.1.6",
     "vis-network": "9.1.6",
@@ -100,6 +97,7 @@
     "vite-hot-client": "^0.2.1",
     "vite-plugin-pages": "^0.29.0",
     "vue": "^3.2.47",
+    "vue-echarts": "^6.5.4",
     "vue-router": "^4.1.6"
   }
 }

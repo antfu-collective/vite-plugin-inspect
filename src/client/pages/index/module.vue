@@ -40,9 +40,9 @@ getHot().then((hot) => {
 
 <template>
   <NavBar>
-    <router-link class="icon-btn !outline-none my-auto" to="/">
-      <carbon-arrow-left />
-    </router-link>
+    <RouterLink class="icon-btn !outline-none my-auto" to="/">
+      <div i-carbon-arrow-left />
+    </RouterLink>
     <ModuleId v-if="id" :id="id" />
     <Badge
       v-if="inspectSSR"
@@ -53,22 +53,22 @@ getHot().then((hot) => {
     <div class="flex-auto" />
 
     <button class="icon-btn text-lg" title="Inspect SSR" @click="inspectSSR = !inspectSSR">
-      <carbon:cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
+      <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button class="icon-btn text-lg" title="Line Wrapping" @click="lineWrapping = !lineWrapping">
-      <carbon:text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+      <div i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button class="icon-btn text-lg" title="Toggle one column" @click="showOneColumn = !showOneColumn">
-      <carbon-side-panel-open v-if="showOneColumn" />
-      <carbon-side-panel-close v-else />
+      <div v-if="showOneColumn" i-carbon-side-panel-open />
+      <div v-else i-carbon-side-panel-close />
     </button>
     <button class="icon-btn text-lg" title="Toggle Diff" @click="enableDiff = !enableDiff">
-      <carbon:compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+      <div i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
     </button>
   </NavBar>
   <Container
     v-if="data && data.transforms"
-    class="flex overflow-hidden"
+    flex overflow-hidden
   >
     <Splitpanes class="h-full of-hidden" @resize="panelSize = $event[0].size">
       <Pane :size="panelSize" min-size="10" class="flex flex-col border-r border-main overflow-y-auto">

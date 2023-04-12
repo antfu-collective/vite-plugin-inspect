@@ -10,24 +10,23 @@ onMounted(() => {
 
 <template>
   <NavBar>
-    <carbon:ibm-watson-discovery title="Vite Inspect" text-xl />
-
+    <div i-carbon-ibm-watson-discovery title="Vite Inspect" text-xl />
     <SearchBox />
     <div class="flex-auto" />
-    <router-link class="icon-btn text-lg" to="/plugins-metric">
-      <carbon:timer />
-    </router-link>
+    <RouterLink class="icon-btn text-lg" to="/plugins-metric" title="Metrics">
+      <div i-carbon-meter />
+    </RouterLink>
     <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
-      <carbon:list-boxes v-if="listMode === 'detailed'" />
-      <carbon:list v-else-if="listMode === 'list'" />
-      <carbon:network-4 v-else />
+      <div v-if="listMode === 'detailed'" i-carbon-list-boxes />
+      <div v-else-if="listMode === 'list'" i-carbon-list />
+      <div v-else i-carbon-network-4 />
     </button>
     <a
       class="icon-btn text-lg"
       href="https://github.com/antfu/vite-plugin-inspect"
       target="_blank"
     >
-      <carbon:logo-github />
+      <div i-carbon-logo-github />
     </a>
   </NavBar>
   <Container class="overflow-auto">
@@ -40,17 +39,17 @@ onMounted(() => {
     class="fixed left-0 top-0 right-0 bottom-0 transition-all flex overflow-hidden bg-black/50"
     :class="isRoot ? 'pointer-events-none opacity-0' : 'opacity-100'"
   >
-    <router-link class="min-w-70px h-full flex-auto" to="/" />
+    <RouterLink class="min-w-70px h-full flex-auto" to="/" />
     <div
       class="bg-white dark:bg-[#111] border-main border-l h-full w-[calc(100vw-100px)] overflow-hidden shadow-lg transition-transform transform duration-300"
       :class="isRoot ? 'translate-x-1/2' : 'translate-x-0'"
     >
       <Suspense>
-        <router-view v-slot="{ Component }">
-          <keep-alive>
+        <RouterView v-slot="{ Component }">
+          <KeepAlive>
             <component :is="Component" />
-          </keep-alive>
-        </router-view>
+          </KeepAlive>
+        </RouterView>
         <template #fallback>
           Loading...
         </template>

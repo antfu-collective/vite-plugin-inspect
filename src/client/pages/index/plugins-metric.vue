@@ -71,9 +71,9 @@ getHot().then((hot) => {
 
 <template>
   <NavBar>
-    <router-link class="icon-btn !outline-none my-auto" to="/">
-      <carbon-arrow-left />
-    </router-link>
+    <RouterLink class="icon-btn !outline-none my-auto" to="/">
+      <div i-carbon-arrow-left />
+    </RouterLink>
     <div class="text-sm font-mono my-auto">
       Plugins Metrics
     </div>
