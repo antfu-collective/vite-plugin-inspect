@@ -28,7 +28,7 @@ function createStaticRpcClient(): RPCFunctions {
       }
     },
     async getServerMetrics() {
-      return fetch('./reports')
+      return {}
     },
     getIdInfo,
   }

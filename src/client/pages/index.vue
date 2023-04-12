@@ -14,7 +14,7 @@ onMounted(() => {
 
     <SearchBox />
     <div class="flex-auto" />
-    <router-link class="icon-btn text-lg" to="/plugins-metric">
+    <router-link class="icon-btn text-lg" to="/metric">
       <carbon:timer />
     </router-link>
     <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">

@@ -92,6 +92,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
   const filter = createFilter(options.include, options.exclude)
 
   let config: ResolvedConfig
+  let perf: ViteDevServer['perf']
 
   type TransformMap = Record<string, TransformInfo[]>
   type ResolveIdMap = Record<string, ResolveIdInfo[]>
@@ -290,6 +291,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
   }
 
   function configureServer(server: ViteDevServer): RPCFunctions {
+    perf = server.perf
     const _invalidateModule = server.moduleGraph.invalidateModule
     server.moduleGraph.invalidateModule = function (...args) {
       const mod = args[0]
@@ -319,7 +321,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
 
     function getServerMetrics() {
-      return config.perf.metric
+      return perf?.metric || {}
     }
 
     async function getIdInfo(id: string, ssr = false, clear = false) {

@@ -33,12 +33,12 @@ declare module '@vue/runtime-core' {
     ModuleId: typeof import('./components/ModuleId.vue')['default']
     ModuleList: typeof import('./components/ModuleList.vue')['default']
     NavBar: typeof import('./components/NavBar.vue')['default']
-    OverviewChart: typeof import('./components/OverviewChart.vue')['default']
     PluginChart: typeof import('./components/PluginChart.vue')['default']
     PluginName: typeof import('./components/PluginName.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchBox: typeof import('./components/SearchBox.vue')['default']
     SegmentControl: typeof import('./components/SegmentControl.vue')['default']
+    ServerChart: typeof import('./components/ServerChart.vue')['default']
   }
 }
