@@ -13,18 +13,6 @@ html.dark {
   color-scheme: dark;
 }
 
-.btn {
-  --at-apply: px-4 py-1 rounded inline-block --at-apply: bg-teal-600 text-white cursor-pointer --at-apply: hover:bg-teal-700 --at-apply: disabled:cursor-default disabled:bg-gray-600 disabled:opacity-50;
-}
-
-.icon-btn {
-  --at-apply: 'inline-block cursor-pointer select-none !outline-none';
-  --at-apply: opacity-75 transition duration-200 ease-in-out;
-  --at-apply: hover:opacity-100 hover:text-teal-600;
-  font-size: 0.9em;
-  height: 1.2em;
-}
-
 .CodeMirror {
   height: max-content !important;
   font-family: var(--cm-font-family) !important;

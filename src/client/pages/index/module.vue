@@ -40,29 +40,29 @@ getHot().then((hot) => {
 
 <template>
   <NavBar>
-    <RouterLink class="icon-btn !outline-none my-auto" to="/">
+    <RouterLink my-auto outline-none icon-btn to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
     <ModuleId v-if="id" :id="id" />
     <Badge
       v-if="inspectSSR"
-      class="bg-teal-400/10 text-teal-400 font-bold"
+      bg-teal-400:10 font-bold text-teal-400
     >
       SSR
     </Badge>
-    <div class="flex-auto" />
+    <div flex-auto />
 
-    <button class="icon-btn text-lg" title="Inspect SSR" @click="inspectSSR = !inspectSSR">
+    <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button class="icon-btn text-lg" title="Line Wrapping" @click="lineWrapping = !lineWrapping">
+    <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">
       <div i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button class="icon-btn text-lg" title="Toggle one column" @click="showOneColumn = !showOneColumn">
+    <button text-lg icon-btn title="Toggle one column" @click="showOneColumn = !showOneColumn">
       <div v-if="showOneColumn" i-carbon-side-panel-open />
       <div v-else i-carbon-side-panel-close />
     </button>
-    <button class="icon-btn text-lg" title="Toggle Diff" @click="enableDiff = !enableDiff">
+    <button class="text-lg icon-btn" title="Toggle Diff" @click="enableDiff = !enableDiff">
       <div i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
     </button>
   </NavBar>
@@ -70,20 +70,24 @@ getHot().then((hot) => {
     v-if="data && data.transforms"
     flex overflow-hidden
   >
-    <Splitpanes class="h-full of-hidden" @resize="panelSize = $event[0].size">
-      <Pane :size="panelSize" min-size="10" class="flex flex-col border-r border-main overflow-y-auto">
-        <div
-          class="border-b border-main px-3 py-2 text-center text-sm tracking-widest text-gray-400"
-        >
+    <Splitpanes h-full of-hidden @resize="panelSize = $event[0].size">
+      <Pane
+        :size="panelSize" min-size="10"
+        flex="~ col" border="r main"
+        overflow-y-auto
+      >
+        <div px-3 py-2 text-center text-sm tracking-widest op50>
           {{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK
         </div>
+        <div border="b main" />
         <template v-for="tr, idx of data.transforms" :key="tr.name">
           <button
-            class="border-b border-main px-2 py-2 text-left font-mono text-xs !outline-none"
-            flex="~ gap-1 wrap" items-center
+            border="b main"
+            flex="~ gap-1 wrap"
+            items-center px-2 py-2 text-left font-mono text-xs
             :class="
               currentIndex === idx
-                ? 'bg-main bg-opacity-10'
+                ? 'bg-active'
                 : tr.result === data.transforms[idx - 1]?.result
                   ? 'op50'
                   : ''
@@ -95,7 +99,7 @@ getHot().then((hot) => {
             </span>
             <Badge
               v-if="tr.result === data.transforms[idx - 1]?.result"
-              class="bg-orange-400/10 text-orange-400"
+              bg-orange-400:10 text-orange-400
               v-text="'no change'"
             />
             <Badge
@@ -105,11 +109,11 @@ getHot().then((hot) => {
             />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
-              class="bg-rose-400/10 text-rose-400"
+              bg-rose-400:10 text-rose-400
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
               v-text="tr.order"
             />
-            <span text-xs opacity-50 flex-auto text-right>{{ msToTime(tr.end - tr.start) }}</span>
+            <span flex-auto text-right text-xs op50>{{ msToTime(tr.end - tr.start) }}</span>
           </button>
         </template>
       </Pane>

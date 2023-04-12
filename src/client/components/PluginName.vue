@@ -24,7 +24,7 @@ const parts = computed(() => {
 </script>
 
 <template>
-  <span v-if="parts[0] && !hide" class="opacity-50">
+  <span v-if="parts[0] && !hide" class="op50">
     {{ parts[0] }}
   </span>
   <span>

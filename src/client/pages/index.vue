@@ -12,36 +12,38 @@ onMounted(() => {
   <NavBar>
     <div i-carbon-ibm-watson-discovery title="Vite Inspect" text-xl />
     <SearchBox />
-    <div class="flex-auto" />
-    <RouterLink class="icon-btn text-lg" to="/plugins-metric" title="Metrics">
+    <div flex-auto />
+    <RouterLink text-lg icon-btn to="/plugins-metric" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>
-    <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
+    <button text-lg icon-btn title="View Mode" @click="toggleMode()">
       <div v-if="listMode === 'detailed'" i-carbon-list-boxes />
       <div v-else-if="listMode === 'list'" i-carbon-list />
       <div v-else i-carbon-network-4 />
     </button>
     <a
-      class="icon-btn text-lg"
+      text-lg icon-btn
       href="https://github.com/antfu/vite-plugin-inspect"
       target="_blank"
     >
       <div i-carbon-logo-github />
     </a>
   </NavBar>
-  <Container class="overflow-auto">
+  <Container of-auto>
     <KeepAlive>
       <Graph v-if="listMode === 'graph'" :modules="searchResults" />
       <ModuleList v-else :modules="searchResults" />
     </KeepAlive>
   </Container>
   <div
-    class="fixed left-0 top-0 right-0 bottom-0 transition-all flex overflow-hidden bg-black/50"
+    pos="fixed bottom-0 left-0 right-0 top-0"
+    flex overflow-hidden bg-black:50 transition-all
     :class="isRoot ? 'pointer-events-none opacity-0' : 'opacity-100'"
   >
-    <RouterLink class="min-w-70px h-full flex-auto" to="/" />
+    <RouterLink h-full min-w-70px flex-auto to="/" />
     <div
-      class="bg-white dark:bg-[#111] border-main border-l h-full w-[calc(100vw-100px)] overflow-hidden shadow-lg transition-transform transform duration-300"
+      class="h-full w-[calc(100vw-100px)] transform overflow-hidden bg-main shadow-lg transition-transform duration-300"
+      border="l main"
       :class="isRoot ? 'translate-x-1/2' : 'translate-x-0'"
     >
       <Suspense>

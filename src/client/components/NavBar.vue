@@ -3,13 +3,13 @@ import { isStaticMode, refetch, toggleDark } from '../logic'
 </script>
 
 <template>
-  <nav class="font-light pr-6 pl-4 border-b border-main flex gap-4 h-54px children:my-auto flex-none">
+  <nav h-54px flex="~ none gap-4" border="b main" pl-4 pr-6 font-light children:my-auto>
     <slot />
     <slot name="actions">
-      <button v-if="!isStaticMode" class="icon-btn text-lg" title="Refetch" @click="refetch()">
+      <button v-if="!isStaticMode" class="text-lg icon-btn" title="Refetch" @click="refetch()">
         <div i-carbon-renew />
       </button>
-      <button class="icon-btn text-lg" title="Toggle Dark Mode" @click="toggleDark()">
+      <button class="text-lg icon-btn" title="Toggle Dark Mode" @click="toggleDark()">
         <div i-carbon-sun dark:i-carbon-moon />
       </button>
     </slot>

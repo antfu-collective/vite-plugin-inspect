@@ -106,6 +106,6 @@ onMounted(() => {
 
 <template>
   <div v-if="modules">
-    <div ref="container" class="w-full h-100vh" />
+    <div ref="container" h-100vh w-full />
   </div>
 </template>
