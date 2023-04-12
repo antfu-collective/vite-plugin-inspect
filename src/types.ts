@@ -1,4 +1,5 @@
 import type { Awaitable } from '@antfu/utils'
+import type {ResolvedConfig} from 'vite'
 
 export interface TransformInfo {
   name: string
@@ -53,6 +54,7 @@ export interface RPCFunctions {
   resolveId(id: string, ssr: boolean): Awaitable<string>
   clear(id: string, ssr: boolean): Awaitable<void>
   getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
+  getServerMetrics(): Awaitable<ResolvedConfig['perf']>
 }
 
 export interface HMRData {

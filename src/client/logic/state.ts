@@ -8,7 +8,7 @@ export const showOneColumn = useStorage('vite-inspect-one-column', false)
 export const listMode = useStorage<'graph' | 'list' | 'detailed'>('vite-inspect-mode', 'detailed')
 export const lineWrapping = useStorage('vite-inspect-line-wrapping', false)
 export const inspectSSR = useStorage('vite-inspect-ssr', false)
-export const metricDisplayHook = useStorage<'transform' | 'resolveId'>('vite-inspect-metric-display-hook', 'transform')
+export const metricDisplayHook = useStorage<'transform' | 'resolveId' | 'overview'>('vite-inspect-metric-display-hook', 'transform')
 
 export const list = ref(await rpc.list())
 

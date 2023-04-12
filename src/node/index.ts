@@ -311,11 +311,16 @@ export default function PluginInspect(options: Options = {}): Plugin {
       list,
       getIdInfo,
       getPluginMetrics,
+      getServerMetrics,
       resolveId,
       clear: clearId,
     }
 
     createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
+
+    function getServerMetrics() {
+      return config.perf.metric
+    }
 
     async function getIdInfo(id: string, ssr = false, clear = false) {
       if (clear) {

@@ -7,9 +7,12 @@ const data = ref(await rpc.getPluginMetrics(inspectSSR.value))
 
 const selectedPlugin = ref('')
 
-const displayHookOptions = ['transform', 'resolveId'].map(h => ({ label: h, value: h }))
+const displayHookOptions = ['transform', 'resolveId', 'overview'].map(h => ({ label: h, value: h }))
 
 const plugins = computed(() => {
+  if (metricDisplayHook.value === 'overview')
+    return []
+
   return data.value.map((info) => {
     if (metricDisplayHook.value === 'transform') {
       return {
@@ -84,7 +87,8 @@ getHot().then((hot) => {
     <div class="flex-auto" />
   </NavBar>
   <Container v-if="data" class="overflow-auto">
-    <PluginChart v-if="selectedPlugin" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
+    <PluginChart v-if="selectedPlugin && metricDisplayHook !== 'overview'" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
+    <OverviewChart v-else-if="metricDisplayHook === 'overview'" />
     <div v-else class="mb-4 grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
       <div />
       <div class="font-bold text-xs">
