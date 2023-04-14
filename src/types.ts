@@ -1,5 +1,4 @@
 import type { Awaitable } from '@antfu/utils'
-import type {ViteDevServer} from 'vite'
 
 export interface TransformInfo {
   name: string
@@ -54,7 +53,7 @@ export interface RPCFunctions {
   resolveId(id: string, ssr: boolean): Awaitable<string>
   clear(id: string, ssr: boolean): Awaitable<void>
   getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
-  getServerMetrics(): Awaitable<ViteDevServer['perf']['metric']>
+  getServerMetrics(): Awaitable<Record<string, Record<string, {name: string, self: number, total: number}[]>>>
 }
 
 export interface HMRData {

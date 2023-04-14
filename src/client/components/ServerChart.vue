@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import type { BarSeriesOption } from 'echarts/charts'
 import { BarChart } from 'echarts/charts'
 import type {
   SingleAxisComponentOption,
@@ -26,49 +25,29 @@ use([
 ])
 
 const data = ref(await rpc.getServerMetrics())
-const baseMetrics = ['prebundle', 'scan', 'startUp', 'initTsconfck', 'loadConfig']
-const sortedBaseMetrics = computed(() => {
-  // @ts-expect-error m is data.value's key
-  return baseMetrics.filter(m => data.value[m] !== undefined).sort((a, b) => data.value[a] - data.value[b]) as typeof baseMetrics
-})
 
-const baseYData = computed(() => {
-  return (sortedBaseMetrics.value.map(key => ({
-    prebundle: 'pre-bundle',
-    scan: 'scan dependency',
-    startUp: 'server start up',
-    initTsconfck: 'init tsconfck',
-    loadConfig: 'load config',
-  })[key]!))
-})
-
-const baseSeriesData = computed(() => {
-   // @ts-expect-error m is data.value's key
-  return sortedBaseMetrics.value.map(m => data.value[m]!)
-})
-
-const middlewares = computed(() => {
-  return (Array.from(Object.values(data.value.middleware || {}).reduce((acc, m) => {
-    Object.keys(m).forEach(name => acc.add(name))
-    return acc
-  }, new Set())) as string[]).sort((a, b) => a.localeCompare(b))
-})
-
-function getMiddlewareTotalTime(m: Record<string, number>) {
-  return Object.keys(m).reduce((total, name) => total + m[name], 0)
+function getMiddlewareTotalTime(m: { total: number }[]) {
+  return m[m.length - 1].total
 }
 
 const middlewareYData = computed(() => {
   return Object.keys(data.value.middleware || {}).sort((a, b) => getMiddlewareTotalTime(data.value.middleware![a]) - getMiddlewareTotalTime(data.value.middleware![b])).slice(-50)
 })
 
+
 const middewareSeries = computed(() => {
-  return middlewares.value.map(m => ({
+  return (Array.from(middlewareYData.value.reduce((acc, m) => {
+    data.value.middleware[m].forEach(({ name }) => acc.add(name))
+    return acc
+  }, new Set())) as string[]).sort((a, b) => a.localeCompare(b)).map(m => ({
     name: m,
     stack: 'time',
     type: 'bar',
     barWidth: 12,
-    data: middlewareYData.value.map(url => data.value.middleware![url][m] ?? 0),
+    data: middlewareYData.value.map(url => {
+      const middleware = data.value.middleware![url].find(({name}) => name === m)
+      return middleware ? middleware.self : 0
+    }),
   }))
 })
 
@@ -122,41 +101,6 @@ const baseOption = computed(() => ({
   } satisfies SingleAxisComponentOption,
 }))
 
-const serverOption = computed(() => {
-  const tooltip = {
-    ...baseOption.value.tooltip,
-    formatter(params: any) {
-      const { name, value, marker } = params[0]
-      return `${marker}${name} (${value}ms)`
-    },
-  }
-
-  const yAxis = { ...baseOption.value.yAxis, data: baseYData.value }
-
-  const series = [
-    {
-      type: 'bar',
-      barWidth: 12,
-      colorBy: 'data',
-      data: baseSeriesData.value,
-    },
-  ] satisfies BarSeriesOption[]
-
-  return {
-    ...baseOption.value,
-    yAxis,
-    tooltip,
-    grid: {
-      left: '1%',
-      right: '2%',
-      top: '10%',
-      bottom: '2%',
-      containLabel: true,
-    },
-    series,
-  }
-})
-
 const middlewareOption = computed(() => {
   const tooltip = {
     ...baseOption.value.tooltip,
@@ -195,19 +139,14 @@ const middlewareStyle = computed(() => {
 <template>
   <div class="bg-white dark:bg-[#111] border-none h-full w-[calc(100vw-100px)] overflow-auto shadow-lg transition-transform transform duration-300 translate-x-0">
     <div p4>
-      <div v-if="!baseYData.length" flex="~" w-full h-40>
+      <div v-if="!middlewareYData.length" flex="~" w-full h-40>
         <div ma op50 italic>
           No overview data
         </div>
       </div>
 
-      <div class="text-sm font-mono my-auto">
-        Metrics for server
-      </div>
-      <VChart class="w-100% h-60" :option="serverOption" autoresize />
-
-      <div v-if="middlewareYData.length" class="text-sm font-mono my-auto mt-10">
-        Metrics for middleware(top50)
+      <div v-if="middlewareYData.length" class="text-sm font-mono my-auto ml-8">
+        Metrics(Top50 urls) for middleware
       </div>
       <VChart v-if="middlewareYData.length" class="w-100% h-200" :style="middlewareStyle" :option="middlewareOption" autoresize />
     </div>

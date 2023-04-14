@@ -2,7 +2,7 @@ import { join, resolve } from 'node:path'
 import fs from 'fs-extra'
 import _debug from 'debug'
 import { bold, dim, green } from 'kolorist'
-import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
+import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import type { ObjectHook } from 'rollup'
 import sirv from 'sirv'
 import type { FilterPattern } from '@rollup/pluginutils'
@@ -90,9 +90,15 @@ export default function PluginInspect(options: Options = {}): Plugin {
   }
 
   const filter = createFilter(options.include, options.exclude)
+  const timestampRE = /\bt=\d{13}&?\b/
+  const trailingSeparatorRE = /[?&]$/
 
   let config: ResolvedConfig
-  let perf: ViteDevServer['perf']
+  const serverPerf: {
+    middleware?: Record<string, { name: string; total: number; self: number }[]>
+  } = {
+    middleware: {},
+  }
 
   type TransformMap = Record<string, TransformInfo[]>
   type ResolveIdMap = Record<string, ResolveIdInfo[]>
@@ -101,6 +107,49 @@ export default function PluginInspect(options: Options = {}): Plugin {
   const transformMapSSR: TransformMap = {}
   const idMap: ResolveIdMap = {}
   const idMapSSR: ResolveIdMap = {}
+
+  function collectMiddlewarePerf(middlewares: Connect.Server['stack']) {
+    let firstMiddlewareIndex = -1
+    return middlewares.map((middleware, index) => {
+      const { handle, ...rest } = middleware
+      if (typeof handle !== 'function' || !handle.name)
+        return middleware
+      
+      return {
+        handle: async (...middlewareArgs: any[]) => {
+          let req: any, res: any, next: any, err: any
+          if (middlewareArgs.length === 4)
+            [err, req, res, next] = middlewareArgs
+
+          else
+            [req, res, next] = middlewareArgs
+
+          const start = performance.now()
+          const url = req.url?.replace(timestampRE, '').replace(trailingSeparatorRE, '')
+          serverPerf.middleware![url] ??= []
+
+          if (firstMiddlewareIndex < 0)
+            firstMiddlewareIndex = index
+
+          // clear middleware timing
+          if (index === firstMiddlewareIndex)
+            serverPerf.middleware![url] = []
+
+          await (middlewareArgs.length === 4 ? handle(err, req, res, next) : handle(req, res, next))
+
+          const total = Math.ceil(performance.now() - start)
+          const metrics = serverPerf.middleware![url]
+
+          serverPerf.middleware![url].push({
+            self: metrics.length ? total - metrics[metrics.length - 1].total : total,
+            total,
+            name: handle.name,
+          })
+        },
+        ...rest,
+      }
+    })
+  }
 
   function transformIdMap(idMap: ResolveIdMap) {
     return Object.values(idMap).reduce((map, ids) => {
@@ -291,7 +340,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
   }
 
   function configureServer(server: ViteDevServer): RPCFunctions {
-    perf = server.perf
     const _invalidateModule = server.moduleGraph.invalidateModule
     server.moduleGraph.invalidateModule = function (...args) {
       const mod = args[0]
@@ -321,7 +369,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
 
     function getServerMetrics() {
-      return perf?.metric || {}
+      return serverPerf || {}
     }
 
     async function getIdInfo(id: string, ssr = false, clear = false) {
@@ -505,6 +553,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const rpc = configureServer(server)
       plugin.api = {
         rpc,
+      }
+
+      return () => {
+        server.middlewares.stack = collectMiddlewarePerf(server.middlewares.stack)
       }
     },
     load: {
