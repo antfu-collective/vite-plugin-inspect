@@ -138,12 +138,12 @@ const chartStyle = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-[#111] border-none h-full w-[calc(100vw-100px)] overflow-auto shadow-lg transition-transform transform duration-300 translate-x-0">
+  <div class="h-full w-[calc(100vw-100px)] translate-x-0 transform overflow-auto border-none bg-main shadow-lg transition-transform duration-300">
     <NavBar>
-      <a class="icon-btn !outline-none my-auto" @click="props.exit()">
-        <carbon-chevron-left />
+      <a class="my-auto icon-btn !outline-none" @click="props.exit()">
+        <div i-carbon-chevron-left />
       </a>
-      <div class="text-sm font-mono my-auto">
+      <div class="my-auto font-mono text-sm">
         Metrics for {{ props.plugin }}
       </div>
       <template #actions>
@@ -152,8 +152,8 @@ const chartStyle = computed(() => {
     </NavBar>
 
     <div p4>
-      <div v-if="!yData.length" flex="~" w-full h-40>
-        <div ma op50 italic>
+      <div v-if="!yData.length" flex="~" h-40 w-full>
+        <div ma italic op50>
           No data for this plugin
         </div>
       </div>

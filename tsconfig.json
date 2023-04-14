@@ -11,7 +11,6 @@
     "resolveJsonModule": true,
     "types": [
       "vite-plugin-pages/client",
-      "unplugin-icons/types/vue",
       "vite/client"
     ]
   }

@@ -6,10 +6,10 @@ import { exactSearch, includeNodeModules, includeVirtual, inspectSSR, searchText
   <input
     v-model="searchText"
     type="text"
-    class="border border-main px-3 py-1 rounded bg-transparent !outline-none"
+    class="border border-main rounded bg-transparent px-3 py-1 !outline-none"
     placeholder="Search..."
   >
-  <div class="text-xs flex flex-col h-min select-none">
+  <div class="h-min flex flex-col select-none text-xs">
     <label class="flex">
       <input v-model="includeNodeModules" type="checkbox" class="my-auto">
       <div class="ml-1">node_modules</div>

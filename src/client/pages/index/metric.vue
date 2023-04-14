@@ -81,50 +81,49 @@ getHot().then((hot) => {
 
 <template>
   <NavBar>
-    <router-link class="icon-btn !outline-none my-auto" to="/">
-      <carbon-arrow-left />
-    </router-link>
-    <div class="text-sm font-mono my-auto">
-      Metrics
+    <RouterLink class="my-auto icon-btn !outline-none" to="/">
+      <div i-carbon-arrow-left />
+    </RouterLink>
+    <div my-auto font-mono text-sm>
+      Plugins Metrics
     </div>
     <SegmentControl
       v-model="metricDisplayHook"
       :options="displayHookOptions"
     />
-    <div class="flex-auto" />
+    <div flex-auto />
   </NavBar>
-  <Container v-if="data" class="overflow-auto">
-    <PluginChart v-if="selectedPlugin && metricDisplayHook !== 'server'" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
-    <ServerChart v-else-if="metricDisplayHook === 'server'" />
-    <div v-else class="mb-4 grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mt-2 whitespace-nowrap text-sm font-mono children:(px-4 py-2 border-b border-main align-middle)">
+  <Container v-if="data" of-auto>
+    <PluginChart v-if="selectedPlugin" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
+    <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) font-mono text-sm">
       <div />
-      <div class="font-bold text-xs">
+      <div class="text-xs font-bold">
         Name ({{ plugins.length }})
       </div>
-      <div class="font-bold text-xs text-center">
+      <div class="text-center text-xs font-bold">
         Type
       </div>
-      <div class="font-bold text-xs text-right">
+      <div class="text-right text-xs font-bold">
         Passes
       </div>
 
-      <div class="font-bold text-xs text-right">
+      <div class="text-right text-xs font-bold">
         Average Time
       </div>
-      <div class="font-bold text-xs text-right">
+      <div class="text-right text-xs font-bold">
         Total Time
       </div>
       <div />
 
       <template v-for="{ name, totalTime, invokeCount, enforce } in plugins" :key="name">
         <div />
-        <div v-if="totalTime > 0" class="text-lime-600 dark:text-lime-200 cursor-pointer hover:underline" @click="selectPlugin(name)">
+        <div v-if="totalTime > 0" class="cursor-pointer text-lime-600 dark:text-lime-200 hover:underline" @click="selectPlugin(name)">
           <PluginName :name="name" />
         </div>
         <div v-else>
           <PluginName :name="name" />
         </div>
-        <div class="text-center p0! flex items-center">
+        <div class="flex items-center text-center p0!">
           <Badge
             v-if="enforce"
             class="m-auto text-xs"
@@ -138,10 +137,10 @@ getHot().then((hot) => {
             {{ invokeCount }}
           </div>
           <div class="text-right" :class="getLatencyColor(totalTime / invokeCount)">
-            {{ +(totalTime / invokeCount).toFixed(1) }}<span op50 ml-1 text-xs>ms</span>
+            {{ +(totalTime / invokeCount).toFixed(1) }}<span ml-1 text-xs op50>ms</span>
           </div>
           <div class="text-right" :class="getLatencyColor(totalTime / invokeCount)">
-            {{ totalTime }}<span op50 ml-1 text-xs>ms</span>
+            {{ totalTime }}<span ml-1 text-xs op50>ms</span>
           </div>
         </template>
         <template v-else>

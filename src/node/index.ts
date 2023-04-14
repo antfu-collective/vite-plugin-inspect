@@ -1,7 +1,6 @@
 import { join, resolve } from 'node:path'
 import fs from 'fs-extra'
 import _debug from 'debug'
-import { bold, dim, green } from 'kolorist'
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import type { ObjectHook } from 'rollup'
 import sirv from 'sirv'
@@ -9,6 +8,7 @@ import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
 import { hash } from 'ohash'
+import c from 'picocolors'
 import type { HMRData, ModuleInfo, ModuleTransformInfo, PluginMetricInfo, RPCFunctions, ResolveIdInfo, TransformInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
 
@@ -413,7 +413,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
     const _print = server.printUrls
     server.printUrls = () => {
-      const colorUrl = (url: string) => green(url.replace(/:(\d+)\//, (_, port) => `:${bold(port)}/`))
+      const colorUrl = (url: string) => c.green(url.replace(/:(\d+)\//, (_, port) => `:${c.bold(port)}/`))
 
       let host = `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
 
@@ -431,7 +431,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
       _print()
       // eslint-disable-next-line no-console
-      console.log(`  ${green('➜')}  ${bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
+      console.log(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
     }
 
     return rpcFunctions
@@ -580,7 +580,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
         return
       const dir = await generateBuild()
       // eslint-disable-next-line no-console
-      console.log(green('Inspect report generated at'), dim(`${dir}`))
+      console.log(c.green('Inspect report generated at'), c.dim(`${dir}`))
     },
   }
 
