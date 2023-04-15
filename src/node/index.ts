@@ -126,7 +126,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           else
             [req, res, next] = middlewareArgs
 
-          const start = performance.now()
+          const start = Date.now()
           const url = req.url?.replace(timestampRE, '').replace(trailingSeparatorRE, '')
           serverPerf.middleware![url] ??= []
 
@@ -140,7 +140,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           // @ts-expect-error handle needs 3 or 4 arguments
           await (middlewareArgs.length === 4 ? handle(err, req, res, next) : handle(req, res, next))
 
-          const total = Math.ceil(performance.now() - start)
+          const total = Date.now() - start
           const metrics = serverPerf.middleware![url]
 
           // middleware selfTime = totalTime - next.totalTime
