@@ -34,7 +34,6 @@ const middlewareYData = computed(() => {
   return Object.keys(data.value.middleware || {}).sort((a, b) => getMiddlewareTotalTime(data.value.middleware![a]) - getMiddlewareTotalTime(data.value.middleware![b])).slice(-50)
 })
 
-
 const middewareSeries = computed(() => {
   return (Array.from(middlewareYData.value.reduce((acc, m) => {
     data.value.middleware[m].forEach(({ name }) => acc.add(name))
@@ -44,8 +43,8 @@ const middewareSeries = computed(() => {
     stack: 'time',
     type: 'bar',
     barWidth: 12,
-    data: middlewareYData.value.map(url => {
-      const middleware = data.value.middleware![url].find(({name}) => name === m)
+    data: middlewareYData.value.map((url) => {
+      const middleware = data.value.middleware![url].find(({ name }) => name === m)
       return middleware ? middleware.self : 0
     }),
   }))
@@ -67,6 +66,19 @@ const baseOption = computed(() => ({
       color: foregroundColor.value,
     },
   } satisfies TooltipComponentOption,
+  legend: {
+      top: 10,
+      textStyle: {
+        color: foregroundColor.value
+      }
+    },
+  grid: {
+      left: '4%',
+      right: '2%',
+      top: 60,
+      bottom: '2%',
+      containLabel: true,
+    },
   xAxis: {
     type: 'value',
     minInterval: 10,
@@ -113,18 +125,10 @@ const middlewareOption = computed(() => {
 
   return {
     ...baseOption.value,
-    legend: {
-      top: 10,
-    },
+   
     yAxis,
     tooltip,
-    grid: {
-      left: '4%',
-      right: '2%',
-      top: 60,
-      bottom: '2%',
-      containLabel: true,
-    },
+   
     series: middewareSeries.value,
   }
 })
@@ -137,16 +141,16 @@ const middlewareStyle = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-[#111] border-none h-full w-[calc(100vw-100px)] overflow-auto shadow-lg transition-transform transform duration-300 translate-x-0">
+  <div class="bg-main border-none h-full w-[calc(100vw-100px)] overflow-auto shadow-lg transition-transform transform duration-300 translate-x-0">
     <div p4>
       <div v-if="!middlewareYData.length" flex="~" w-full h-40>
         <div ma op50 italic>
-          No overview data
+          No middleware metric data
         </div>
       </div>
 
       <div v-if="middlewareYData.length" class="text-sm font-mono my-auto ml-8">
-        Metrics(Top50 urls) for middleware
+        Metrics for top50 urls
       </div>
       <VChart v-if="middlewareYData.length" class="w-100% h-200" :style="middlewareStyle" :option="middlewareOption" autoresize />
     </div>

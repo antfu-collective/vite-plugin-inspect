@@ -13,7 +13,7 @@ onMounted(() => {
     <div i-carbon-ibm-watson-discovery title="Vite Inspect" text-xl />
     <SearchBox />
     <div flex-auto />
-    <RouterLink text-lg icon-btn to="/plugins-metric" title="Metrics">
+    <RouterLink text-lg icon-btn to="/metric" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>
     <button text-lg icon-btn title="View Mode" @click="toggleMode()">

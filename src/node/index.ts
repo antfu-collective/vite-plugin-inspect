@@ -108,6 +108,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
   const idMap: ResolveIdMap = {}
   const idMapSSR: ResolveIdMap = {}
 
+  // a hack for wrapping connect server stack
+  // see https://github.com/senchalabs/connect/blob/0a71c6b139b4c0b7d34c0f3fca32490595ecfd60/index.js#L50-L55
   function collectMiddlewarePerf(middlewares: Connect.Server['stack']) {
     let firstMiddlewareIndex = -1
     return middlewares.map((middleware, index) => {
@@ -135,11 +137,13 @@ export default function PluginInspect(options: Options = {}): Plugin {
           if (index === firstMiddlewareIndex)
             serverPerf.middleware![url] = []
 
+          // @ts-expect-error handle needs 3 or 4 arguments
           await (middlewareArgs.length === 4 ? handle(err, req, res, next) : handle(req, res, next))
 
           const total = Math.ceil(performance.now() - start)
           const metrics = serverPerf.middleware![url]
 
+          // middleware selfTime = totalTime - next.totalTime
           serverPerf.middleware![url].push({
             self: metrics.length ? total - metrics[metrics.length - 1].total : total,
             total,

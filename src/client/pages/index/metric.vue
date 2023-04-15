@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { inspectSSR, metricDisplayHook, onRefetch } from '../../logic'
 import { getHot } from '../../logic/hot'
-import { rpc } from '../../logic/rpc'
+import { isStaticMode, rpc } from '../../logic/rpc'
 
 const data = ref(await rpc.getPluginMetrics(inspectSSR.value))
 
 const selectedPlugin = ref('')
 
-const displayHookOptions = ['transform', 'resolveId', 'server'].map(h => ({
+const displayHookOptions = ['transform', 'resolveId', isStaticMode ? '' : 'server'].filter(Boolean).map(h => ({
   label: {
     transform: 'plugin.transform',
     resolveId: 'plugin.resolveId',
-    server: 'vite-server',
-  }[h]!,
+    server: 'server.middleware',
+  }[h as string]!,
   value: h,
 }))
 
@@ -85,7 +85,7 @@ getHot().then((hot) => {
       <div i-carbon-arrow-left />
     </RouterLink>
     <div my-auto font-mono text-sm>
-      Plugins Metrics
+      Metrics
     </div>
     <SegmentControl
       v-model="metricDisplayHook"
@@ -94,7 +94,8 @@ getHot().then((hot) => {
     <div flex-auto />
   </NavBar>
   <Container v-if="data" of-auto>
-    <PluginChart v-if="selectedPlugin" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
+    <PluginChart v-if="selectedPlugin && metricDisplayHook !== 'server'" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
+    <ServerChart v-if="metricDisplayHook === 'server'"  />
     <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) font-mono text-sm">
       <div />
       <div class="text-xs font-bold">
