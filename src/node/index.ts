@@ -145,7 +145,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
           // middleware selfTime = totalTime - next.totalTime
           serverPerf.middleware![url].push({
-            self: metrics.length ? total - metrics[metrics.length - 1].total : total,
+            self: metrics.length ? Math.max(total - metrics[metrics.length - 1].total, 0) : total,
             total,
             name: handle.name,
           })
