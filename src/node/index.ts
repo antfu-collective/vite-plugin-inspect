@@ -116,7 +116,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const { handle, ...rest } = middleware
       if (typeof handle !== 'function' || !handle.name)
         return middleware
-      
+
       return {
         handle: async (...middlewareArgs: any[]) => {
           let req: any, res: any, next: any, err: any

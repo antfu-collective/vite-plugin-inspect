@@ -42,7 +42,7 @@ onMounted(() => {
   >
     <RouterLink h-full min-w-70px flex-auto to="/" />
     <div
-      class="h-full w-[calc(100vw-100px)] transform overflow-hidden bg-main shadow-lg transition-transform duration-300"
+      class="h-full w-[calc(100vw-100px)] transform overflow-hidden shadow-lg transition-transform duration-300 bg-main"
       border="l main"
       :class="isRoot ? 'translate-x-1/2' : 'translate-x-0'"
     >

@@ -67,18 +67,18 @@ const baseOption = computed(() => ({
     },
   } satisfies TooltipComponentOption,
   legend: {
-      top: 10,
-      textStyle: {
-        color: foregroundColor.value
-      }
+    top: 10,
+    textStyle: {
+      color: foregroundColor.value,
     },
+  },
   grid: {
-      left: '4%',
-      right: '2%',
-      top: 60,
-      bottom: '2%',
-      containLabel: true,
-    },
+    left: '4%',
+    right: '2%',
+    top: 60,
+    bottom: '2%',
+    containLabel: true,
+  },
   xAxis: {
     type: 'value',
     minInterval: 10,
@@ -125,10 +125,10 @@ const middlewareOption = computed(() => {
 
   return {
     ...baseOption.value,
-   
+
     yAxis,
     tooltip,
-   
+
     series: middewareSeries.value,
   }
 })
@@ -141,18 +141,18 @@ const middlewareStyle = computed(() => {
 </script>
 
 <template>
-  <div class="bg-main border-none h-full w-[calc(100vw-100px)] overflow-auto shadow-lg transition-transform transform duration-300 translate-x-0">
+  <div class="h-full w-[calc(100vw-100px)] translate-x-0 transform overflow-auto border-none shadow-lg transition-transform duration-300 bg-main">
     <div p4>
-      <div v-if="!middlewareYData.length" flex="~" w-full h-40>
-        <div ma op50 italic>
+      <div v-if="!middlewareYData.length" flex="~" h-40 w-full>
+        <div ma italic op50>
           No middleware metric data
         </div>
       </div>
 
-      <div v-if="middlewareYData.length" class="text-sm font-mono my-auto ml-8">
+      <div v-if="middlewareYData.length" class="my-auto ml-8 font-mono text-sm">
         Metrics for top50 urls
       </div>
-      <VChart v-if="middlewareYData.length" class="w-100% h-200" :style="middlewareStyle" :option="middlewareOption" autoresize />
+      <VChart v-if="middlewareYData.length" class="h-200 w-100%" :style="middlewareStyle" :option="middlewareOption" autoresize />
     </div>
   </div>
 </template>
