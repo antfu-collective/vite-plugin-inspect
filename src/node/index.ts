@@ -1,4 +1,4 @@
-import { join, resolve } from 'node:path'
+import { isAbsolute, join, resolve } from 'node:path'
 import fs from 'fs-extra'
 import _debug from 'debug'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
@@ -384,10 +384,17 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   async function generateBuild() {
     // outputs data to `node_modules/.vite/inspect folder
-    const targetDir = join(config.root, outputDir)
+    const targetDir = isAbsolute(outputDir)
+      ? outputDir
+      : resolve(config.root, outputDir)
     const reportsDir = join(targetDir, 'reports')
 
-    await fs.mkdir(targetDir, { recursive: true })
+    await fs.rm(targetDir, {
+      recursive: true,
+      force: true,
+    })
+    await fs.ensureDir(targetDir)
+    await fs.ensureDir(reportsDir)
 
     await fs.copy(DIR_CLIENT, targetDir, { overwrite: true })
 
@@ -399,13 +406,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
           'data-vite-inspect-mode="BUILD"',
         ),
     )
-
-    await fs.rm(reportsDir, {
-      recursive: true,
-      force: true,
-    })
-
-    await fs.mkdir(reportsDir, { recursive: true })
 
     const isVirtual = (pluginName: string, transformName: string) => pluginName !== dummyLoadPluginName && transformName !== 'vite:load-fallback'
 
