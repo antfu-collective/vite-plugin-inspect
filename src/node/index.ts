@@ -1,7 +1,7 @@
 import { isAbsolute, join, resolve } from 'node:path'
 import fs from 'fs-extra'
 import _debug from 'debug'
-import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
+import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import type { ObjectHook } from 'rollup'
 import sirv from 'sirv'
 import type { FilterPattern } from '@rollup/pluginutils'
@@ -90,8 +90,15 @@ export default function PluginInspect(options: Options = {}): Plugin {
   }
 
   const filter = createFilter(options.include, options.exclude)
+  const timestampRE = /\bt=\d{13}&?\b/
+  const trailingSeparatorRE = /[?&]$/
 
   let config: ResolvedConfig
+  const serverPerf: {
+    middleware?: Record<string, { name: string; total: number; self: number }[]>
+  } = {
+    middleware: {},
+  }
 
   type TransformMap = Record<string, TransformInfo[]>
   type ResolveIdMap = Record<string, ResolveIdInfo[]>
@@ -100,6 +107,53 @@ export default function PluginInspect(options: Options = {}): Plugin {
   const transformMapSSR: TransformMap = {}
   const idMap: ResolveIdMap = {}
   const idMapSSR: ResolveIdMap = {}
+
+  // a hack for wrapping connect server stack
+  // see https://github.com/senchalabs/connect/blob/0a71c6b139b4c0b7d34c0f3fca32490595ecfd60/index.js#L50-L55
+  function collectMiddlewarePerf(middlewares: Connect.Server['stack']) {
+    let firstMiddlewareIndex = -1
+    return middlewares.map((middleware, index) => {
+      const { handle, ...rest } = middleware
+      if (typeof handle !== 'function' || !handle.name)
+        return middleware
+
+      return {
+        handle: async (...middlewareArgs: any[]) => {
+          let req: any, res: any, next: any, err: any
+          if (middlewareArgs.length === 4)
+            [err, req, res, next] = middlewareArgs
+
+          else
+            [req, res, next] = middlewareArgs
+
+          const start = Date.now()
+          const url = req.url?.replace(timestampRE, '').replace(trailingSeparatorRE, '')
+          serverPerf.middleware![url] ??= []
+
+          if (firstMiddlewareIndex < 0)
+            firstMiddlewareIndex = index
+
+          // clear middleware timing
+          if (index === firstMiddlewareIndex)
+            serverPerf.middleware![url] = []
+
+          // @ts-expect-error handle needs 3 or 4 arguments
+          await (middlewareArgs.length === 4 ? handle(err, req, res, next) : handle(req, res, next))
+
+          const total = Date.now() - start
+          const metrics = serverPerf.middleware![url]
+
+          // middleware selfTime = totalTime - next.totalTime
+          serverPerf.middleware![url].push({
+            self: metrics.length ? Math.max(total - metrics[metrics.length - 1].total, 0) : total,
+            total,
+            name: handle.name,
+          })
+        },
+        ...rest,
+      }
+    })
+  }
 
   function transformIdMap(idMap: ResolveIdMap) {
     return Object.values(idMap).reduce((map, ids) => {
@@ -311,11 +365,16 @@ export default function PluginInspect(options: Options = {}): Plugin {
       list,
       getIdInfo,
       getPluginMetrics,
+      getServerMetrics,
       resolveId,
       clear: clearId,
     }
 
     createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
+
+    function getServerMetrics() {
+      return serverPerf || {}
+    }
 
     async function getIdInfo(id: string, ssr = false, clear = false) {
       if (clear) {
@@ -498,6 +557,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const rpc = configureServer(server)
       plugin.api = {
         rpc,
+      }
+
+      return () => {
+        server.middlewares.stack = collectMiddlewarePerf(server.middlewares.stack)
       }
     },
     load: {

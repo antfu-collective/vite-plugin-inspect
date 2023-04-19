@@ -13,7 +13,7 @@ onMounted(() => {
     <div i-carbon-ibm-watson-discovery title="Vite Inspect" text-xl />
     <SearchBox />
     <div flex-auto />
-    <RouterLink text-lg icon-btn to="/plugins-metric" title="Metrics">
+    <RouterLink text-lg icon-btn to="/metric" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>
     <button text-lg icon-btn title="View Mode" @click="toggleMode()">
@@ -42,7 +42,7 @@ onMounted(() => {
   >
     <RouterLink h-full min-w-70px flex-auto to="/" />
     <div
-      class="h-full w-[calc(100vw-100px)] transform overflow-hidden bg-main shadow-lg transition-transform duration-300"
+      class="h-full w-[calc(100vw-100px)] transform overflow-hidden shadow-lg transition-transform duration-300 bg-main"
       border="l main"
       :class="isRoot ? 'translate-x-1/2' : 'translate-x-0'"
     >

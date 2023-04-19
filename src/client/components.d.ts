@@ -22,5 +22,6 @@ declare module '@vue/runtime-core' {
     RouterView: typeof import('vue-router')['RouterView']
     SearchBox: typeof import('./components/SearchBox.vue')['default']
     SegmentControl: typeof import('./components/SegmentControl.vue')['default']
+    ServerChart: typeof import('./components/ServerChart.vue')['default']
   }
 }

@@ -53,6 +53,7 @@ export interface RPCFunctions {
   resolveId(id: string, ssr: boolean): Awaitable<string>
   clear(id: string, ssr: boolean): Awaitable<void>
   getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
+  getServerMetrics(): Awaitable<Record<string, Record<string, { name: string; self: number; total: number }[]>>>
 }
 
 export interface HMRData {
