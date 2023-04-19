@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-inspect",
-  "version": "0.7.22",
+  "version": "0.7.23",
   "packageManager": "pnpm@8.2.0",
   "description": "Inspect the intermediate state of Vite plugins",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
