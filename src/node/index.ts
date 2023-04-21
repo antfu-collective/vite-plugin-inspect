@@ -448,23 +448,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
       : resolve(config.root, outputDir)
     const reportsDir = join(targetDir, 'reports')
 
-    await fs.rm(targetDir, {
-      recursive: true,
-      force: true,
-    })
-    await fs.ensureDir(targetDir)
+    await fs.emptyDir(targetDir)
     await fs.ensureDir(reportsDir)
-
-    await fs.copy(DIR_CLIENT, targetDir, { overwrite: true })
-
-    await fs.writeFile(
-      join(targetDir, 'index.html'),
-      (await fs.readFile(join(targetDir, 'index.html'), 'utf-8'))
-        .replace(
-          'data-vite-inspect-mode="DEV"',
-          'data-vite-inspect-mode="BUILD"',
-        ),
-    )
+    await fs.copy(DIR_CLIENT, targetDir)
 
     const isVirtual = (pluginName: string, transformName: string) => pluginName !== dummyLoadPluginName && transformName !== 'vite:load-fallback'
 
@@ -476,24 +462,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     }
 
-    await fs.writeFile(
-      join(reportsDir, 'list.json'),
-      JSON.stringify(list(), null, 2),
-      'utf-8',
-    )
-
-    await fs.writeFile(
-      join(reportsDir, 'metrics.json'),
-      JSON.stringify(getPluginMetrics(false), null, 2),
-      'utf-8',
-    )
-
-    await fs.writeFile(
-      join(reportsDir, 'metrics-ssr.json'),
-      JSON.stringify(getPluginMetrics(true), null, 2),
-      'utf-8',
-    )
-
     async function dumpModuleInfo(dir: string, map: TransformMap, ssr = false) {
       await fs.ensureDir(dir)
       return Promise.all(Object.entries(map)
@@ -502,13 +470,39 @@ export default function PluginInspect(options: Options = {}): Plugin {
           <ModuleTransformInfo>{
             resolvedId: resolveId(id, ssr),
             transforms: info,
-          }),
+          },
+          { spaces: 2 }),
         ),
       )
     }
 
-    await dumpModuleInfo(join(reportsDir, 'transform'), transformMap)
-    await dumpModuleInfo(join(reportsDir, 'transform-ssr'), transformMapSSR, true)
+    await Promise.all([
+      fs.writeFile(
+        join(targetDir, 'index.html'),
+        (await fs.readFile(join(targetDir, 'index.html'), 'utf-8'))
+          .replace(
+            'data-vite-inspect-mode="DEV"',
+            'data-vite-inspect-mode="BUILD"',
+          ),
+      ),
+      fs.writeJSON(
+        join(reportsDir, 'list.json'),
+        list(),
+        { spaces: 2 },
+      ),
+      fs.writeJSON(
+        join(reportsDir, 'metrics.json'),
+        getPluginMetrics(false),
+        { spaces: 2 },
+      ),
+      fs.writeJSON(
+        join(reportsDir, 'metrics-ssr.json'),
+        getPluginMetrics(true),
+        { spaces: 2 },
+      ),
+      dumpModuleInfo(join(reportsDir, 'transform'), transformMap),
+      dumpModuleInfo(join(reportsDir, 'transform-ssr'), transformMapSSR, true),
+    ])
 
     return targetDir
   }
