@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Ref } from 'vue'
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
 import { msToTime } from '../../logic/utils'
@@ -10,8 +9,8 @@ import { getHot } from '../../logic/hot'
 
 const id = useRouteQuery<string | undefined>('id')
 const data = ref(id.value ? await rpc.getIdInfo(id.value, inspectSSR.value) : undefined)
-const index = useRouteQuery('index') as Ref<string>
-const currentIndex = computed(() => +index.value ?? (data.value?.transforms.length || 1) - 1 ?? 0)
+const index = useRouteQuery<string | undefined>('index')
+const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (data.value?.transforms.length || 1) - 1)
 const panelSize = useLocalStorage('vite-inspect-module-panel-size', '10')
 
 async function refetch() {
