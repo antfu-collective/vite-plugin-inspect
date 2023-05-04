@@ -13,10 +13,10 @@
     "vue": "^3.2.47"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.1.0",
+    "@vitejs/plugin-vue": "^4.2.1",
     "serve": "^14.2.0",
     "typescript": "^5.0.4",
-    "vite": "^4.2.1",
+    "vite": "^4.3.4",
     "vite-plugin-inspect": "workspace:*"
   }
 }
