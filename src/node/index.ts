@@ -62,6 +62,13 @@ export interface Options {
    * @default read from Vite's config
    */
   base?: string
+
+  /**
+   * Print URL output silently in the terminal
+   *
+   * @default false
+   */
+  silent?: boolean
 }
 
 type HookHandler<T> = T extends ObjectHook<infer F> ? F : T
@@ -81,6 +88,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     dev = true,
     build = false,
     outputDir = '.vite-inspect',
+    silent = false,
   } = options
 
   if (!dev && !build) {
@@ -415,27 +423,29 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     }
 
-    const _print = server.printUrls
-    server.printUrls = () => {
-      const colorUrl = (url: string) => c.green(url.replace(/:(\d+)\//, (_, port) => `:${c.bold(port)}/`))
+    if (!silent) {
+      const _print = server.printUrls
+      server.printUrls = () => {
+        const colorUrl = (url: string) => c.green(url.replace(/:(\d+)\//, (_, port) => `:${c.bold(port)}/`))
 
-      let host = `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
+        let host = `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
 
-      const url = server.resolvedUrls?.local[0]
+        const url = server.resolvedUrls?.local[0]
 
-      if (url) {
-        try {
-          const u = new URL(url)
-          host = `${u.protocol}//${u.host}`
+        if (url) {
+          try {
+            const u = new URL(url)
+            host = `${u.protocol}//${u.host}`
+          }
+          catch (error) {
+            console.warn('Parse resolved url failed:', error)
+          }
         }
-        catch (error) {
-          console.warn('Parse resolved url failed:', error)
-        }
+
+        _print()
+        // eslint-disable-next-line no-console
+        console.log(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
       }
-
-      _print()
-      // eslint-disable-next-line no-console
-      console.log(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
     }
 
     return rpcFunctions
