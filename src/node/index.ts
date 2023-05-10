@@ -1,6 +1,9 @@
 import { isAbsolute, join, resolve } from 'node:path'
+import { createServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import fs from 'fs-extra'
 import _debug from 'debug'
+import open from 'open'
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import type { ObjectHook } from 'rollup'
 import sirv from 'sirv'
@@ -69,6 +72,12 @@ export interface Options {
    * @default false
    */
   silent?: boolean
+  /**
+   * Automatically open inspect page
+   *
+   * @default false
+   */
+  open?: boolean
 }
 
 type HookHandler<T> = T extends ObjectHook<infer F> ? F : T
@@ -89,6 +98,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     build = false,
     outputDir = '.vite-inspect',
     silent = false,
+    open: _open = false,
   } = options
 
   if (!dev && !build) {
@@ -423,29 +433,32 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     }
 
-    if (!silent) {
-      const _print = server.printUrls
-      server.printUrls = () => {
-        const colorUrl = (url: string) => c.green(url.replace(/:(\d+)\//, (_, port) => `:${c.bold(port)}/`))
+    const _print = server.printUrls
+    server.printUrls = () => {
+      const colorUrl = (url: string) => c.green(url.replace(/:(\d+)\//, (_, port) => `:${c.bold(port)}/`))
 
-        let host = `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
+      let host = `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
 
-        const url = server.resolvedUrls?.local[0]
+      const url = server.resolvedUrls?.local[0]
 
-        if (url) {
-          try {
-            const u = new URL(url)
-            host = `${u.protocol}//${u.host}`
-          }
-          catch (error) {
-            console.warn('Parse resolved url failed:', error)
-          }
+      if (url) {
+        try {
+          const u = new URL(url)
+          host = `${u.protocol}//${u.host}`
         }
+        catch (error) {
+          console.warn('Parse resolved url failed:', error)
+        }
+      }
 
+      if (!silent) {
         _print()
         // eslint-disable-next-line no-console
         console.log(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
       }
+      // I can't get the config when the service starts.
+      if (_open)
+        openBrowser(`${host}${base}__inspect/`)
     }
 
     return rpcFunctions
@@ -517,6 +530,30 @@ export default function PluginInspect(options: Options = {}): Plugin {
     return targetDir
   }
 
+  function createInternalServer(staticPath: string) {
+    const server = createServer()
+
+    const statics = sirv(staticPath)
+    server.on('request', (req, res) => {
+      statics(req, res, () => {
+        res.statusCode = 404
+        res.end('File not found')
+      })
+    })
+
+    server.listen(0, () => {
+      const { port } = server.address() as AddressInfo
+      const url = `http://localhost:${port}`
+      // eslint-disable-next-line no-console
+      console.log(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${url}`)
+      openBrowser(url)
+    })
+  }
+
+  function openBrowser(address: string) {
+    open(address).catch(() => {})
+  }
+
   const plugin = <Plugin>{
     name: NAME,
     enforce: 'pre',
@@ -530,7 +567,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
     configResolved(_config) {
       config = _config
       config.plugins.forEach(hijackPlugin)
-
       const _createResolver = config.createResolver
       // @ts-expect-error mutate readonly
       config.createResolver = function (this: any, ...args: any) {
@@ -589,9 +625,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const dir = await generateBuild()
       // eslint-disable-next-line no-console
       console.log(c.green('Inspect report generated at'), c.dim(`${dir}`))
+      if (_open)
+        createInternalServer(dir)
     },
   }
-
   return plugin
 }
 
