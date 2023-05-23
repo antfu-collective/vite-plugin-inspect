@@ -3,7 +3,6 @@ import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import fs from 'fs-extra'
 import _debug from 'debug'
-import open from 'open'
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import type { ObjectHook } from 'rollup'
 import sirv from 'sirv'
@@ -555,10 +554,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
     })
   }
 
-  function openBrowser(address: string) {
-    open(address, {
-      newInstance: true,
-    }).catch(() => {})
+  async function openBrowser(address: string) {
+    await import('open')
+      .then(r => r.default(address, { newInstance: true }))
+      .catch(() => {})
   }
 
   const plugin = <Plugin>{
