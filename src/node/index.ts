@@ -17,6 +17,7 @@ import { DIR_CLIENT } from '../dir'
 
 const debug = _debug('vite-plugin-inspect')
 const NAME = 'vite-plugin-inspect'
+const isCI = !!process.env.CI
 
 // initial tranform (load from fs)
 const dummyLoadPluginName = '__load__'
@@ -456,9 +457,13 @@ export default function PluginInspect(options: Options = {}): Plugin {
         // eslint-disable-next-line no-console
         console.log(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
       }
-      // I can't get the config when the service starts.
-      if (_open)
-        openBrowser(`${host}${base}__inspect/`)
+
+      if (_open && !isCI) {
+        // a delay is added to ensure the app page is opened first
+        setTimeout(() => {
+          openBrowser(`${host}${base}__inspect/`)
+        }, 500)
+      }
     }
 
     return rpcFunctions
@@ -530,7 +535,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     return targetDir
   }
 
-  function createInternalServer(staticPath: string) {
+  function createPreviewServer(staticPath: string) {
     const server = createServer()
 
     const statics = sirv(staticPath)
@@ -545,13 +550,15 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const { port } = server.address() as AddressInfo
       const url = `http://localhost:${port}`
       // eslint-disable-next-line no-console
-      console.log(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${url}`)
+      console.log(`  ${c.green('➜')}  ${c.bold('Inspect Preview Started')}: ${url}`)
       openBrowser(url)
     })
   }
 
   function openBrowser(address: string) {
-    open(address).catch(() => {})
+    open(address, {
+      newInstance: true,
+    }).catch(() => {})
   }
 
   const plugin = <Plugin>{
@@ -625,8 +632,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const dir = await generateBuild()
       // eslint-disable-next-line no-console
       console.log(c.green('Inspect report generated at'), c.dim(`${dir}`))
-      if (_open)
-        createInternalServer(dir)
+      if (_open && !isCI)
+        createPreviewServer(dir)
     },
   }
   return plugin
