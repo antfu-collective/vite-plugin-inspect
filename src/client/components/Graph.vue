@@ -2,13 +2,14 @@
 import type { Data, Options } from 'vis-network'
 import { Network } from 'vis-network'
 import type { ModuleInfo } from '../../types'
-import { isDark } from '../logic'
+import { getModuleWeight, graphWeightMode, isDark } from '../logic'
 
 const props = defineProps<{
   modules?: ModuleInfo[]
 }>()
 
 const container = ref<HTMLDivElement | null>()
+const weightItems = [{ value: 'deps', label: 'dependency count' }, { value: 'transform', label: 'transform time' }, { value: 'resolveId', label: 'resolveId time' }]
 const router = useRouter()
 
 const data = computed<Data>(() => {
@@ -19,7 +20,7 @@ const data = computed<Data>(() => {
       id: mod.id,
       label: path.split('/').splice(-1)[0],
       group: path.match(/\.(\w+)$/)?.[1] || 'unknown',
-      size: 15 + Math.min(mod.deps.length / 2, 8),
+      size: getModuleWeight(mod, graphWeightMode.value),
       font: { color: isDark.value ? 'white' : 'black' },
       shape: mod.id.includes('/node_modules/')
         ? 'hexagon'
@@ -106,6 +107,7 @@ onMounted(() => {
 
 <template>
   <div v-if="modules">
+    <RadioGroup v-model="graphWeightMode" cls="px-5" name="weight" :options="weightItems" />
     <div ref="container" h-100vh w-full />
   </div>
 </template>
