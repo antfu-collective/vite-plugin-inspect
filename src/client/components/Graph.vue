@@ -9,7 +9,11 @@ const props = defineProps<{
 }>()
 
 const container = ref<HTMLDivElement | null>()
-const weightItems = [{ value: 'deps', label: 'dependency count' }, { value: 'transform', label: 'transform time' }, { value: 'resolveId', label: 'resolveId time' }]
+const weightItems = [
+  { value: 'deps', label: 'dependency count' },
+  { value: 'transform', label: 'transform time' },
+  { value: 'resolveId', label: 'resolveId time' },
+]
 const router = useRouter()
 
 const data = computed<Data>(() => {
@@ -107,7 +111,18 @@ onMounted(() => {
 
 <template>
   <div v-if="modules">
-    <RadioGroup v-model="graphWeightMode" cls="px-5" name="weight" :options="weightItems" />
     <div ref="container" h-100vh w-full />
+    <div
+      border="~ main"
+      absolute bottom-3 right-3 z-100 rounded px3 py1 shadow bg-main
+      flex="~ gap-2"
+    >
+      <span text-sm op50>weight by</span>
+      <RadioGroup
+        v-model="graphWeightMode"
+        name="weight"
+        :options="weightItems"
+      />
+    </div>
   </div>
 </template>

@@ -27,7 +27,11 @@ export default defineConfig({
       },
     },
 
-    Vue(),
+    Vue({
+      script: {
+        defineModel: true,
+      },
+    }),
     Pages({
       pagesDir: 'pages',
     }),
