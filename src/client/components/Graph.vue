@@ -3,6 +3,10 @@ import type { Data, Options } from 'vis-network'
 import { Network } from 'vis-network'
 import type { ModuleInfo } from '../../types'
 import { getModuleWeight, graphWeightMode, isDark } from '../logic'
+import dotSvg from '../assets/dot.svg'
+import diamondSvg from '../assets/diamond.svg'
+import hexagonSvg from '../assets/hexagon.svg'
+import { colors } from '../../../color'
 
 const props = defineProps<{
   modules?: ModuleInfo[]
@@ -14,6 +18,7 @@ const weightItems = [
   { value: 'transform', label: 'transform time' },
   { value: 'resolveId', label: 'resolveId time' },
 ]
+const shapes = [{ svg: dotSvg, type: 'source' }, { svg: diamondSvg, type: 'virtual' }, { svg: hexagonSvg, type: 'node_modules' }]
 const router = useRouter()
 
 const data = computed<Data>(() => {
@@ -65,35 +70,7 @@ onMounted(() => {
         iterations: 200,
       },
     },
-    groups: {
-      vue: {
-        color: '#42b883',
-      },
-      ts: {
-        color: '#41b1e0',
-      },
-      js: {
-        color: '#d6cb2d',
-      },
-      json: {
-        color: '#cf8f30',
-      },
-      css: {
-        color: '#e6659a',
-      },
-      html: {
-        color: '#e34c26',
-      },
-      svelte: {
-        color: '#ff3e00',
-      },
-      jsx: {
-        color: '#7d6fe8',
-      },
-      tsx: {
-        color: '#7d6fe8',
-      },
-    },
+    groups: colors.reduce((groups, color) => ({ ...groups, [color.type]: { color: color.color } }), {}),
   }
   const network = new Network(container.value!, data.value, options)
 
@@ -114,15 +91,26 @@ onMounted(() => {
     <div ref="container" h-100vh w-full />
     <div
       border="~ main"
-      absolute bottom-3 right-3 z-100 rounded px3 py1 shadow bg-main
-      flex="~ gap-2"
+      absolute bottom-3 right-3 z-100 rounded px3 py3 shadow bg-main
     >
-      <span text-sm op50>weight by</span>
-      <RadioGroup
-        v-model="graphWeightMode"
-        name="weight"
-        :options="weightItems"
-      />
+      <div flex="~ gap-2" mb-2>
+        <span text-sm op50>color of</span>
+        <Badge v-for="color of colors" :key="color.type" :class="[`text-[#fff] ${{ vue: 'bg-vue', json: 'bg-json', ts: 'bg-ts', js: 'bg-js', css: 'bg-css', html: 'bg-html', svelte: 'bg-svelte', jsx: 'bg-jsx', tsx: 'bg-tsx' }[color.type]}`]">
+          {{ color.type }}
+        </Badge>
+      </div>
+      <div flex="~ gap-2" mb-1>
+        <span text-sm op50>shape of</span>
+        <span v-for="shape of shapes" :key="shape.type" flex="~ gap-1" text-14px><img :src="shape.svg" inline w-4>{{ shape.type }}</span>
+      </div>
+      <div flex="~ gap-2">
+        <span text-sm op50>weight by</span>
+        <RadioGroup
+          v-model="graphWeightMode"
+          name="weight"
+          :options="weightItems"
+        />
+      </div>
     </div>
   </div>
 </template>

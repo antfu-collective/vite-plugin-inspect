@@ -6,6 +6,7 @@ import {
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
+import { colors } from './color'
 
 // @unocss-include
 export default defineConfig({
@@ -17,6 +18,13 @@ export default defineConfig({
       + 'opacity-75 transition duration-200 ease-in-out '
       + 'hover:opacity-100 hover:text-teal-600 '
       + 'text-0.9em h-1.2em',
+    ...colors.reduce((acc, { color, type }) => {
+      return {
+        ...acc,
+        [`bg-${type}`]: `bg-${color}/100`,
+        [`text-${type}`]: `text-${color}`,
+      }
+    }, {}),
   },
   presets: [
     presetUno(),
