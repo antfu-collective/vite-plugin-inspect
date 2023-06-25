@@ -21,7 +21,7 @@ export default defineConfig({
     ...colors.reduce((acc, { color, type }) => {
       return {
         ...acc,
-        [`bg-${type}`]: `bg-${color}/100`,
+        [`bg-${type}`]: `bg-${color}`,
         [`text-${type}`]: `text-${color}`,
       }
     }, {}),
