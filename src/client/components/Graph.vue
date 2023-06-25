@@ -97,7 +97,7 @@ onMounted(() => {
   }
   const network = new Network(container.value!, data.value, options)
 
-  network.on('click', (data) => {
+  network.on('doubleClick', (data) => {
     const node = data.nodes?.[0]
     if (node)
       router.push(`/module?id=${encodeURIComponent(node)}`)
