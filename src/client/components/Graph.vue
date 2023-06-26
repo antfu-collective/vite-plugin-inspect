@@ -111,7 +111,7 @@ onMounted(() => {
     >
       <div flex="~ gap-2" mb-2>
         <span text-sm op50>color of</span>
-        <Badge v-for="color of colors" :key="color.type" :class="[`text-[#fff] ${{ vue: 'bg-vue', json: 'bg-json', ts: 'bg-ts', js: 'bg-js', css: 'bg-css', html: 'bg-html', svelte: 'bg-svelte', jsx: 'bg-jsx', tsx: 'bg-tsx' }[color.type]}`]">
+        <Badge v-for="color of colors" :key="color.type" class="text-[#fff]" :style="{ backgroundColor: color.color }">
           {{ color.type }}
         </Badge>
       </div>
