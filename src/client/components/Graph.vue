@@ -74,10 +74,26 @@ onMounted(() => {
   }
   const network = new Network(container.value!, data.value, options)
 
-  network.on('doubleClick', (data) => {
+  const clicking = ref(false)
+
+  network.on('click', () => {
+    clicking.value = true
+  })
+
+  network.on('hold', () => {
+    clicking.value = false
+  })
+
+  network.on('dragStart', () => {
+    clicking.value = false
+  })
+
+  network.on('release', (data) => {
     const node = data.nodes?.[0]
-    if (node)
+    if (clicking.value && node) {
       router.push(`/module?id=${encodeURIComponent(node)}`)
+      clicking.value = false
+    }
   })
 
   watch(data, () => {
