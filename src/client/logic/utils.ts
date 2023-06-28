@@ -37,7 +37,6 @@ export function guessMode(code: string) {
 export function inspectSourcemaps({ code, sourcemaps }: {
   code: string
   sourcemaps?: string
-
 }) {
   // easier debugging of sourcemaps
   // eslint-disable-next-line no-console
