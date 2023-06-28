@@ -1,50 +1,11 @@
-export enum COLOR {
-  VUE = '#42b883',
-  TS = '#41b1e0',
-  JS = '#d6cb2d',
-  JSON = '#cf8f30',
-  CSS = '#e6659a',
-  HTML = '#e34c26',
-  SVELTE = '#ff3e00',
-  JSX = '#7d6fe8',
-  TSX = '#7d6fe8',
-}
-
-export const colors = [
-  {
-    color: COLOR.VUE,
-    type: 'vue',
-  },
-  {
-    color: COLOR.TS,
-    type: 'ts',
-  },
-  {
-    color: COLOR.JS,
-    type: 'js',
-  },
-  {
-    color: COLOR.JSON,
-    type: 'json',
-  },
-  {
-    color: COLOR.CSS,
-    type: 'css',
-  },
-  {
-    color: COLOR.HTML,
-    type: 'html',
-  },
-  {
-    color: COLOR.SVELTE,
-    type: 'svelte',
-  },
-  {
-    color: COLOR.JSX,
-    type: 'jsx',
-  },
-  {
-    color: COLOR.TSX,
-    type: 'tsx',
-  },
-]
+export const colors = Object.entries({
+  vue: '#42b883',
+  ts: '#41b1e0',
+  js: '#d6cb2d',
+  json: '#cf8f30',
+  css: '#e6659a',
+  html: '#e34c26',
+  svelte: '#ff3e00',
+  jsx: '#7d6fe8',
+  tsx: '#7d6fe8',
+}).map(([type, color]) => ({ type, color }))
