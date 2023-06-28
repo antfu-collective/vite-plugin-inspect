@@ -37,7 +37,7 @@ const sourcemaps = computed(() => {
 
   if (sourcemaps && !sourcemaps.sourcesContent) {
     sourcemaps.sourcesContent = []
-    sourcemaps.sourcesContent[0] = from
+    sourcemaps.sourcesContent[0] = from.value
   }
   return JSON.stringify(sourcemaps)
 })
