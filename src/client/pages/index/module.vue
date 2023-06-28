@@ -2,7 +2,7 @@
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
 import { msToTime } from '../../logic/utils'
-import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, showOneColumn } from '../../logic'
+import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showOneColumn } from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
@@ -26,7 +26,21 @@ watch([id, inspectSSR], refetch)
 
 const from = computed(() => data.value?.transforms[currentIndex.value - 1]?.result || '')
 const to = computed(() => data.value?.transforms[currentIndex.value]?.result || '')
-const sourcemaps = computed(() => data.value?.transforms[currentIndex.value]?.sourcemaps)
+const sourcemaps = computed(() => {
+  let sourcemaps = data.value?.transforms[currentIndex.value]?.sourcemaps
+  if (!sourcemaps)
+    return undefined
+  if (typeof sourcemaps === 'string')
+    sourcemaps = safeJsonParse(sourcemaps)
+  if (!sourcemaps?.mappings)
+    return
+
+  if (sourcemaps && !sourcemaps.sourcesContent) {
+    sourcemaps.sourcesContent = []
+    sourcemaps.sourcesContent[0] = from
+  }
+  return JSON.stringify(sourcemaps)
+})
 
 getHot().then((hot) => {
   if (hot) {
@@ -55,7 +69,7 @@ getHot().then((hot) => {
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Inspect sourcemaps" :disabled="!sourcemaps" @click="inspectSourcemaps(to, sourcemaps)">
+    <button text-lg icon-btn title="Inspect sourcemaps" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
       <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">

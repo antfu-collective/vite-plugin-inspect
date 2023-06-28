@@ -34,25 +34,26 @@ export function guessMode(code: string) {
   return 'javascript'
 }
 
-export function inspectSourcemaps(code: string, map: any) {
-  if (typeof map === 'string')
-    map = safeJsonParse(map)
+export function inspectSourcemaps({ code, sourcemaps, oldCode }: {
+  code: string
+  sourcemaps?: string
 
-  if (!map) {
-    console.error('No source map found')
-    return
-  }
+}) {
+  // easier debugging of sourcemaps
+  // eslint-disable-next-line no-console
+  console.info('sourcemaps', JSON.stringify(sourcemaps, null, 2))
 
-  const serialized = serializeForSourcemapsVisualizer(code, JSON.stringify(map))
+  const serialized = serializeForSourcemapsVisualizer(code, sourcemaps)
   // open link in new tab
   window.open(`https://evanw.github.io/source-map-visualization#${serialized}`, '_blank')
 }
 
-function safeJsonParse(str: string) {
+export function safeJsonParse(str: string) {
   try {
     return JSON.parse(str)
   }
   catch (e) {
+    console.error('Failed to parse JSON', str)
     return null
   }
 }

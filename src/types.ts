@@ -6,7 +6,7 @@ export interface TransformInfo {
   start: number
   end: number
   order?: string
-  sourcemaps?: string | Record<string, any>
+  sourcemaps?: any
 }
 
 export interface ResolveIdInfo {
