@@ -34,7 +34,7 @@ export function guessMode(code: string) {
   return 'javascript'
 }
 
-export function inspectSourcemaps({ code, sourcemaps, oldCode }: {
+export function inspectSourcemaps({ code, sourcemaps }: {
   code: string
   sourcemaps?: string
 
@@ -43,7 +43,7 @@ export function inspectSourcemaps({ code, sourcemaps, oldCode }: {
   // eslint-disable-next-line no-console
   console.info('sourcemaps', JSON.stringify(sourcemaps, null, 2))
 
-  const serialized = serializeForSourcemapsVisualizer(code, sourcemaps)
+  const serialized = serializeForSourcemapsVisualizer(code, sourcemaps!)
   // open link in new tab
   window.open(`https://evanw.github.io/source-map-visualization#${serialized}`, '_blank')
 }
