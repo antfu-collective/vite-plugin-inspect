@@ -2,7 +2,7 @@
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
 import { msToTime } from '../../logic/utils'
-import { enableDiff, inspectSSR, lineWrapping, onRefetch, showOneColumn } from '../../logic'
+import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showOneColumn } from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
@@ -26,6 +26,21 @@ watch([id, inspectSSR], refetch)
 
 const from = computed(() => data.value?.transforms[currentIndex.value - 1]?.result || '')
 const to = computed(() => data.value?.transforms[currentIndex.value]?.result || '')
+const sourcemaps = computed(() => {
+  let sourcemaps = data.value?.transforms[currentIndex.value]?.sourcemaps
+  if (!sourcemaps)
+    return undefined
+  if (typeof sourcemaps === 'string')
+    sourcemaps = safeJsonParse(sourcemaps)
+  if (!sourcemaps?.mappings)
+    return
+
+  if (sourcemaps && !sourcemaps.sourcesContent) {
+    sourcemaps.sourcesContent = []
+    sourcemaps.sourcesContent[0] = from.value
+  }
+  return JSON.stringify(sourcemaps)
+})
 
 getHot().then((hot) => {
   if (hot) {
@@ -53,6 +68,9 @@ getHot().then((hot) => {
 
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
+    </button>
+    <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
+      <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">
       <div i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
@@ -83,7 +101,7 @@ getHot().then((hot) => {
           <button
             border="b main"
             flex="~ gap-1 wrap"
-            items-center px-2 py-2 text-left font-mono text-xs
+            items-center px-2 py-2 text-left text-xs font-mono
             :class="
               currentIndex === idx
                 ? 'bg-active'
