@@ -55,7 +55,7 @@ getHot().then((hot) => {
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Inspect sourcemaps" :disabled="!!sourcemaps" @click="inspectSourcemaps(to, sourcemaps)">
+    <button text-lg icon-btn title="Inspect sourcemaps" :disabled="!sourcemaps" @click="inspectSourcemaps(to, sourcemaps)">
       <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">

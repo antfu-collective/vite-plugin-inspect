@@ -35,11 +35,13 @@ export function guessMode(code: string) {
 }
 
 export function inspectSourcemaps(code: string, map: any) {
-  if (!map)
-    return
-
   if (typeof map === 'string')
     map = safeJsonParse(map)
+
+  if (!map) {
+    console.error('No source map found')
+    return
+  }
 
   const serialized = serializeForSourcemapsVisualizer(code, JSON.stringify(map))
   // open link in new tab
