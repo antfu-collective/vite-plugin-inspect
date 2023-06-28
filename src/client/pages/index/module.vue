@@ -35,10 +35,13 @@ const sourcemaps = computed(() => {
   if (!sourcemaps?.mappings)
     return
 
-  if (sourcemaps && !sourcemaps.sourcesContent) {
-    sourcemaps.sourcesContent = []
-    sourcemaps.sourcesContent[0] = from.value
-  }
+  if (sourcemaps && !sourcemaps.sourcesContent?.filter(Boolean)?.length)
+    sourcemaps.sourcesContent = [from.value]
+
+  // sometimes sources is [null]
+  if (sourcemaps && !sourcemaps.sources?.filter(Boolean)?.length)
+    sourcemaps.sources = ['index.js']
+
   return JSON.stringify(sourcemaps)
 })
 
