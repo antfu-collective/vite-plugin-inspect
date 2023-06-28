@@ -33,3 +33,57 @@ export function guessMode(code: string) {
     return 'css'
   return 'javascript'
 }
+
+export function inspectSourcemaps(code: string, map: any) {
+  if (!map)
+    return
+
+  if (typeof map === 'string')
+    map = safeJsonParse(map)
+
+  const serialized = serializeForSourcemapsVisualizer(code, JSON.stringify(map))
+  // open link in new tab
+  window.open(`https://evanw.github.io/source-map-visualization#${serialized}`, '_blank')
+}
+
+function safeJsonParse(str: string) {
+  try {
+    return JSON.parse(str)
+  }
+  catch (e) {
+    return null
+  }
+}
+
+// serialize to base64 and delimited by null characters and code length
+// parser code: https://github.com/evanw/source-map-visualization/blob/5c08ef62f3eff597796f1b5c73ae822d9f467d00/code.js#L1794
+function serializeForSourcemapsVisualizer(code: string, map: string) {
+  const encoder = new TextEncoder()
+
+  // Convert the strings to Uint8Array
+  const codeArray = encoder.encode(code)
+  const mapArray = encoder.encode(map)
+
+  // Create Uint8Array for the lengths
+  const codeLengthArray = encoder.encode(codeArray.length.toString())
+  const mapLengthArray = encoder.encode(mapArray.length.toString())
+
+  // Combine the lengths and the data
+  const combinedArray = new Uint8Array(codeLengthArray.length + 1 + codeArray.length + mapLengthArray.length + 1 + mapArray.length)
+
+  combinedArray.set(codeLengthArray)
+  combinedArray.set([0], codeLengthArray.length)
+  combinedArray.set(codeArray, codeLengthArray.length + 1)
+  combinedArray.set(mapLengthArray, codeLengthArray.length + 1 + codeArray.length)
+  combinedArray.set([0], codeLengthArray.length + 1 + codeArray.length + mapLengthArray.length)
+  combinedArray.set(mapArray, codeLengthArray.length + 1 + codeArray.length + mapLengthArray.length + 1)
+
+  // Convert the Uint8Array to a binary string
+  let binary = ''
+  const len = combinedArray.byteLength
+  for (let i = 0; i < len; i++)
+    binary += String.fromCharCode(combinedArray[i])
+
+  // Convert the binary string to a base64 string and return it
+  return btoa(binary)
+}

@@ -254,14 +254,14 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const end = Date.now()
 
       const result = typeof _result === 'string' ? _result : _result?.code
-
+      const sourcemaps = typeof _result === 'string' ? null : _result?.map
       const map = ssr ? transformMapSSR : transformMap
       if (filter(id) && result != null) {
         // initial tranform (load from fs), add a dummy
         if (!map[id])
-          map[id] = [{ name: dummyLoadPluginName, result: code, start, end: start }]
+          map[id] = [{ name: dummyLoadPluginName, result: code, start, end: start, sourcemaps }]
         // record transform
-        map[id].push({ name: plugin.name, result, start, end, order })
+        map[id].push({ name: plugin.name, result, start, end, order, sourcemaps })
       }
 
       return _result
@@ -276,10 +276,11 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const end = Date.now()
 
       const result = typeof _result === 'string' ? _result : _result?.code
+      const sourcemaps = typeof _result === 'string' ? null : _result?.map
 
       const map = ssr ? transformMapSSR : transformMap
       if (filter(id) && result != null)
-        map[id] = [{ name: plugin.name, result, start, end }]
+        map[id] = [{ name: plugin.name, result, start, end, sourcemaps }]
 
       return _result
     })
