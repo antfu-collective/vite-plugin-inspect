@@ -3,9 +3,6 @@ import type { Data, Options } from 'vis-network'
 import { Network } from 'vis-network'
 import type { ModuleInfo } from '../../types'
 import { getModuleWeight, graphWeightMode, isDark } from '../logic'
-import dotSvg from '../assets/dot.svg'
-import diamondSvg from '../assets/diamond.svg'
-import hexagonSvg from '../assets/hexagon.svg'
 import { colors } from '../../../color'
 
 const props = defineProps<{
@@ -18,7 +15,12 @@ const weightItems = [
   { value: 'transform', label: 'transform time' },
   { value: 'resolveId', label: 'resolveId time' },
 ]
-const shapes = [{ svg: dotSvg, type: 'source' }, { svg: diamondSvg, type: 'virtual' }, { svg: hexagonSvg, type: 'node_modules' }]
+
+const shapes = [
+  { type: 'source', icon: 'i-ic-outline-circle' },
+  { type: 'virtual', icon: 'i-ic-outline-square rotate-45 scale-85' },
+  { type: 'node_modules', icon: 'i-ic-outline-hexagon' },
+]
 const router = useRouter()
 
 const data = computed<Data>(() => {
@@ -107,26 +109,42 @@ onMounted(() => {
     <div ref="container" h-100vh w-full />
     <div
       border="~ main"
-      absolute bottom-3 right-3 z-100 rounded px3 py3 shadow bg-main
+      flex="~ col"
+      absolute bottom-3 right-3 z-100 w-38
+      select-none rounded bg-opacity-75 p3 text-sm shadow backdrop-blur-8 bg-main
     >
-      <div flex="~ gap-2" mb-2>
-        <span text-sm op50>color of</span>
-        <Badge v-for="color of colors" :key="color.type" class="text-[#fff]" :style="{ backgroundColor: color.color }">
+      <div
+        v-for="color of colors" :key="color.type"
+        flex="~ gap-2 items-center"
+      >
+        <div h-3 w-3 rounded-full :style="{ backgroundColor: color.color }" />
+        <div>
           {{ color.type }}
-        </Badge>
+        </div>
       </div>
-      <div flex="~ gap-2" mb-1>
-        <span text-sm op50>shape of</span>
-        <span v-for="shape of shapes" :key="shape.type" flex="~ gap-1" text-14px><img :src="shape.svg" inline w-4>{{ shape.type }}</span>
+      <div border="t base" my3 h-1px />
+      <div
+        v-for="shape of shapes" :key="shape.type"
+        flex="~ gap-2 items-center"
+      >
+        <div :class="shape.icon" flex-none />
+        <div>
+          {{ shape.type }}
+        </div>
       </div>
-      <div flex="~ gap-2">
-        <span text-sm op50>weight by</span>
-        <RadioGroup
-          v-model="graphWeightMode"
-          name="weight"
-          :options="weightItems"
-        />
-      </div>
+    </div>
+    <div
+      border="~ main"
+      absolute bottom-3 left-3 z-100 rounded bg-opacity-75 p3 text-sm shadow backdrop-blur-8 bg-main
+      flex="~ col gap-1"
+    >
+      <span text-sm op50>weight by</span>
+      <RadioGroup
+        v-model="graphWeightMode"
+        flex-col text-sm
+        name="weight"
+        :options="weightItems"
+      />
     </div>
   </div>
 </template>
