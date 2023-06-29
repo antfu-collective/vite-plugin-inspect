@@ -14,16 +14,16 @@ function onChange(e: Event) {
 </script>
 
 <template>
-  <div class="flex gap-2">
-    <div v-for="opt in options" :key="opt.value" class="flex items-center">
+  <div flex="~ gap-1">
+    <label v-for="opt in options" :key="opt.value" flex="~ gap-2">
       <input
         :id="opt.value"
         :name="name"
         :checked="modelValue === opt.value"
-        :value="opt.value" type="radio" class="m-auto"
+        :value="opt.value" type="radio"
         @change="onChange"
       >
-      <label class="ml-1 text-[14px]">{{ opt.label }}</label>
-    </div>
+      <div>{{ opt.label }}</div>
+    </label>
   </div>
 </template>

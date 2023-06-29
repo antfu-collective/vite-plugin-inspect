@@ -3,6 +3,7 @@ import type { Data, Options } from 'vis-network'
 import { Network } from 'vis-network'
 import type { ModuleInfo } from '../../types'
 import { getModuleWeight, graphWeightMode, isDark } from '../logic'
+import { colors } from '../../../color'
 
 const props = defineProps<{
   modules?: ModuleInfo[]
@@ -13,6 +14,12 @@ const weightItems = [
   { value: 'deps', label: 'dependency count' },
   { value: 'transform', label: 'transform time' },
   { value: 'resolveId', label: 'resolveId time' },
+]
+
+const shapes = [
+  { type: 'source', icon: 'i-ic-outline-circle' },
+  { type: 'virtual', icon: 'i-ic-outline-square rotate-45 scale-85' },
+  { type: 'node_modules', icon: 'i-ic-outline-hexagon' },
 ]
 const router = useRouter()
 
@@ -65,42 +72,30 @@ onMounted(() => {
         iterations: 200,
       },
     },
-    groups: {
-      vue: {
-        color: '#42b883',
-      },
-      ts: {
-        color: '#41b1e0',
-      },
-      js: {
-        color: '#d6cb2d',
-      },
-      json: {
-        color: '#cf8f30',
-      },
-      css: {
-        color: '#e6659a',
-      },
-      html: {
-        color: '#e34c26',
-      },
-      svelte: {
-        color: '#ff3e00',
-      },
-      jsx: {
-        color: '#7d6fe8',
-      },
-      tsx: {
-        color: '#7d6fe8',
-      },
-    },
+    groups: colors.reduce((groups, color) => ({ ...groups, [color.type]: { color: color.color } }), {}),
   }
   const network = new Network(container.value!, data.value, options)
 
-  network.on('click', (data) => {
+  const clicking = ref(false)
+
+  network.on('click', () => {
+    clicking.value = true
+  })
+
+  network.on('hold', () => {
+    clicking.value = false
+  })
+
+  network.on('dragStart', () => {
+    clicking.value = false
+  })
+
+  network.on('release', (data) => {
     const node = data.nodes?.[0]
-    if (node)
+    if (clicking.value && node) {
       router.push(`/module?id=${encodeURIComponent(node)}`)
+      clicking.value = false
+    }
   })
 
   watch(data, () => {
@@ -114,12 +109,39 @@ onMounted(() => {
     <div ref="container" h-100vh w-full />
     <div
       border="~ main"
-      absolute bottom-3 right-3 z-100 rounded px3 py1 shadow bg-main
-      flex="~ gap-2"
+      flex="~ col"
+      absolute bottom-3 right-3 z-100 w-38
+      select-none rounded bg-opacity-75 p3 text-sm shadow backdrop-blur-8 bg-main
+    >
+      <div
+        v-for="color of colors" :key="color.type"
+        flex="~ gap-2 items-center"
+      >
+        <div h-3 w-3 rounded-full :style="{ backgroundColor: color.color }" />
+        <div>
+          {{ color.type }}
+        </div>
+      </div>
+      <div border="t base" my3 h-1px />
+      <div
+        v-for="shape of shapes" :key="shape.type"
+        flex="~ gap-2 items-center"
+      >
+        <div :class="shape.icon" flex-none />
+        <div>
+          {{ shape.type }}
+        </div>
+      </div>
+    </div>
+    <div
+      border="~ main"
+      absolute bottom-3 left-3 z-100 rounded bg-opacity-75 p3 text-sm shadow backdrop-blur-8 bg-main
+      flex="~ col gap-1"
     >
       <span text-sm op50>weight by</span>
       <RadioGroup
         v-model="graphWeightMode"
+        flex-col text-sm
         name="weight"
         :options="weightItems"
       />
