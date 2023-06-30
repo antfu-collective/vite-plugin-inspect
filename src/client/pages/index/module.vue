@@ -6,8 +6,9 @@ import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, saf
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
+import { useModule } from '../../logic/module'
 
-const id = useRouteQuery<string | undefined>('id')
+const id = useModule()
 const data = ref(id.value ? await rpc.getIdInfo(id.value, inspectSSR.value) : undefined)
 const index = useRouteQuery<string | undefined>('index')
 const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (data.value?.transforms.length || 1) - 1)
