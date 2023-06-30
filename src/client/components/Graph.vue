@@ -110,7 +110,7 @@ onMounted(() => {
     <div
       border="~ main"
       flex="~ col"
-      absolute bottom-3 right-3 z-100 w-38
+      absolute bottom-3 right-3 w-38
       select-none rounded bg-opacity-75 p3 text-sm shadow backdrop-blur-8 bg-main
     >
       <div
@@ -135,7 +135,7 @@ onMounted(() => {
     </div>
     <div
       border="~ main"
-      absolute bottom-3 left-3 z-100 rounded bg-opacity-75 p3 text-sm shadow backdrop-blur-8 bg-main
+      absolute bottom-3 left-3 rounded bg-opacity-75 p3 text-sm shadow backdrop-blur-8 bg-main
       flex="~ col gap-1"
     >
       <span text-sm op50>weight by</span>
