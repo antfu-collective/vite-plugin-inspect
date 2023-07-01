@@ -16,9 +16,7 @@ function getModuleId(fullPath?: string) {
 
 const route = useRoute()
 const module = getModuleId(route.fullPath)
-const id = computed(() => {
-  return getModuleId(route.fullPath)
-})
+const id = computed(() => getModuleId(route.fullPath))
 const data = ref(module ? await rpc.getIdInfo(module, inspectSSR.value) : undefined)
 const index = useRouteQuery<string | undefined>('index')
 const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (data.value?.transforms.length || 1) - 1)
