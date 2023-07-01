@@ -6,10 +6,20 @@ import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, saf
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
-import { useModule } from '../../logic/module'
 
-const id = useModule()
-const data = ref(id.value ? await rpc.getIdInfo(id.value, inspectSSR.value) : undefined)
+function getModuleId(fullPath?: string) {
+  if (!fullPath)
+    return undefined
+
+  return new URL(fullPath, 'http://localhost').searchParams.get('id') || undefined
+}
+
+const route = useRoute()
+const module = getModuleId(route.fullPath)
+const id = computed(() => {
+  return getModuleId(route.fullPath)
+})
+const data = ref(module ? await rpc.getIdInfo(module, inspectSSR.value) : undefined)
 const index = useRouteQuery<string | undefined>('index')
 const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (data.value?.transforms.length || 1) - 1)
 const panelSize = useLocalStorage('vite-inspect-module-panel-size', '10')
