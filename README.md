@@ -62,4 +62,4 @@ After running `vite build`, the inspector client will be generated under `.vite-
 
 ## License
 
-[MIT](./LICENSE) License © 2021 [Anthony Fu](https://github.com/antfu)
+[MIT](./LICENSE) License &copy; 2021-PRESENT [Anthony Fu](https://github.com/antfu)
