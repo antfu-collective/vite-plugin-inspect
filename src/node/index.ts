@@ -190,8 +190,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
     return Array.from(ids).sort()
       .map((id): ModuleInfo => {
+        let total = 0
         const plugins = (transformMap[id] || []).map((transItem) => {
-          return { name: transItem.name, transform: transItem.end - transItem.start }
+          return { name: transItem.name, transform: (total += transItem.end - transItem.start) }
         }).concat(
           // @ts-expect-error transform is optional
           (transformedIdMap[id] || []).map((idItem) => {
@@ -204,6 +205,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           deps: getDeps ? getDeps(id) : [],
           plugins,
           virtual: isVirtual(plugins[0].name, transformMap[id]?.[0].name || ''),
+          total,
         }
       })
   }

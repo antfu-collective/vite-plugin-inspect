@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { listMode, refetch, searchResults, toggleMode } from '../logic'
+import { listMode, refetch, searchResults, sortMode, sortedSearchResults, toggleMode, toggleSort } from '../logic'
 
 const route = useRoute()
 const isRoot = computed(() => route.path === '/')
@@ -16,6 +16,13 @@ onMounted(() => {
     <RouterLink text-lg icon-btn to="/metric" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>
+    <template v-if="listMode === 'detailed'">
+      <button text-lg icon-btn title="Sort" @click="toggleSort()">
+        <div v-if="sortMode === 'origin'" i-icon-park-outline-sort />
+        <div v-else-if="sortMode === 'ascending'" i-ph-sort-ascending />
+        <div v-else i-ph-sort-descending />
+      </button>
+    </template>
     <button text-lg icon-btn title="View Mode" @click="toggleMode()">
       <div v-if="listMode === 'detailed'" i-carbon-list-boxes />
       <div v-else-if="listMode === 'list'" i-carbon-list />
@@ -32,7 +39,7 @@ onMounted(() => {
   <Container of-auto>
     <KeepAlive>
       <Graph v-if="listMode === 'graph'" :modules="searchResults" />
-      <ModuleList v-else :modules="searchResults" />
+      <ModuleList v-else :modules="sortedSearchResults" />
     </KeepAlive>
   </Container>
   <div
