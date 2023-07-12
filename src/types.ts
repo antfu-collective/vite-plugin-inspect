@@ -22,7 +22,7 @@ export interface ModuleInfo {
   plugins: { name: string; transform?: number; resolveId?: number }[]
   deps: string[]
   virtual: boolean
-  total: number
+  totalTime: number
 }
 
 export interface ModulesList {

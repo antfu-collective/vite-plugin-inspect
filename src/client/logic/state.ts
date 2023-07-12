@@ -1,7 +1,7 @@
 import { createEventHook, useStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { rpc } from './rpc'
-import { searchResults } from './search'
+import { searchResults, searchText } from './search'
 
 export const onRefetch = createEventHook<void>()
 export const enableDiff = useStorage('vite-inspect-diff', true)
@@ -10,7 +10,7 @@ export const listMode = useStorage<'graph' | 'list' | 'detailed'>('vite-inspect-
 export const lineWrapping = useStorage('vite-inspect-line-wrapping', false)
 export const inspectSSR = useStorage('vite-inspect-ssr', false)
 export const metricDisplayHook = useStorage<'transform' | 'resolveId' | 'server'>('vite-inspect-metric-display-hook', 'transform')
-export const sortMode = useStorage<'origin' | 'ascending' | 'descending'>('vite-sort-rules', 'origin')
+export const sortMode = useStorage<'default' | 'time-asc' | 'time-desc'>('vite-inspect-sort', 'default')
 
 export const list = ref(await rpc.list())
 
@@ -33,18 +33,22 @@ export async function refetch() {
 }
 
 const rules = [
-  'origin',
-  'ascending',
-  'descending',
+  'default',
+  'time-asc',
+  'time-desc',
 ] as const
+
 export function toggleSort() {
   sortMode.value = rules[(rules.indexOf(sortMode.value) + 1) % rules.length]
 }
+
 export const sortedSearchResults = computed(() => {
+  if (searchText.value)
+    return searchResults.value
   const clonedSearchResults = [...searchResults.value]
-  if (sortMode.value === 'ascending')
-    clonedSearchResults.sort((a, b) => b.total - a.total)
-  if (sortMode.value === 'descending')
-    clonedSearchResults.sort((a, b) => a.total - b.total)
+  if (sortMode.value === 'time-asc')
+    clonedSearchResults.sort((a, b) => b.totalTime - a.totalTime)
+  if (sortMode.value === 'time-desc')
+    clonedSearchResults.sort((a, b) => a.totalTime - b.totalTime)
   return clonedSearchResults
 })

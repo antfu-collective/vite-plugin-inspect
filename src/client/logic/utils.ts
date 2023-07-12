@@ -2,7 +2,7 @@ import { root } from './state'
 
 export function msToTime(ms: number) {
   if (ms <= 0.5)
-    return ''
+    return '<1ms'
   if (ms < 2000)
     return `${ms}ms`
   const seconds = +(ms / 1000).toFixed(1)
