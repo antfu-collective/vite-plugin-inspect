@@ -8,7 +8,7 @@ const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id
 </script>
 
 <template>
-  <div v-if="id" my-auto font-mono text-sm>
+  <div v-if="id" my-auto text-sm font-mono flex="~ items-center">
     <template v-if="id.startsWith(root)">
       <span class="op50">.</span>
       <span>{{ id.slice(root.length) }}</span>
@@ -17,7 +17,7 @@ const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id
 
     <Badge
       v-if="isVirtual"
-      bg-teal-400:10 text-teal-400
+      ml1 bg-teal-400:10 text-teal-400
       v-text="'virtual'"
     />
   </div>

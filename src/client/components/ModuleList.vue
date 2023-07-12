@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { listMode, searchText } from '../logic'
+import { listMode, msToTime, searchText } from '../logic'
 
 const props = defineProps<{
   modules: Array<{
     id: string
     plugins: any[]
+    totalTime: number
   }>
 }>()
 
@@ -34,11 +35,11 @@ const { list, containerProps, wrapperProps } = useVirtualList(
         <RouterLink
           v-for="m in list"
           :key="m.data.id"
-          class="block border-b border-main px-3 py-2 text-left font-mono text-sm"
+          class="block border-b border-main px-3 py-2 text-left text-sm font-mono"
           :to="`/module?id=${encodeURIComponent(m.data.id)}`"
         >
           <ModuleId :id="m.data.id" />
-          <div v-if="listMode === &quot;detailed&quot;" text-xs op50>
+          <div v-if="listMode === &quot;detailed&quot;" text-xs op50 flex="~ gap-1">
             <template
               v-for="(i, idx) in m.data.plugins
                 .slice(1)
@@ -46,10 +47,14 @@ const { list, containerProps, wrapperProps } = useVirtualList(
               :key="i"
             >
               <span v-if="idx !== 0" op20>|</span>
-              <span class="mx-0.5">
+              <span>
                 <PluginName :name="i.name" :hide="true" />
               </span>
             </template>
+            <span op40>·</span>
+            <span>
+              {{ msToTime(m.data.totalTime) }}
+            </span>
           </div>
         </RouterLink>
       </div>

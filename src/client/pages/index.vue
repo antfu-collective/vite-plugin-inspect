@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { listMode, refetch, searchResults, toggleMode } from '../logic'
+import { listMode, refetch, searchResults, searchText, sortMode, sortedSearchResults, toggleMode, toggleSort } from '../logic'
 
 const route = useRoute()
 const isRoot = computed(() => route.path === '/')
+
 onMounted(() => {
   refetch()
 })
@@ -13,26 +14,46 @@ onMounted(() => {
     <div i-carbon-ibm-watson-discovery title="Vite Inspect" text-xl />
     <SearchBox />
     <div flex-auto />
-    <RouterLink text-lg icon-btn to="/metric" title="Metrics">
-      <div i-carbon-meter />
-    </RouterLink>
+
+    <template v-if="listMode === 'detailed'">
+      <button
+        text-lg icon-btn title="Sort" flex="~ items-center"
+        :disabled="!!searchText"
+        :class="searchText ? 'op50 pointer-events-none' : ''"
+        @click="toggleSort()"
+      >
+        <template v-if="searchText">
+          <div i-carbon-search />
+          <div i-carbon-arrow-down text-sm op70 />
+        </template>
+        <template v-else-if="sortMode === 'time-asc'">
+          <div i-carbon-time />
+          <div i-carbon-arrow-down text-sm op70 />
+        </template>
+        <template v-else-if="sortMode === 'time-desc'">
+          <div i-carbon-time />
+          <div i-carbon-arrow-up text-sm op70 />
+        </template>
+        <template v-else>
+          <div i-carbon-menu />
+          <div i-carbon-chevron-sort text-sm op70 />
+        </template>
+      </button>
+    </template>
     <button text-lg icon-btn title="View Mode" @click="toggleMode()">
       <div v-if="listMode === 'detailed'" i-carbon-list-boxes />
       <div v-else-if="listMode === 'list'" i-carbon-list />
       <div v-else i-carbon-network-4 />
     </button>
-    <a
-      text-lg icon-btn
-      href="https://github.com/antfu/vite-plugin-inspect"
-      target="_blank"
-    >
-      <div i-carbon-logo-github />
-    </a>
+    <div h-full w-1 border="r main" />
+    <RouterLink text-lg icon-btn to="/metric" title="Metrics">
+      <div i-carbon-meter />
+    </RouterLink>
   </NavBar>
   <Container of-auto>
     <KeepAlive>
       <Graph v-if="listMode === 'graph'" :modules="searchResults" />
-      <ModuleList v-else :modules="searchResults" />
+      <ModuleList v-else :modules="sortedSearchResults" />
     </KeepAlive>
   </Container>
   <div
