@@ -68,12 +68,10 @@ onMounted(() => {
     // clean up marks
     cm1.getAllMarks().forEach(i => i.clear())
     cm2.getAllMarks().forEach(i => i.clear())
-    new Array(cm1.lineCount() + 2)
-      .fill(null!)
-      .map((_, i) => cm1.removeLineClass(i, 'background', 'diff-removed'))
-    new Array(cm2.lineCount() + 2)
-      .fill(null!)
-      .map((_, i) => cm2.removeLineClass(i, 'background', 'diff-added'))
+    for (let i = 0; i < cm1.lineCount() + 2; i++)
+      cm1.removeLineClass(i, 'background', 'diff-removed')
+    for (let i = 0; i < cm2.lineCount() + 2; i++)
+      cm2.removeLineClass(i, 'background', 'diff-added')
 
     if (showDiff && from.value) {
       const changes = await calculateDiffWithWorker(l, r)
@@ -135,7 +133,7 @@ function onUpdate(size: number) {
     <Pane v-show="!showOneColumn" min-size="10" :size="leftPanelSize" class="h-max min-h-screen" border="main r">
       <textarea ref="fromEl" v-text="from" />
     </Pane>
-    <Pane min-size="10" class="h-max min-h-screen">
+    <Pane min-size="10" :size="100 - leftPanelSize" class="h-max min-h-screen">
       <textarea ref="toEl" v-text="to" />
     </Pane>
   </Splitpanes>
