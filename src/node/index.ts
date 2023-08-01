@@ -129,9 +129,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   // a hack for wrapping connect server stack
   // see https://github.com/senchalabs/connect/blob/0a71c6b139b4c0b7d34c0f3fca32490595ecfd60/index.js#L50-L55
-  function collectMiddlewarePerf(middlewares: Connect.Server['stack']) {
+  function setupMiddlewarePerf(middlewares: Connect.Server['stack']) {
     let firstMiddlewareIndex = -1
-    return middlewares.map((middleware, index) => {
+    middlewares.forEach((middleware, index) => {
       const { handle: originalHandle } = middleware
       if (typeof originalHandle !== 'function' || !originalHandle.name)
         return middleware
@@ -172,6 +172,12 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
         return result
       }
+
+      Object.defineProperty(middleware.handle, 'name', {
+        value: originalHandle.name,
+        configurable: true,
+        enumerable: true,
+      })
 
       return middleware
     })
@@ -617,7 +623,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
 
       return () => {
-        server.middlewares.stack = collectMiddlewarePerf(server.middlewares.stack)
+        setupMiddlewarePerf(server.middlewares.stack)
       }
     },
     load: {
