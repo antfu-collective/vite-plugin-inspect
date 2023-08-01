@@ -132,45 +132,48 @@ export default function PluginInspect(options: Options = {}): Plugin {
   function collectMiddlewarePerf(middlewares: Connect.Server['stack']) {
     let firstMiddlewareIndex = -1
     return middlewares.map((middleware, index) => {
-      const { handle, ...rest } = middleware
-      if (typeof handle !== 'function' || !handle.name)
+      const { handle: originalHandle } = middleware
+      if (typeof originalHandle !== 'function' || !originalHandle.name)
         return middleware
 
-      return {
-        handle: async (...middlewareArgs: any[]) => {
-          let req: any, res: any, next: any, err: any
-          if (middlewareArgs.length === 4)
-            [err, req, res, next] = middlewareArgs
+      middleware.handle = (...middlewareArgs: any[]) => {
+        let req: any, res: any, next: any, err: any
+        if (middlewareArgs.length === 4)
+          [err, req, res, next] = middlewareArgs
+        else
+          [req, res, next] = middlewareArgs
 
-          else
-            [req, res, next] = middlewareArgs
+        const start = Date.now()
+        const url = req.url?.replace(timestampRE, '').replace(trailingSeparatorRE, '')
+        serverPerf.middleware![url] ??= []
 
-          const start = Date.now()
-          const url = req.url?.replace(timestampRE, '').replace(trailingSeparatorRE, '')
-          serverPerf.middleware![url] ??= []
+        if (firstMiddlewareIndex < 0)
+          firstMiddlewareIndex = index
 
-          if (firstMiddlewareIndex < 0)
-            firstMiddlewareIndex = index
+        // clear middleware timing
+        if (index === firstMiddlewareIndex)
+          serverPerf.middleware![url] = []
 
-          // clear middleware timing
-          if (index === firstMiddlewareIndex)
-            serverPerf.middleware![url] = []
+        // @ts-expect-error handle needs 3 or 4 arguments
+        const result = originalHandle(...middlewareArgs)
 
-          // @ts-expect-error handle needs 3 or 4 arguments
-          await (middlewareArgs.length === 4 ? handle(err, req, res, next) : handle(req, res, next))
+        Promise.resolve(result)
+          .then(() => {
+            const total = Date.now() - start
+            const metrics = serverPerf.middleware![url]
 
-          const total = Date.now() - start
-          const metrics = serverPerf.middleware![url]
-
-          // middleware selfTime = totalTime - next.totalTime
-          serverPerf.middleware![url].push({
-            self: metrics.length ? Math.max(total - metrics[metrics.length - 1].total, 0) : total,
-            total,
-            name: handle.name,
+            // middleware selfTime = totalTime - next.totalTime
+            serverPerf.middleware![url].push({
+              self: metrics.length ? Math.max(total - metrics[metrics.length - 1].total, 0) : total,
+              total,
+              name: originalHandle.name,
+            })
           })
-        },
-        ...rest,
+
+        return result
       }
+
+      return middleware
     })
   }
 
