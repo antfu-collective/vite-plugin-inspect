@@ -149,7 +149,7 @@ const middlewareStyle = computed(() => {
         </div>
       </div>
 
-      <div v-if="middlewareYData.length" class="my-auto ml-8 font-mono text-sm">
+      <div v-if="middlewareYData.length" class="my-auto ml-8 text-sm font-mono">
         Metrics for top50 urls
       </div>
       <VChart v-if="middlewareYData.length" class="h-200 w-100%" :style="middlewareStyle" :option="middlewareOption" autoresize />

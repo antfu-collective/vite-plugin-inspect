@@ -13,7 +13,7 @@ defineEmits<{
     <button
       v-for="option in options"
       :key="option.value"
-      class="px-2 py-1 font-mono text-sm"
+      class="px-2 py-1 text-sm font-mono"
       :class="{ 'bg-active': option.value === modelValue }"
       :aria-pressed="option.value === modelValue"
       @click="$emit('update:modelValue', option.value)"

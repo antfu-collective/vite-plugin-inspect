@@ -1,6 +1,7 @@
 import { isAbsolute, join, resolve } from 'node:path'
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
+import process from 'node:process'
 import fs from 'fs-extra'
 import _debug from 'debug'
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'

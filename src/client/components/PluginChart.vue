@@ -14,7 +14,6 @@ import {
   TooltipComponent,
 } from 'echarts/components'
 import VChart from 'vue-echarts'
-import { defineProps } from 'vue'
 import { isDark, searchResults } from '../logic'
 
 const props = defineProps<{
@@ -143,7 +142,7 @@ const chartStyle = computed(() => {
       <a class="my-auto icon-btn !outline-none" @click="props.exit()">
         <div i-carbon-chevron-left />
       </a>
-      <div class="my-auto font-mono text-sm">
+      <div class="my-auto text-sm font-mono">
         Metrics for {{ props.plugin }}
       </div>
       <template #actions>

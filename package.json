@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-inspect",
   "version": "0.7.33",
-  "packageManager": "pnpm@8.6.7",
+  "packageManager": "pnpm@8.6.11",
   "description": "Inspect the intermediate state of Vite plugins",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
   "license": "MIT",
@@ -22,6 +22,11 @@
       "types": "./dist/index.d.ts",
       "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
+    },
+    "./nuxt": {
+      "types": "./dist/nuxt.d.ts",
+      "require": "./dist/nuxt.cjs",
+      "import": "./dist/nuxt.mjs"
     },
     "./*": "./*"
   },
@@ -49,6 +54,11 @@
   "peerDependencies": {
     "vite": "^3.1.0 || ^4.0.0"
   },
+  "peerDependenciesMeta": {
+    "@nuxt/kit": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@antfu/utils": "^0.7.5",
     "@rollup/pluginutils": "^5.0.2",
@@ -59,27 +69,28 @@
     "sirv": "^2.0.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.39.7",
-    "@antfu/ni": "^0.21.4",
-    "@iconify/json": "^2.2.89",
+    "@antfu/eslint-config": "^0.39.8",
+    "@antfu/ni": "^0.21.5",
+    "@iconify/json": "^2.2.96",
+    "@nuxt/kit": "^3.6.5",
     "@types/codemirror": "^5.60.8",
     "@types/debug": "^4.1.8",
     "@types/diff-match-patch": "^1.0.32",
     "@types/fs-extra": "^11.0.1",
-    "@types/node": "^20.4.1",
-    "@unocss/eslint-config": "^0.53.5",
+    "@types/node": "^20.4.5",
+    "@unocss/eslint-config": "^0.54.1",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/compiler-sfc": "^3.3.4",
-    "@vueuse/core": "^10.2.1",
-    "@vueuse/router": "^10.2.1",
+    "@vueuse/core": "^10.3.0",
+    "@vueuse/router": "^10.3.0",
     "bumpp": "^9.1.1",
     "codemirror": "^5.65.8",
     "codemirror-theme-vars": "^0.1.2",
     "comlink": "^4.4.1",
     "cross-env": "^7.0.3",
     "diff-match-patch": "^1.0.5",
-    "echarts": "^5.4.2",
-    "eslint": "^8.44.0",
+    "echarts": "^5.4.3",
+    "eslint": "^8.46.0",
     "esno": "^0.17.0",
     "fuse.js": "^6.6.2",
     "lint-staged": "^13.2.3",
@@ -87,16 +98,16 @@
     "ohash": "^1.1.2",
     "prism-theme-vars": "^0.2.4",
     "rimraf": "^5.0.1",
-    "simple-git-hooks": "^2.8.1",
+    "simple-git-hooks": "^2.9.0",
     "splitpanes": "^3.1.5",
     "typescript": "^5.1.6",
     "unbuild": "^1.2.1",
-    "unocss": "^0.53.5",
+    "unocss": "^0.54.1",
     "unplugin-auto-import": "^0.16.6",
     "unplugin-vue-components": "^0.25.1",
     "vis-data": "7.1.6",
     "vis-network": "9.1.6",
-    "vite": "^4.4.3",
+    "vite": "^4.4.8",
     "vite-dev-rpc": "^0.1.2",
     "vite-hot-client": "^0.2.1",
     "vite-plugin-pages": "^0.31.0",

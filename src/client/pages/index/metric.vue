@@ -84,7 +84,7 @@ getHot().then((hot) => {
     <RouterLink class="my-auto icon-btn !outline-none" to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
-    <div my-auto font-mono text-sm>
+    <div my-auto text-sm font-mono>
       Metrics
     </div>
     <SegmentControl
@@ -96,7 +96,7 @@ getHot().then((hot) => {
   <Container v-if="data" of-auto>
     <PluginChart v-if="selectedPlugin && metricDisplayHook !== 'server'" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
     <ServerChart v-if="metricDisplayHook === 'server'" />
-    <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) font-mono text-sm">
+    <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) text-sm font-mono">
       <div />
       <div class="text-xs font-bold">
         Name ({{ plugins.length }})
