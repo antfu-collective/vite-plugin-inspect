@@ -7,3 +7,9 @@ import HelloWorld from './components/HelloWorld.vue'
 <template>
   <HelloWorld msg="Vite + Vue" />
 </template>
+
+<style lang="scss">
+.a {
+  color: red;
+}
+</style>

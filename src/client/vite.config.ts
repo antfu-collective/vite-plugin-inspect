@@ -26,6 +26,19 @@ export default defineConfig({
         },
       },
     },
+    {
+      name: 'generate-error',
+      load(id) {
+        if (id === '/__LOAD_ERROR')
+          throw new Error('Load error')
+        if (id === '/__TRANSFORM_ERROR')
+          return 'transform'
+      },
+      transform(code, id) {
+        if (id === '/__TRANSFORM_ERROR')
+          throw new SyntaxError('Transform error')
+      },
+    },
 
     Vue({
       script: {

@@ -142,6 +142,11 @@ getHot().then((hot) => {
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
               v-text="tr.order"
             />
+            <Badge
+              v-if="tr.error"
+              bg-red-400:10 text-red-400
+              v-text="'error'"
+            />
             <span flex-auto text-right text-xs op50>{{ msToTime(tr.end - tr.start) }}</span>
           </button>
         </template>
