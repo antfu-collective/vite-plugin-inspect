@@ -5,6 +5,7 @@ import { searchResults, searchText } from './search'
 
 export const onRefetch = createEventHook<void>()
 export const enableDiff = useStorage('vite-inspect-diff', true)
+export const showNoChange = useStorage('vite-inspect-no-change', false)
 export const showOneColumn = useStorage('vite-inspect-one-column', false)
 export const listMode = useStorage<'graph' | 'list' | 'detailed'>('vite-inspect-mode', 'detailed')
 export const lineWrapping = useStorage('vite-inspect-line-wrapping', false)

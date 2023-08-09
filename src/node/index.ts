@@ -206,6 +206,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       .map((id): ModuleInfo => {
         let totalTime = 0
         const plugins = (transformMap[id] || [])
+          .filter(tr => tr.result)
           .map((transItem) => {
             const delta = transItem.end - transItem.start
             totalTime += delta
@@ -282,11 +283,11 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const end = Date.now()
 
       const result = error ? stringifyError(error) : (typeof _result === 'string' ? _result : _result?.code)
-      if (filter(id) && result != null) {
+      if (filter(id)) {
         const sourcemaps = typeof _result === 'string' ? null : _result?.map
         const map = ssr ? transformMapSSR : transformMap
         // initial tranform (load from fs), add a dummy
-        if (!map[id])
+        if (!map[id] || !map[id].some(tr => tr.result))
           map[id] = [{ name: dummyLoadPluginName, result: code, start, end: start, sourcemaps }]
         // record transform
         map[id].push({
@@ -326,7 +327,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const sourcemaps = typeof _result === 'string' ? null : _result?.map
 
       const map = ssr ? transformMapSSR : transformMap
-      if (filter(id) && result != null) {
+      if (filter(id)) {
         map[id] = [{
           name: plugin.name,
           result,
@@ -549,7 +550,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
     await fs.ensureDir(reportsDir)
     await fs.copy(DIR_CLIENT, targetDir)
 
-    const isVirtual = (pluginName: string, transformName: string) => pluginName !== dummyLoadPluginName && transformName !== 'vite:load-fallback'
+    const isVirtual = (pluginName: string, transformName: string) =>
+      pluginName !== dummyLoadPluginName && transformName !== 'vite:load-fallback'
 
     function list() {
       return {

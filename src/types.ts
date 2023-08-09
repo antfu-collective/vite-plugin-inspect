@@ -2,7 +2,7 @@ import type { Awaitable } from '@antfu/utils'
 
 export interface TransformInfo {
   name: string
-  result: string
+  result?: string
   start: number
   end: number
   order?: string
