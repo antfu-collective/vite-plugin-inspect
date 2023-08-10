@@ -32,11 +32,11 @@ onRefetch.on(async () => {
 })
 
 watch([id, inspectSSR], refetch)
-
+const currentTransform = computed(() => data.value?.transforms[currentIndex.value])
 const from = computed(() => data.value?.transforms[currentIndex.value - 1]?.result || '')
-const to = computed(() => data.value?.transforms[currentIndex.value]?.result || '')
+const to = computed(() => currentTransform.value?.result || '')
 const sourcemaps = computed(() => {
-  let sourcemaps = data.value?.transforms[currentIndex.value]?.sourcemaps
+  let sourcemaps = currentTransform.value?.sourcemaps
   if (!sourcemaps)
     return undefined
   if (typeof sourcemaps === 'string')
@@ -153,7 +153,12 @@ getHot().then((hot) => {
       </Pane>
       <Pane min-size="5">
         <div h-full of-auto>
-          <DiffEditor :from="from" :to="to" h-unset />
+          <DiffEditor
+            :one-column="showOneColumn || !!currentTransform?.error"
+            :diff="enableDiff && !currentTransform?.error"
+            :from="from" :to="to"
+            h-unset
+          />
         </div>
       </Pane>
     </Splitpanes>
