@@ -117,9 +117,6 @@ getHot().then((hot) => {
     <button class="text-lg icon-btn" title="Toggle Diff" @click="enableDiff = !enableDiff">
       <div i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button class="text-lg icon-btn" title="Show no changes" @click="showNoChange = !showNoChange">
-      <div :class="showNoChange ? 'opacity-100 i-carbon-view' : 'opacity-25 i-carbon-view-off'" />
-    </button>
   </NavBar>
   <Container
     v-if="data && filteredTransforms"
@@ -131,8 +128,11 @@ getHot().then((hot) => {
         flex="~ col" border="r main"
         overflow-y-auto
       >
-        <div px-3 py-2 text-center text-sm tracking-widest op50>
+        <div flex="~ gap2" justify-center py-2 text-sm tracking-widest op50>
           {{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK
+          <button class="text-lg icon-btn" title="Show no changes" @click="showNoChange = !showNoChange">
+            <div :class="showNoChange ? 'opacity-100 i-carbon-view' : 'opacity-25 i-carbon-view-off'" />
+          </button>
         </div>
         <div border="b main" />
         <template v-for="tr of filteredTransforms" :key="tr.name">
