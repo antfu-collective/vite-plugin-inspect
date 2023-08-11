@@ -180,7 +180,7 @@ function onUpdate(size: number) {
       <textarea ref="fromEl" v-text="from" />
     </Pane>
     <Pane min-size="10" :size="100 - leftPanelSize" class="h-max min-h-screen">
-      <textarea ref="toEl" v-text="newTo" />
+      <textarea ref="toEl" v-text="to" />
     </Pane>
   </Splitpanes>
 </template>
