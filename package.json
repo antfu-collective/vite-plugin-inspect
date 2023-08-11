@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-inspect",
   "version": "0.7.35",
-  "packageManager": "pnpm@8.6.11",
+  "packageManager": "pnpm@8.6.12",
   "description": "Inspect the intermediate state of Vite plugins",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
   "license": "MIT",
@@ -20,13 +20,13 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     },
     "./nuxt": {
       "types": "./dist/nuxt.d.ts",
-      "require": "./dist/nuxt.cjs",
-      "import": "./dist/nuxt.mjs"
+      "import": "./dist/nuxt.mjs",
+      "require": "./dist/nuxt.cjs"
     },
     "./*": "./*"
   },
@@ -77,16 +77,16 @@
     "sirv": "^2.0.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.39.8",
+    "@antfu/eslint-config": "^0.40.2",
     "@antfu/ni": "^0.21.5",
-    "@iconify/json": "^2.2.96",
+    "@iconify/json": "^2.2.101",
     "@nuxt/kit": "^3.6.5",
     "@types/codemirror": "^5.60.8",
     "@types/debug": "^4.1.8",
     "@types/diff-match-patch": "^1.0.32",
     "@types/fs-extra": "^11.0.1",
-    "@types/node": "^20.4.5",
-    "@unocss/eslint-config": "^0.54.1",
+    "@types/node": "^20.4.9",
+    "@unocss/eslint-config": "^0.55.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/compiler-sfc": "^3.3.4",
     "@vueuse/core": "^10.3.0",
@@ -98,29 +98,29 @@
     "cross-env": "^7.0.3",
     "diff-match-patch": "^1.0.5",
     "echarts": "^5.4.3",
-    "eslint": "^8.46.0",
+    "eslint": "^8.47.0",
     "esno": "^0.17.0",
     "fuse.js": "^6.6.2",
     "lint-staged": "^13.2.3",
     "npm-run-all": "^4.1.5",
-    "ohash": "^1.1.2",
+    "ohash": "^1.1.3",
     "prism-theme-vars": "^0.2.4",
     "rimraf": "^5.0.1",
     "simple-git-hooks": "^2.9.0",
     "splitpanes": "^3.1.5",
     "typescript": "^5.1.6",
     "unbuild": "^1.2.1",
-    "unocss": "^0.54.1",
+    "unocss": "^0.55.0",
     "unplugin-auto-import": "^0.16.6",
     "unplugin-vue-components": "^0.25.1",
     "vis-data": "7.1.6",
     "vis-network": "9.1.6",
-    "vite": "^4.4.8",
+    "vite": "^4.4.9",
     "vite-dev-rpc": "^0.1.2",
     "vite-hot-client": "^0.2.1",
     "vite-plugin-pages": "^0.31.0",
     "vue": "^3.3.4",
-    "vue-echarts": "^6.6.0",
+    "vue-echarts": "^6.6.1",
     "vue-router": "^4.2.4"
   },
   "simple-git-hooks": {
