@@ -5,7 +5,7 @@ import process from 'node:process'
 import fs from 'fs-extra'
 import _debug from 'debug'
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
-import type { ObjectHook } from 'rollup'
+import type { ObjectHook, ResolveIdResult, TransformResult } from 'rollup'
 import sirv from 'sirv'
 import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
@@ -127,6 +127,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
   const idMap: ResolveIdMap = {}
   const idMapSSR: ResolveIdMap = {}
 
+  function stringifyError(err: any) {
+    return String(err.stack ? err.stack : err)
+  }
+
   // a hack for wrapping connect server stack
   // see https://github.com/senchalabs/connect/blob/0a71c6b139b4c0b7d34c0f3fca32490595ecfd60/index.js#L50-L55
   function setupMiddlewarePerf(middlewares: Connect.Server['stack']) {
@@ -137,11 +141,11 @@ export default function PluginInspect(options: Options = {}): Plugin {
         return middleware
 
       middleware.handle = (...middlewareArgs: any[]) => {
-        let req: any, res: any, next: any, err: any
+        let req: any
         if (middlewareArgs.length === 4)
-          [err, req, res, next] = middlewareArgs
+          [, req] = middlewareArgs
         else
-          [req, res, next] = middlewareArgs
+          [req] = middlewareArgs
 
         const start = Date.now()
         const url = req.url?.replace(timestampRE, '').replace(trailingSeparatorRE, '')
@@ -265,20 +269,39 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const id = args[1]
       const ssr = args[2]?.ssr
 
+      let _result: TransformResult
+      let error: any
+
       const start = Date.now()
-      const _result = await fn.apply(context, args)
+      try {
+        _result = await fn.apply(context, args)
+      }
+      catch (_err) {
+        error = _err
+      }
       const end = Date.now()
 
-      const result = typeof _result === 'string' ? _result : _result?.code
-      const sourcemaps = typeof _result === 'string' ? null : _result?.map
-      const map = ssr ? transformMapSSR : transformMap
+      const result = error ? stringifyError(error) : (typeof _result === 'string' ? _result : _result?.code)
       if (filter(id) && result != null) {
+        const sourcemaps = typeof _result === 'string' ? null : _result?.map
+        const map = ssr ? transformMapSSR : transformMap
         // initial tranform (load from fs), add a dummy
         if (!map[id])
           map[id] = [{ name: dummyLoadPluginName, result: code, start, end: start, sourcemaps }]
         // record transform
-        map[id].push({ name: plugin.name, result, start, end, order, sourcemaps })
+        map[id].push({
+          name: plugin.name,
+          result,
+          start,
+          end,
+          order,
+          sourcemaps,
+          error,
+        })
       }
+
+      if (error)
+        throw error
 
       return _result
     })
@@ -287,16 +310,35 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const id = args[0]
       const ssr = args[1]?.ssr
 
+      let _result: TransformResult
+      let error: any
+
       const start = Date.now()
-      const _result = await fn.apply(context, args)
+      try {
+        _result = await fn.apply(context, args)
+      }
+      catch (err) {
+        error = err
+      }
       const end = Date.now()
 
-      const result = typeof _result === 'string' ? _result : _result?.code
+      const result = error ? stringifyError(error) : (typeof _result === 'string' ? _result : _result?.code)
       const sourcemaps = typeof _result === 'string' ? null : _result?.map
 
       const map = ssr ? transformMapSSR : transformMap
-      if (filter(id) && result != null)
-        map[id] = [{ name: plugin.name, result, start, end, sourcemaps }]
+      if (filter(id) && result != null) {
+        map[id] = [{
+          name: plugin.name,
+          result,
+          start,
+          end,
+          sourcemaps,
+          error,
+        }]
+      }
+
+      if (error)
+        throw error
 
       return _result
     })
@@ -305,18 +347,29 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const id = args[0]
       const ssr = args[2]?.ssr
 
+      let _result: ResolveIdResult
+      let error: any
+
       const start = Date.now()
-      const _result = await fn.apply(context, args)
+      try {
+        _result = await fn.apply(context, args)
+      }
+      catch (err) {
+        error = err
+      }
       const end = Date.now()
 
-      const result = typeof _result === 'object' ? _result?.id : _result
+      const result = error ? stringifyError(error) : (typeof _result === 'object' ? _result?.id : _result)
 
       const map = ssr ? idMapSSR : idMap
       if (result && result !== id) {
         if (!map[id])
           map[id] = []
-        map[id].push({ name: plugin.name, result, start, end })
+        map[id].push({ name: plugin.name, result, start, end, error })
       }
+
+      if (error)
+        throw error
 
       return _result
     })

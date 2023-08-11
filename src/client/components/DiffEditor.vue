@@ -3,12 +3,14 @@ import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
 import { Pane, Splitpanes } from 'splitpanes'
 import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
-import { enableDiff, lineWrapping, showOneColumn } from '../logic/state'
+import { lineWrapping } from '../logic/state'
 import { calculateDiffWithWorker } from '../worker/diff'
 
 const props = defineProps<{
   from: string
   to: string
+  oneColumn: boolean
+  diff: boolean
 }>()
 const { from, to } = toRefs(props)
 
@@ -49,13 +51,12 @@ onMounted(() => {
 
   watchEffect(() => {
     // @ts-expect-error untyped
-    cm1.display.wrapper.style.display = showOneColumn.value ? 'none' : ''
+    cm1.display.wrapper.style.display = props.oneColumn ? 'none' : ''
   })
 
   watchEffect(async () => {
     const l = from.value
     const r = to.value
-    const showDiff = enableDiff.value
 
     cm1.setOption('mode', guessMode(l))
     cm2.setOption('mode', guessMode(r))
@@ -73,7 +74,7 @@ onMounted(() => {
     for (let i = 0; i < cm2.lineCount() + 2; i++)
       cm2.removeLineClass(i, 'background', 'diff-added')
 
-    if (showDiff && from.value) {
+    if (props.diff && from.value) {
       const changes = await calculateDiffWithWorker(l, r)
 
       const addedLines = new Set()
@@ -116,13 +117,13 @@ onMounted(() => {
 })
 
 const leftPanelSize = computed(() => {
-  return showOneColumn.value
+  return props.oneColumn
     ? 0
     : panelSize.value
 })
 
 function onUpdate(size: number) {
-  if (showOneColumn.value)
+  if (props.oneColumn)
     return
   panelSize.value = size
 }
@@ -130,7 +131,7 @@ function onUpdate(size: number) {
 
 <template>
   <Splitpanes @resize="onUpdate($event[0].size)">
-    <Pane v-show="!showOneColumn" min-size="10" :size="leftPanelSize" class="h-max min-h-screen" border="main r">
+    <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize" class="h-max min-h-screen" border="main r">
       <textarea ref="fromEl" v-text="from" />
     </Pane>
     <Pane min-size="10" :size="100 - leftPanelSize" class="h-max min-h-screen">
