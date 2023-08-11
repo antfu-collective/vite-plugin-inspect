@@ -135,7 +135,7 @@ getHot().then((hot) => {
           </button>
         </div>
         <div border="b main" />
-        <template v-for="tr of filteredTransforms" :key="tr.name">
+        <template v-for="tr of filteredTransforms" :key="`${tr.name}-${tr.index}`">
           <button
             border="b main"
             flex="~ gap-1 wrap"
@@ -185,10 +185,12 @@ getHot().then((hot) => {
       <Pane min-size="5">
         <div h-full of-auto>
           <DiffEditor
+            :key="id"
             :one-column="showOneColumn || !!currentTransform?.error"
             :diff="enableDiff && !currentTransform?.error"
             :from="from" :to="to"
             h-unset
+            :error="filteredTransforms.some(tr => tr?.error)"
           />
         </div>
       </Pane>

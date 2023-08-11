@@ -5,19 +5,30 @@ import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 import { lineWrapping } from '../logic/state'
 import { calculateDiffWithWorker } from '../worker/diff'
+import { openInEditor, parseStack } from '../logic/error'
 
 const props = defineProps<{
   from: string
   to: string
   oneColumn: boolean
   diff: boolean
+  error: boolean
 }>()
-const { from, to } = toRefs(props)
+const { from, to, error } = toRefs(props)
 
 const panelSize = useLocalStorage('vite-inspect-diff-panel-size', 30)
 
+const widgets: CodeMirror.LineWidget[] = []
+const handles: CodeMirror.LineHandle[] = []
+const listeners: [el: HTMLSpanElement, l: EventListener][] = []
+
 const fromEl = ref<HTMLTextAreaElement>()
 const toEl = ref<HTMLTextAreaElement>()
+
+function clearListeners() {
+  listeners.forEach(([el, l]) => el.removeEventListener('click', l))
+  listeners.length = 0
+}
 
 onMounted(() => {
   const cm1 = useCodeMirror(
@@ -74,6 +85,13 @@ onMounted(() => {
     for (let i = 0; i < cm2.lineCount() + 2; i++)
       cm2.removeLineClass(i, 'background', 'diff-added')
 
+    // cleanup handles, widgets and listeners
+    clearListeners()
+    widgets.forEach(widget => widget.clear())
+    handles.forEach(h => cm2.removeLineClass(h, 'zlevel'))
+    widgets.length = 0
+    handles.length = 0
+
     if (props.diff && from.value) {
       const changes = await calculateDiffWithWorker(l, r)
 
@@ -110,6 +128,33 @@ onMounted(() => {
         cm2.addLineClass(i, 'background', 'diff-added'),
       )
     }
+    else if (error.value && r) {
+      for (let i = cm2.firstLine(); i < cm2.lineCount(); i++) {
+        const line = cm2.getLine(i)
+        const stack = parseStack(line)
+        if (!stack)
+          continue
+
+        const div = document.createElement('div')
+        div.className = 'op80 flex gap-x-2 items-center hover:cursor-pointer'
+        div.title = 'Open in Editor'
+        div.tabIndex = 0
+        const pre = document.createElement('pre')
+        pre.className = 'c-red-600 dark:c-red-400'
+        pre.textContent = `${' '.repeat(5)}^ Open in Editor`
+        div.appendChild(pre)
+        const span = document.createElement('span')
+        span.className = 'i-carbon-launch c-red-600 dark:c-red-400 min-w-1em min-h-1em'
+        div.appendChild(span)
+        const el: EventListener = async () => {
+          await openInEditor(stack.file, stack.line, stack.column)
+        }
+        div.addEventListener('click', el)
+        listeners.push([div, el])
+        handles.push(cm2.addLineClass(i, 'zlevel', 'bg-red-500/10'))
+        widgets.push(cm2.addLineWidget(i, div))
+      }
+    }
 
     cm1.endOperation()
     cm2.endOperation()
@@ -135,7 +180,7 @@ function onUpdate(size: number) {
       <textarea ref="fromEl" v-text="from" />
     </Pane>
     <Pane min-size="10" :size="100 - leftPanelSize" class="h-max min-h-screen">
-      <textarea ref="toEl" v-text="to" />
+      <textarea ref="toEl" v-text="newTo" />
     </Pane>
   </Splitpanes>
 </template>
