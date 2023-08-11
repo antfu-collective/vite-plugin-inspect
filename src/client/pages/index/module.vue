@@ -2,7 +2,7 @@
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
 import { msToTime } from '../../logic/utils'
-import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showNoChange, showOneColumn } from '../../logic'
+import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showBailout, showOneColumn } from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
@@ -32,13 +32,13 @@ const transforms = computed(() => {
   return trs
     .map((tr, index) => ({
       ...tr,
-      noChange: !tr.result || (index > 0 && tr.result === trs[index - 1]?.result),
+      noChange: !!tr.result && index > 0 && tr.result === trs[index - 1]?.result,
       load: tr.result && (load ? false : (load = true)),
       index,
     }))
 })
 const filteredTransforms = computed(() =>
-  transforms.value?.filter(tr => showNoChange.value || tr.result),
+  transforms.value?.filter(tr => showBailout.value || tr.result),
 )
 
 async function refetch() {
@@ -130,8 +130,8 @@ getHot().then((hot) => {
       >
         <div flex="~ gap2" justify-center py-2 text-sm tracking-widest op50>
           {{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK
-          <button class="text-lg icon-btn" title="Show no changes" @click="showNoChange = !showNoChange">
-            <div :class="showNoChange ? 'opacity-100 i-carbon-view' : 'opacity-25 i-carbon-view-off'" />
+          <button class="text-lg icon-btn" title="Show bailout" @click="showBailout = !showBailout">
+            <div :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-25 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />
@@ -143,7 +143,7 @@ getHot().then((hot) => {
             :class="
               currentIndex === tr.index
                 ? 'bg-active'
-                : tr.noChange
+                : tr.noChange || !tr.result
                   ? 'op50'
                   : ''
             "
@@ -153,7 +153,12 @@ getHot().then((hot) => {
               <PluginName :name="tr.name" />
             </span>
             <Badge
-              v-if="tr.noChange"
+              v-if="!tr.result"
+              bg-gray-400:10 text-gray-400
+              v-text="'bailout'"
+            />
+            <Badge
+              v-else-if="tr.noChange"
               bg-orange-400:10 text-orange-400
               v-text="'no change'"
             />
