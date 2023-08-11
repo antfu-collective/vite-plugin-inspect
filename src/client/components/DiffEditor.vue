@@ -88,7 +88,7 @@ onMounted(() => {
     // cleanup handles, widgets and listeners
     clearListeners()
     widgets.forEach(widget => widget.clear())
-    handles.forEach(h => cm2.removeLineClass(h, 'zlevel'))
+    handles.forEach(h => cm2.removeLineClass(h, 'wrap'))
     widgets.length = 0
     handles.length = 0
 
@@ -140,18 +140,18 @@ onMounted(() => {
         div.title = 'Open in Editor'
         div.tabIndex = 0
         const pre = document.createElement('pre')
-        pre.className = 'c-red-600 dark:c-red-400'
+        pre.className = 'c-red-700 dark:c-red-400'
         pre.textContent = `${' '.repeat(5)}^ Open in Editor`
         div.appendChild(pre)
         const span = document.createElement('span')
-        span.className = 'i-carbon-launch c-red-600 dark:c-red-400 min-w-1em min-h-1em'
+        span.className = 'i-carbon-launch c-red-700 dark:c-red-400 min-w-1em min-h-1em'
         div.appendChild(span)
         const el: EventListener = async () => {
           await openInEditor(stack.file, stack.line, stack.column)
         }
         div.addEventListener('click', el)
         listeners.push([div, el])
-        handles.push(cm2.addLineClass(i, 'zlevel', 'bg-red-500/10'))
+        handles.push(cm2.addLineClass(i, 'wrap', ''))
         widgets.push(cm2.addLineWidget(i, div))
       }
     }
