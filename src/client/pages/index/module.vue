@@ -128,10 +128,10 @@ getHot().then((hot) => {
         flex="~ col" border="r main"
         overflow-y-auto
       >
-        <div flex="~ gap2" justify-center py-2 text-sm tracking-widest op50>
-          {{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK
-          <button class="text-lg icon-btn" title="Show bailout" @click="showBailout = !showBailout">
-            <div :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-25 i-carbon-view-off'" />
+        <div flex="~ gap2 items-center" p2 tracking-widest op50>
+          <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
+          <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
+            <div :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />
