@@ -40,6 +40,16 @@ export default defineConfig({
       },
     },
 
+    {
+      name: 'no-change',
+      transform: {
+        order: 'post',
+        async handler(code) {
+          return code
+        },
+      },
+    },
+
     Vue({
       script: {
         defineModel: true,

@@ -2,7 +2,7 @@
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
 import { msToTime } from '../../logic/utils'
-import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showOneColumn } from '../../logic'
+import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showBailout, showOneColumn } from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
@@ -22,6 +22,25 @@ const index = useRouteQuery<string | undefined>('index')
 const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (data.value?.transforms.length || 1) - 1)
 const panelSize = useLocalStorage('vite-inspect-module-panel-size', '10')
 
+const transforms = computed(() => {
+  const trs = data.value?.transforms
+  if (!trs)
+    return undefined
+
+  let load = false
+
+  return trs
+    .map((tr, index) => ({
+      ...tr,
+      noChange: !!tr.result && index > 0 && tr.result === trs[index - 1]?.result,
+      load: tr.result && (load ? false : (load = true)),
+      index,
+    }))
+})
+const filteredTransforms = computed(() =>
+  transforms.value?.filter(tr => showBailout.value || tr.result),
+)
+
 async function refetch() {
   if (id.value)
     data.value = await rpc.getIdInfo(id.value, inspectSSR.value, true)
@@ -32,9 +51,13 @@ onRefetch.on(async () => {
 })
 
 watch([id, inspectSSR], refetch)
-const currentTransform = computed(() => data.value?.transforms[currentIndex.value])
-const from = computed(() => data.value?.transforms[currentIndex.value - 1]?.result || '')
-const to = computed(() => currentTransform.value?.result || '')
+
+const lastTransform = computed(() =>
+  transforms.value?.slice(0, currentIndex.value).reverse().find(tr => tr.result),
+)
+const currentTransform = computed(() => transforms.value?.find(tr => tr.index === currentIndex.value))
+const from = computed(() => lastTransform.value?.result || '')
+const to = computed(() => currentTransform.value?.result || from.value)
 const sourcemaps = computed(() => {
   let sourcemaps = currentTransform.value?.sourcemaps
   if (!sourcemaps)
@@ -96,7 +119,7 @@ getHot().then((hot) => {
     </button>
   </NavBar>
   <Container
-    v-if="data && data.transforms"
+    v-if="data && filteredTransforms"
     flex overflow-hidden
   >
     <Splitpanes h-full of-hidden @resize="panelSize = $event[0].size">
@@ -105,34 +128,42 @@ getHot().then((hot) => {
         flex="~ col" border="r main"
         overflow-y-auto
       >
-        <div px-3 py-2 text-center text-sm tracking-widest op50>
-          {{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK
+        <div flex="~ gap2 items-center" p2 tracking-widest op50>
+          <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
+          <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
+            <div :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
+          </button>
         </div>
         <div border="b main" />
-        <template v-for="tr, idx of data.transforms" :key="tr.name">
+        <template v-for="tr of filteredTransforms" :key="tr.name">
           <button
             border="b main"
             flex="~ gap-1 wrap"
             items-center px-2 py-2 text-left text-xs font-mono
             :class="
-              currentIndex === idx
+              currentIndex === tr.index
                 ? 'bg-active'
-                : tr.result === data.transforms[idx - 1]?.result
+                : tr.noChange || !tr.result
                   ? 'op50'
                   : ''
             "
-            @click="index = idx.toString()"
+            @click="index = tr.index.toString()"
           >
-            <span :class="currentIndex === idx ? 'font-bold' : ''">
+            <span :class="currentIndex === tr.index ? 'font-bold' : ''">
               <PluginName :name="tr.name" />
             </span>
             <Badge
-              v-if="tr.result === data.transforms[idx - 1]?.result"
+              v-if="!tr.result"
+              bg-gray-400:10 text-gray-400
+              v-text="'bailout'"
+            />
+            <Badge
+              v-else-if="tr.noChange"
               bg-orange-400:10 text-orange-400
               v-text="'no change'"
             />
             <Badge
-              v-if="idx === 0"
+              v-if="tr.load"
               class="bg-light-blue-400/10 text-light-blue-400"
               v-text="'load'"
             />
