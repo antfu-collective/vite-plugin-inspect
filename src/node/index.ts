@@ -223,7 +223,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           id,
           deps: getDeps ? getDeps(id) : [],
           plugins,
-          virtual: isVirtual(plugins[0].name, transformMap[id]?.[0].name || ''),
+          virtual: isVirtual(plugins[0]?.name || '', transformMap[id]?.[0].name || ''),
           totalTime,
         }
       })
