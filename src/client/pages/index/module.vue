@@ -95,7 +95,7 @@ getHot().then((hot) => {
     <ModuleId v-if="id" :id="id" />
     <Badge
       v-if="inspectSSR"
-      bg-teal-400:10 font-bold text-teal-400
+      bg-teal-400:10 font-bold text-green-700 dark:text-teal-400
     >
       SSR
     </Badge>
@@ -128,7 +128,7 @@ getHot().then((hot) => {
         flex="~ col" border="r main"
         overflow-y-auto
       >
-        <div flex="~ gap2 items-center" p2 tracking-widest op50>
+        <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
           <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
           <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
             <div :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
@@ -154,31 +154,31 @@ getHot().then((hot) => {
             </span>
             <Badge
               v-if="!tr.result"
-              bg-gray-400:10 text-gray-400
+              class="bg-gray-400:10 text-gray-700 dark:text-gray-400"
               v-text="'bailout'"
             />
             <Badge
               v-else-if="tr.noChange"
-              bg-orange-400:10 text-orange-400
+              class="bg-orange-400:10 text-orange-800 dark:text-orange-400"
               v-text="'no change'"
             />
             <Badge
               v-if="tr.load"
-              class="bg-light-blue-400/10 text-light-blue-400"
+              class="bg-light-blue-400/10 text-blue-700 dark:text-light-blue-400"
               v-text="'load'"
             />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
-              bg-violet-400:10 text-violet-400
+              class="bg-violet-400:10 text-violet-700 dark:text-violet-400"
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
               v-text="tr.order"
             />
             <Badge
               v-if="tr.error"
-              bg-red-400:10 text-red7 dark:text-red-400
+              class="bg-red-400:10 text-red7 dark:text-red-400"
               v-text="'error'"
             />
-            <span flex-auto text-right text-xs op50>{{ msToTime(tr.end - tr.start) }}</span>
+            <span flex-auto text-right text-xs class="op75 dark:op60">{{ msToTime(tr.end - tr.start) }}</span>
           </button>
         </template>
       </Pane>

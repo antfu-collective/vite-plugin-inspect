@@ -17,7 +17,7 @@ const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id
 
     <Badge
       v-if="isVirtual"
-      ml1 bg-teal-400:10 text-teal-400
+      class="ml1 bg-teal-400:10 text-green-700 dark:text-teal-400"
       v-text="'virtual'"
     />
   </div>
