@@ -196,7 +196,6 @@ getHot().then((hot) => {
             :diff="enableDiff && !currentTransform?.error"
             :from="from" :to="to"
             h-unset
-            :error="filteredTransforms.some(tr => tr?.error)"
           />
         </div>
       </Pane>
