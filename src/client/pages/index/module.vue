@@ -95,7 +95,7 @@ getHot().then((hot) => {
     <ModuleId v-if="id" :id="id" />
     <Badge
       v-if="inspectSSR"
-      bg-teal-400:10 font-bold text-green-700 dark:text-teal-400
+      class="bg-teal-400:10 font-bold text-green-700 dark:text-teal-400"
     >
       SSR
     </Badge>
