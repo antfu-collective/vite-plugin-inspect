@@ -135,7 +135,7 @@ getHot().then((hot) => {
           </button>
         </div>
         <div border="b main" />
-        <template v-for="tr of filteredTransforms" :key="`${tr.name}-${tr.index}`">
+        <template v-for="tr of filteredTransforms" :key="tr.index">
           <button
             border="b main"
             flex="~ gap-1 wrap"
