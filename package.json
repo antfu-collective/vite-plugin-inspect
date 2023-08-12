@@ -98,6 +98,7 @@
     "cross-env": "^7.0.3",
     "diff-match-patch": "^1.0.5",
     "echarts": "^5.4.3",
+    "error-stack-parser-es": "^0.1.1",
     "eslint": "^8.47.0",
     "esno": "^0.17.0",
     "fuse.js": "^6.6.2",

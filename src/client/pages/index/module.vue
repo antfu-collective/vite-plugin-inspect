@@ -169,7 +169,7 @@ getHot().then((hot) => {
             />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
-              bg-rose-400:10 text-rose-400
+              bg-violet-400:10 text-violet-400
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
               v-text="tr.order"
             />
@@ -184,7 +184,13 @@ getHot().then((hot) => {
       </Pane>
       <Pane min-size="5">
         <div h-full of-auto>
+          <ErrorDisplay
+            v-if="currentTransform?.error"
+            :key="`error-${id}`"
+            :error="currentTransform.error"
+          />
           <DiffEditor
+            v-else
             :key="id"
             :one-column="showOneColumn || !!currentTransform?.error"
             :diff="enableDiff && !currentTransform?.error"

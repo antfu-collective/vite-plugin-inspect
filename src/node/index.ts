@@ -2,6 +2,7 @@ import { isAbsolute, join, resolve } from 'node:path'
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import process from 'node:process'
+import { parse as parseErrorStacks } from 'error-stack-parser-es'
 import fs from 'fs-extra'
 import _debug from 'debug'
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
@@ -12,7 +13,7 @@ import { createFilter } from '@rollup/pluginutils'
 import { createRPCServer } from 'vite-dev-rpc'
 import { hash } from 'ohash'
 import c from 'picocolors'
-import type { HMRData, ModuleInfo, ModuleTransformInfo, PluginMetricInfo, RPCFunctions, ResolveIdInfo, TransformInfo } from '../types'
+import type { HMRData, ModuleInfo, ModuleTransformInfo, ParsedError, PluginMetricInfo, RPCFunctions, ResolveIdInfo, TransformInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
 
 const debug = _debug('vite-plugin-inspect')
@@ -282,7 +283,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
       const end = Date.now()
 
-      const result = error ? stringifyError(error) : (typeof _result === 'string' ? _result : _result?.code)
+      const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code)
       if (filter(id)) {
         const sourcemaps = typeof _result === 'string' ? null : _result?.map
         const map = ssr ? transformMapSSR : transformMap
@@ -297,7 +298,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           end,
           order,
           sourcemaps,
-          error,
+          error: error ? parseError(error) : undefined,
         })
       }
 
@@ -323,7 +324,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
       const end = Date.now()
 
-      const result = error ? stringifyError(error) : (typeof _result === 'string' ? _result : _result?.code)
+      const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code)
       const sourcemaps = typeof _result === 'string' ? null : _result?.map
 
       const map = ssr ? transformMapSSR : transformMap
@@ -334,7 +335,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           start,
           end,
           sourcemaps,
-          error,
+          error: error ? parseError(error) : undefined,
         }]
       }
 
@@ -712,4 +713,14 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
 PluginInspect.getViteInspectAPI = function (plugins: Plugin[]): ViteInspectAPI | undefined {
   return plugins.find(p => p.name === NAME)?.api
+}
+
+function parseError(error: any): ParsedError {
+  const stack = parseErrorStacks(error)
+  const message = error.message || String(error)
+  return {
+    message,
+    stack,
+    raw: error,
+  }
 }
