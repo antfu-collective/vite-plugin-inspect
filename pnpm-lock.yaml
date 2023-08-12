@@ -17,6 +17,9 @@ importers:
       debug:
         specifier: ^4.3.4
         version: 4.3.4
+      error-stack-parser-es:
+        specifier: ^0.1.1
+        version: 0.1.1
       fs-extra:
         specifier: ^11.1.1
         version: 11.1.1
@@ -93,9 +96,6 @@ importers:
       echarts:
         specifier: ^5.4.3
         version: 5.4.3
-      error-stack-parser-es:
-        specifier: ^0.1.1
-        version: 0.1.1
       eslint:
         specifier: ^8.47.0
         version: 8.47.0
@@ -2677,7 +2677,7 @@ packages:
 
   /error-stack-parser-es@0.1.1:
     resolution: {integrity: sha512-g/9rfnvnagiNf+DRMHEVGuGuIBlCIMDFoTA616HaP2l9PlCjGjVhD98PNbVSJvmK4TttqT5mV5tInMhoFgi+aA==}
-    dev: true
+    dev: false
 
   /es-abstract@1.21.1:
     resolution: {integrity: sha512-QudMsPOz86xYz/1dG1OuGBKOELjCh99IIWHLzy5znUB6j8xG2yMA7bfTV86VSqKF+Y/H08vQPR+9jyXpuC6hfg==}
