@@ -175,7 +175,7 @@ getHot().then((hot) => {
             />
             <Badge
               v-if="tr.error"
-              bg-red-400:10 text-red-400
+              bg-red-400:10 text-red7 dark:text-red-400
               v-text="'error'"
             />
             <span flex-auto text-right text-xs op50>{{ msToTime(tr.end - tr.start) }}</span>

@@ -14,11 +14,11 @@ function normalizeFilename(filename?: string) {
 
 <template>
   <div of-auto p4 font-mono flex="~ col gap-4">
-    <div text-xl text-red5 dark:text-red flex="~ gap-2 items-center">
+    <div text-xl text-red7 dark:text-red flex="~ gap-2 items-center">
       <div i-carbon:warning-square />
       Error
     </div>
-    <pre text-sm text-red5 dark:text-red>{{ error.message }}</pre>
+    <pre text-sm text-red7 dark:text-red>{{ error.message }}</pre>
     <div border="t main" h-1px w-full />
     <div class="text-xs" mt2 grid="~ cols-[max-content_1fr] gap-x-4 gap-y-1" font-mono>
       <template v-for="item, idx of error.stack" :key="idx">
