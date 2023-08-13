@@ -1,4 +1,5 @@
 import type { Awaitable } from '@antfu/utils'
+import type { StackFrame } from 'error-stack-parser-es'
 
 export interface TransformInfo {
   name: string
@@ -7,7 +8,7 @@ export interface TransformInfo {
   end: number
   order?: string
   sourcemaps?: any
-  error?: any
+  error?: ParsedError
 }
 
 export interface ResolveIdInfo {
@@ -16,7 +17,13 @@ export interface ResolveIdInfo {
   start: number
   end: number
   order?: string
-  error?: any
+  error?: ParsedError
+}
+
+export interface ParsedError {
+  message: string
+  stack: StackFrame[]
+  raw?: any
 }
 
 export interface ModuleInfo {

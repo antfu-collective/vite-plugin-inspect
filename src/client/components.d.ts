@@ -10,6 +10,8 @@ declare module 'vue' {
     Badge: typeof import('./components/Badge.vue')['default']
     Container: typeof import('./components/Container.vue')['default']
     DiffEditor: typeof import('./components/DiffEditor.vue')['default']
+    ErrorDisplay: typeof import('./components/ErrorDisplay.vue')['default']
+    FilepathItem: typeof import('./components/FilepathItem.vue')['default']
     Graph: typeof import('./components/Graph.vue')['default']
     ModuleId: typeof import('./components/ModuleId.vue')['default']
     ModuleList: typeof import('./components/ModuleList.vue')['default']
