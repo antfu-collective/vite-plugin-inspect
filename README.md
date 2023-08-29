@@ -29,7 +29,7 @@ export default {
 }
 ```
 
-Then visit [localhost:3000/__inspect/](http://localhost:3000/__inspect/) to inspect the modules.
+Then run `npm run dev` and visit [localhost:5173/__inspect/](http://localhost:5173/__inspect/) to inspect the modules.
 
 ## Build Mode
 
