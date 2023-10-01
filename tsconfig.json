@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
     "lib": ["esnext", "DOM"],
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "strict": true,
     "jsx": "preserve",
-    "strictNullChecks": true,
-    "resolveJsonModule": true,
+    "module": "esnext",
+    "moduleResolution": "node",
     "types": [
       "vite-plugin-pages/client",
       "vite/client"
-    ]
+    ],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "strictNullChecks": true
   }
 }

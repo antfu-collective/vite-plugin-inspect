@@ -551,8 +551,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     await fs.ensureDir(reportsDir)
     await fs.copy(DIR_CLIENT, targetDir)
 
-    const isVirtual = (pluginName: string, transformName: string) =>
-      pluginName !== dummyLoadPluginName && transformName !== 'vite:load-fallback'
+    const isVirtual = (pluginName: string, transformName: string) => pluginName !== dummyLoadPluginName && transformName !== 'vite:load-fallback'
 
     function list() {
       return {
@@ -571,7 +570,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
             resolvedId: resolveId(id, ssr),
             transforms: info,
           },
-          { spaces: 2 }),
+          { spaces: 2 },
+        ),
         ),
       )
     }
