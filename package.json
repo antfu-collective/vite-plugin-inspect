@@ -57,6 +57,7 @@
     "dev:client": "vite build src/client --watch",
     "stub": "unbuild --stub",
     "lint": "eslint .",
+    "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "npm run build",
     "release": "bumpp && npm publish"
   },
@@ -124,7 +125,8 @@
     "vite-plugin-pages": "^0.31.0",
     "vue": "^3.3.7",
     "vue-echarts": "^6.6.1",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vue-tsc": "^1.8.21"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"

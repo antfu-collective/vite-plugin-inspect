@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ModuleInfo } from '../../types'
-import { listMode, msToTime, searchText } from '../logic'
+import { listMode, searchText } from '../logic'
 
 const props = defineProps<{
   modules: ModuleInfo[]
