@@ -42,16 +42,6 @@ const plugins = computed(() => {
     .sort((a, b) => b.totalTime - a.totalTime)
 })
 
-function getLatencyColor(latency: number) {
-  if (latency > 1000)
-    return 'text-red-400'
-  if (latency > 500)
-    return 'text-orange-400'
-  if (latency > 200)
-    return 'text-yellow-400'
-  return ''
-}
-
 async function refetch() {
   data.value = await rpc.getPluginMetrics(inspectSSR.value)
 }
@@ -137,21 +127,17 @@ getHot().then((hot) => {
           <div class="text-right">
             {{ invokeCount }}
           </div>
-          <div class="text-right" :class="getLatencyColor(totalTime / invokeCount)">
-            {{ +(totalTime / invokeCount).toFixed(1) }}<span ml-1 text-xs op50>ms</span>
-          </div>
-          <div class="text-right" :class="getLatencyColor(totalTime / invokeCount)">
-            {{ totalTime }}<span ml-1 text-xs op50>ms</span>
-          </div>
+          <DurationDisplay class="text-right" :duration="totalTime / invokeCount" />
+          <DurationDisplay class="text-right" :duration="totalTime" />
         </template>
         <template v-else>
-          <div class="text-right">
+          <div class="text-right text-gray:50">
             -
           </div>
-          <div class="text-right">
+          <div class="text-right text-gray:50">
             -
           </div>
-          <div class="text-right">
+          <div class="text-right text-gray:50">
             -
           </div>
         </template>

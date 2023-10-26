@@ -1,12 +1,9 @@
 <script setup lang="ts">
+import type { ModuleInfo } from '../../types'
 import { listMode, msToTime, searchText } from '../logic'
 
 const props = defineProps<{
-  modules: Array<{
-    id: string
-    plugins: any[]
-    totalTime: number
-  }>
+  modules: ModuleInfo[]
 }>()
 
 const { list, containerProps, wrapperProps } = useVirtualList(
@@ -39,7 +36,7 @@ const { list, containerProps, wrapperProps } = useVirtualList(
           :to="`/module?id=${encodeURIComponent(m.data.id)}`"
         >
           <ModuleId :id="m.data.id" />
-          <div v-if="listMode === &quot;detailed&quot;" text-xs op50 flex="~ gap-1">
+          <div v-if="listMode === &quot;detailed&quot;" text-xs flex="~ gap-1">
             <template
               v-for="(i, idx) in m.data.plugins
                 .slice(1)
@@ -47,14 +44,21 @@ const { list, containerProps, wrapperProps } = useVirtualList(
               :key="i"
             >
               <span v-if="idx !== 0" op20>|</span>
-              <span>
+              <span op50>
                 <PluginName :name="i.name" :hide="true" />
               </span>
             </template>
             <span op40>·</span>
-            <span>
-              {{ msToTime(m.data.totalTime) }}
+            <span op75>
+              <DurationDisplay :duration="m.data.totalTime" />
             </span>
+            <template v-if="m.data.invokeCount > 2">
+              <span op40>·</span>
+              <span
+                text-green
+                :title="`Transform invoked ${m.data.invokeCount} times`"
+              >x{{ m.data.invokeCount }}</span>
+            </template>
           </div>
         </RouterLink>
       </div>

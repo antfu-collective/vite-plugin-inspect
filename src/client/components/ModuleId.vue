@@ -14,6 +14,7 @@ const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id
       <span>{{ id.slice(root.length) }}</span>
     </template>
     <span v-else>{{ id }}</span>
+    <slot />
 
     <Badge
       v-if="isVirtual"

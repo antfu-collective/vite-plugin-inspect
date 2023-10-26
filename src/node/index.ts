@@ -125,6 +125,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   const transformMap: TransformMap = {}
   const transformMapSSR: TransformMap = {}
+  const transformCounter: Record<string, number> = {}
+  const transformCounterSSR: Record<string, number> = {}
   const idMap: ResolveIdMap = {}
   const idMapSSR: ResolveIdMap = {}
 
@@ -199,7 +201,13 @@ export default function PluginInspect(options: Options = {}): Plugin {
     }, {} as TransformMap)
   }
 
-  function getModulesInfo(transformMap: TransformMap, idMap: ResolveIdMap, getDeps: ((id: string) => string[]) | null, isVirtual: (pluginName: string, transformName: string) => boolean) {
+  function getModulesInfo(
+    transformMap: TransformMap,
+    idMap: ResolveIdMap,
+    counter: Record<string, number>,
+    getDeps: ((id: string) => string[]) | null,
+    isVirtual: (pluginName: string, transformName: string) => boolean,
+  ) {
     const transformedIdMap = transformIdMap(idMap)
     const ids = new Set(Object.keys(transformMap).concat(Object.keys(transformedIdMap)))
 
@@ -226,6 +234,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           plugins,
           virtual: isVirtual(plugins[0]?.name || '', transformMap[id]?.[0].name || ''),
           totalTime,
+          invokeCount: counter?.[id] || 0,
         }
       })
   }
@@ -287,9 +296,12 @@ export default function PluginInspect(options: Options = {}): Plugin {
       if (filter(id)) {
         const sourcemaps = typeof _result === 'string' ? null : _result?.map
         const map = ssr ? transformMapSSR : transformMap
+        const counter = ssr ? transformCounterSSR : transformCounter
         // initial tranform (load from fs), add a dummy
-        if (!map[id] || !map[id].some(tr => tr.result))
+        if (!map[id] || !map[id].some(tr => tr.result)) {
           map[id] = [{ name: dummyLoadPluginName, result: code, start, end: start, sourcemaps }]
+          counter[id] = (counter[id] || 0) + 1
+        }
         // record transform
         map[id].push({
           name: plugin.name,
@@ -328,7 +340,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const sourcemaps = typeof _result === 'string' ? null : _result?.map
 
       const map = ssr ? transformMapSSR : transformMap
-      if (filter(id)) {
+      const counter = ssr ? transformCounterSSR : transformCounter
+      if (filter(id) && result) {
         map[id] = [{
           name: plugin.name,
           result,
@@ -337,6 +350,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           sourcemaps,
           error: error ? parseError(error) : undefined,
         }]
+        counter[id] = (counter[id] || 0) + 1
       }
 
       if (error)
@@ -489,8 +503,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
     function list() {
       return {
         root: config.root,
-        modules: getModulesInfo(transformMap, idMap, getDeps, isVirtual),
-        ssrModules: getModulesInfo(transformMapSSR, idMapSSR, getDeps, isVirtual),
+        modules: getModulesInfo(transformMap, idMap, transformCounter, getDeps, isVirtual),
+        ssrModules: getModulesInfo(transformMapSSR, idMapSSR, transformCounterSSR, getDeps, isVirtual),
       }
     }
 
@@ -556,8 +570,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
     function list() {
       return {
         root: config.root,
-        modules: getModulesInfo(transformMap, idMap, null, isVirtual),
-        ssrModules: getModulesInfo(transformMapSSR, idMap, null, isVirtual),
+        modules: getModulesInfo(transformMap, idMap, transformCounter, null, isVirtual),
+        ssrModules: getModulesInfo(transformMapSSR, idMapSSR, transformCounterSSR, null, isVirtual),
       }
     }
 

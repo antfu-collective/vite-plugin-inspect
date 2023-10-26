@@ -32,6 +32,7 @@ export interface ModuleInfo {
   deps: string[]
   virtual: boolean
   totalTime: number
+  invokeCount: number
 }
 
 export interface ModulesList {

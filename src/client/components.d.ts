@@ -10,6 +10,7 @@ declare module 'vue' {
     Badge: typeof import('./components/Badge.vue')['default']
     Container: typeof import('./components/Container.vue')['default']
     DiffEditor: typeof import('./components/DiffEditor.vue')['default']
+    DurationDisplay: typeof import('./components/DurationDisplay.vue')['default']
     ErrorDisplay: typeof import('./components/ErrorDisplay.vue')['default']
     FilepathItem: typeof import('./components/FilepathItem.vue')['default']
     Graph: typeof import('./components/Graph.vue')['default']
@@ -24,5 +25,6 @@ declare module 'vue' {
     SearchBox: typeof import('./components/SearchBox.vue')['default']
     SegmentControl: typeof import('./components/SegmentControl.vue')['default']
     ServerChart: typeof import('./components/ServerChart.vue')['default']
+    TimeDisplay: typeof import('./components/TimeDisplay.vue')['default']
   }
 }

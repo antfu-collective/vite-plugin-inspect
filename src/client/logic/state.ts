@@ -1,5 +1,6 @@
 import { createEventHook, useStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
+import type { ModulesList } from '../../types'
 import { rpc } from './rpc'
 import { searchResults, searchText } from './search'
 
@@ -13,7 +14,7 @@ export const inspectSSR = useStorage('vite-inspect-ssr', false)
 export const metricDisplayHook = useStorage<'transform' | 'resolveId' | 'server'>('vite-inspect-metric-display-hook', 'transform')
 export const sortMode = useStorage<'default' | 'time-asc' | 'time-desc'>('vite-inspect-sort', 'default')
 
-export const list = ref(await rpc.list())
+export const list = ref(await rpc.list()) as Ref<ModulesList>
 
 const modes = [
   'detailed',
