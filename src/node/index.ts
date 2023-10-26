@@ -15,13 +15,12 @@ import { hash } from 'ohash'
 import c from 'picocolors'
 import type { HMRData, ModuleInfo, ModuleTransformInfo, ParsedError, PluginMetricInfo, RPCFunctions, ResolveIdInfo, TransformInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
+import { Recorder } from './recorder'
+import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 
 const debug = _debug('vite-plugin-inspect')
 const NAME = 'vite-plugin-inspect'
 const isCI = !!process.env.CI
-
-// initial tranform (load from fs)
-const dummyLoadPluginName = '__load__'
 
 export interface Options {
   /**
@@ -120,15 +119,18 @@ export default function PluginInspect(options: Options = {}): Plugin {
     middleware: {},
   }
 
-  type TransformMap = Record<string, TransformInfo[]>
-  type ResolveIdMap = Record<string, ResolveIdInfo[]>
+  const recorder = new Recorder()
+  const recorderSSR = new Recorder()
 
-  const transformMap: TransformMap = {}
-  const transformMapSSR: TransformMap = {}
-  const transformCounter: Record<string, number> = {}
-  const transformCounterSSR: Record<string, number> = {}
-  const idMap: ResolveIdMap = {}
-  const idMapSSR: ResolveIdMap = {}
+  // type TransformMap = Record<string, TransformInfo[]>
+  // type ResolveIdMap = Record<string, ResolveIdInfo[]>
+
+  // const transformMap: TransformMap = {}
+  // const transformMapSSR: TransformMap = {}
+  // const transformCounter: Record<string, number> = {}
+  // const transformCounterSSR: Record<string, number> = {}
+  // const idMap: ResolveIdMap = {}
+  // const idMapSSR: ResolveIdMap = {}
 
   function stringifyError(err: any) {
     return String(err.stack ? err.stack : err)
@@ -190,31 +192,29 @@ export default function PluginInspect(options: Options = {}): Plugin {
     })
   }
 
-  function transformIdMap(idMap: ResolveIdMap) {
-    return Object.values(idMap).reduce((map, ids) => {
+  function transformIdMap(recorder: Recorder) {
+    return Object.values(recorder.resolveId).reduce((map, ids) => {
       ids.forEach((id) => {
         map[id.result] ??= []
         map[id.result].push(id)
       })
 
       return map
-    }, {} as TransformMap)
+    }, {} as Record<string, ResolveIdInfo[]>)
   }
 
   function getModulesInfo(
-    transformMap: TransformMap,
-    idMap: ResolveIdMap,
-    counter: Record<string, number>,
+    recorder: Recorder,
     getDeps: ((id: string) => string[]) | null,
     isVirtual: (pluginName: string, transformName: string) => boolean,
   ) {
-    const transformedIdMap = transformIdMap(idMap)
-    const ids = new Set(Object.keys(transformMap).concat(Object.keys(transformedIdMap)))
+    const transformedIdMap = transformIdMap(recorder)
+    const ids = new Set(Object.keys(recorder.transform).concat(Object.keys(transformedIdMap)))
 
     return Array.from(ids).sort()
       .map((id): ModuleInfo => {
         let totalTime = 0
-        const plugins = (transformMap[id] || [])
+        const plugins = (recorder.transform[id] || [])
           .filter(tr => tr.result)
           .map((transItem) => {
             const delta = transItem.end - transItem.start
@@ -232,9 +232,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
           id,
           deps: getDeps ? getDeps(id) : [],
           plugins,
-          virtual: isVirtual(plugins[0]?.name || '', transformMap[id]?.[0].name || ''),
+          virtual: isVirtual(plugins[0]?.name || '', recorder.transform[id]?.[0].name || ''),
           totalTime,
-          invokeCount: counter?.[id] || 0,
+          invokeCount: recorder.transformCounter?.[id] || 0,
         }
       })
   }
@@ -295,15 +295,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code)
       if (filter(id)) {
         const sourcemaps = typeof _result === 'string' ? null : _result?.map
-        const map = ssr ? transformMapSSR : transformMap
-        const counter = ssr ? transformCounterSSR : transformCounter
-        // initial tranform (load from fs), add a dummy
-        if (!map[id] || !map[id].some(tr => tr.result)) {
-          map[id] = [{ name: dummyLoadPluginName, result: code, start, end: start, sourcemaps }]
-          counter[id] = (counter[id] || 0) + 1
-        }
-        // record transform
-        map[id].push({
+        const rec = ssr ? recorderSSR : recorder
+        rec.recordTransform(id, {
           name: plugin.name,
           result,
           start,
@@ -311,7 +304,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
           order,
           sourcemaps,
           error: error ? parseError(error) : undefined,
-        })
+        }, code)
       }
 
       if (error)
@@ -339,18 +332,16 @@ export default function PluginInspect(options: Options = {}): Plugin {
       const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code)
       const sourcemaps = typeof _result === 'string' ? null : _result?.map
 
-      const map = ssr ? transformMapSSR : transformMap
-      const counter = ssr ? transformCounterSSR : transformCounter
+      const rec = ssr ? recorderSSR : recorder
       if (filter(id) && result) {
-        map[id] = [{
+        rec.recordLoad(id, {
           name: plugin.name,
           result,
           start,
           end,
           sourcemaps,
           error: error ? parseError(error) : undefined,
-        }]
-        counter[id] = (counter[id] || 0) + 1
+        })
       }
 
       if (error)
@@ -377,11 +368,15 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
       const result = error ? stringifyError(error) : (typeof _result === 'object' ? _result?.id : _result)
 
-      const map = ssr ? idMapSSR : idMap
+      const rec = ssr ? recorderSSR : recorder
       if (result && result !== id) {
-        if (!map[id])
-          map[id] = []
-        map[id].push({ name: plugin.name, result, start, end, error })
+        rec.recordResolveId(id, {
+          name: plugin.name,
+          result,
+          start,
+          end,
+          error,
+        })
       }
 
       if (error)
@@ -394,13 +389,14 @@ export default function PluginInspect(options: Options = {}): Plugin {
   function resolveId(id = '', ssr = false): string {
     if (id.startsWith('./'))
       id = resolve(config.root, id).replace(/\\/g, '/')
-    return resolveIdRec(id, ssr)
+    return resolveIdRecursive(id, ssr)
   }
 
-  function resolveIdRec(id: string, ssr = false): string {
-    const map = ssr ? idMapSSR : idMap
-    return map[id]?.[0]
-      ? resolveIdRec(map[id][0].result, ssr)
+  function resolveIdRecursive(id: string, ssr = false): string {
+    const rec = ssr ? recorderSSR : recorder
+    const resolved = rec.resolveId[id]?.[0]?.result
+    return resolved
+      ? resolveIdRecursive(resolved, ssr)
       : id
   }
 
@@ -419,10 +415,12 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     })
 
-    Object.values(ssr ? transformMapSSR : transformMap)
+    const rec = ssr ? recorderSSR : recorder
+
+    Object.values(rec.transform)
       .forEach((transformInfos) => {
         transformInfos.forEach(({ name, start, end }) => {
-          if (name === dummyLoadPluginName)
+          if (name === DUMMY_LOAD_PLUGIN_NAME)
             return
           if (!map[name])
             map[name] = { ...defaultMetricInfo(), name }
@@ -431,7 +429,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
         })
       })
 
-    Object.values(ssr ? idMapSSR : idMap)
+    Object.values(rec.resolveId)
       .forEach((resolveIdInfos) => {
         resolveIdInfos.forEach(({ name, start, end }) => {
           if (!map[name])
@@ -452,8 +450,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
     server.moduleGraph.invalidateModule = function (...args) {
       const mod = args[0]
       if (mod?.id) {
-        delete transformMap[mod.id]
-        delete transformMapSSR[mod.id]
+        recorder.invalidate(mod.id)
+        recorderSSR.invalidate(mod.id)
       }
       return _invalidateModule.apply(this, args)
     }
@@ -489,22 +487,22 @@ export default function PluginInspect(options: Options = {}): Plugin {
         catch {}
       }
       const resolvedId = resolveId(id, ssr)
-      const map = ssr ? transformMapSSR : transformMap
+      const rec = ssr ? recorderSSR : recorder
       return {
         resolvedId,
-        transforms: map[resolvedId] || [],
+        transforms: rec.transform[resolvedId] || [],
       }
     }
 
-    const isVirtual = (pluginName: string) => pluginName !== dummyLoadPluginName
+    const isVirtual = (pluginName: string) => pluginName !== DUMMY_LOAD_PLUGIN_NAME
     const getDeps = (id: string) => Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
       .map(i => i.id || '')
       .filter(Boolean)
     function list() {
       return {
         root: config.root,
-        modules: getModulesInfo(transformMap, idMap, transformCounter, getDeps, isVirtual),
-        ssrModules: getModulesInfo(transformMapSSR, idMapSSR, transformCounterSSR, getDeps, isVirtual),
+        modules: getModulesInfo(recorder, getDeps, isVirtual),
+        ssrModules: getModulesInfo(recorderSSR, getDeps, isVirtual),
       }
     }
 
@@ -514,8 +512,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
         const mod = server.moduleGraph.getModuleById(id)
         if (mod)
           server.moduleGraph.invalidateModule(mod)
-        const map = ssr ? transformMapSSR : transformMap
-        delete map[id]
+        const rec = ssr ? recorderSSR : recorder
+        rec.invalidate(id)
       }
     }
 
@@ -565,19 +563,19 @@ export default function PluginInspect(options: Options = {}): Plugin {
     await fs.ensureDir(reportsDir)
     await fs.copy(DIR_CLIENT, targetDir)
 
-    const isVirtual = (pluginName: string, transformName: string) => pluginName !== dummyLoadPluginName && transformName !== 'vite:load-fallback'
+    const isVirtual = (pluginName: string, transformName: string) => pluginName !== DUMMY_LOAD_PLUGIN_NAME && transformName !== 'vite:load-fallback'
 
     function list() {
       return {
         root: config.root,
-        modules: getModulesInfo(transformMap, idMap, transformCounter, null, isVirtual),
-        ssrModules: getModulesInfo(transformMapSSR, idMapSSR, transformCounterSSR, null, isVirtual),
+        modules: getModulesInfo(recorder, null, isVirtual),
+        ssrModules: getModulesInfo(recorderSSR, null, isVirtual),
       }
     }
 
-    async function dumpModuleInfo(dir: string, map: TransformMap, ssr = false) {
+    async function dumpModuleInfo(dir: string, recorder: Recorder, ssr = false) {
       await fs.ensureDir(dir)
-      return Promise.all(Object.entries(map)
+      return Promise.all(Object.entries(recorder.transform)
         .map(([id, info]) => fs.writeJSON(
           join(dir, `${hash(id)}.json`),
           <ModuleTransformInfo>{
@@ -614,8 +612,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
         getPluginMetrics(true),
         { spaces: 2 },
       ),
-      dumpModuleInfo(join(reportsDir, 'transform'), transformMap),
-      dumpModuleInfo(join(reportsDir, 'transform-ssr'), transformMapSSR, true),
+      dumpModuleInfo(join(reportsDir, 'transform'), recorder),
+      dumpModuleInfo(join(reportsDir, 'transform-ssr'), recorderSSR, true),
     ])
 
     return targetDir
@@ -674,12 +672,10 @@ export default function PluginInspect(options: Options = {}): Plugin {
           const result = await _resolver.apply(this, args)
           const end = Date.now()
 
-          const map = ssr ? idMapSSR : idMap
+          const rec = ssr ? recorderSSR : recorder
           if (result && result !== id) {
             const pluginName = aliasOnly ? 'alias' : 'vite:resolve (+alias)'
-            if (!map[id])
-              map[id] = []
-            map[id].push({ name: pluginName, result, start, end })
+            rec.recordResolveId(id, { name: pluginName, result, start, end })
           }
 
           return result
@@ -699,8 +695,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
     load: {
       order: 'pre',
       handler(id, { ssr } = {}) {
-        const map = ssr ? transformMapSSR : transformMap
-        delete map[id]
+        const rec = ssr ? recorderSSR : recorder
+        rec.invalidate(id)
         return null
       },
     },

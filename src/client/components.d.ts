@@ -25,6 +25,5 @@ declare module 'vue' {
     SearchBox: typeof import('./components/SearchBox.vue')['default']
     SegmentControl: typeof import('./components/SegmentControl.vue')['default']
     ServerChart: typeof import('./components/ServerChart.vue')['default']
-    TimeDisplay: typeof import('./components/TimeDisplay.vue')['default']
   }
 }
