@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
+import { Buffer } from 'node:buffer'
 import { createFilter } from '@rollup/pluginutils'
-import type { ResolvedConfig } from 'vite'
+import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { ModuleInfo, PluginMetricInfo, ResolveIdInfo } from '../types'
 import { Recorder } from './recorder'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
@@ -34,6 +35,19 @@ export class ViteInspectContext {
     return resolved
       ? this.resolveIdRecursive(resolved, ssr)
       : id
+  }
+
+  getList(server: ViteDevServer) {
+    const isVirtual = (pluginName: string) => pluginName !== DUMMY_LOAD_PLUGIN_NAME
+    const getDeps = (id: string) => Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
+      .map(i => i.id || '')
+      .filter(Boolean)
+
+    return {
+      root: this.config.root,
+      modules: this.getModulesInfo(this.recorderClient, getDeps, isVirtual),
+      ssrModules: this.getModulesInfo(this.recorderServer, getDeps, isVirtual),
+    }
   }
 
   getModulesInfo(
@@ -71,6 +85,12 @@ export class ViteInspectContext {
             }),
           )
 
+        function getSize(str: string | undefined) {
+          if (!str)
+            return 0
+          return Buffer.byteLength(str, 'utf8')
+        }
+
         return {
           id,
           deps: getDeps ? getDeps(id) : [],
@@ -78,6 +98,8 @@ export class ViteInspectContext {
           virtual: isVirtual(plugins[0]?.name || '', recorder.transform[id]?.[0].name || ''),
           totalTime,
           invokeCount: recorder.transformCounter?.[id] || 0,
+          sourceSize: getSize(recorder.transform[id]?.[0]?.result),
+          distSize: getSize(recorder.transform[id]?.[recorder.transform[id].length - 1]?.result),
         }
       })
   }

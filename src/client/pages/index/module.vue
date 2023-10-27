@@ -178,7 +178,8 @@ getHot().then((hot) => {
               class="bg-red-400:10 text-red7 dark:text-red-400"
               v-text="'error'"
             />
-            <span flex-auto text-right text-xs class="op75 dark:op60">{{ msToTime(tr.end - tr.start) }}</span>
+            <div flex-auto />
+            <DurationDisplay :duration="tr.end - tr.start" />
           </button>
         </template>
       </Pane>

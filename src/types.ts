@@ -33,6 +33,8 @@ export interface ModuleInfo {
   virtual: boolean
   totalTime: number
   invokeCount: number
+  sourceSize: number
+  distSize: number
 }
 
 export interface ModulesList {

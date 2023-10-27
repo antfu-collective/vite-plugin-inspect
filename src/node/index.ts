@@ -1,5 +1,3 @@
-import { createServer } from 'node:http'
-import type { AddressInfo } from 'node:net'
 import process from 'node:process'
 import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
@@ -7,11 +5,12 @@ import { createRPCServer } from 'vite-dev-rpc'
 import c from 'picocolors'
 import type { HMRData, RPCFunctions } from '../types'
 import { DIR_CLIENT } from '../dir'
-import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 import type { Options } from './options'
 import { ViteInspectContext } from './context'
 import { hijackPlugin } from './hijack'
 import { generateBuild } from './build'
+import { openBrowser } from './utils'
+import { createPreviewServer } from './preview'
 
 export * from './options'
 
@@ -123,7 +122,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     }))
 
     const rpcFunctions = {
-      list,
+      list: () => ctx.getList(server),
       getIdInfo,
       getPluginMetrics: (ssr = false) => ctx.getPluginMetrics(ssr),
       getServerMetrics,
@@ -150,18 +149,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
       return {
         resolvedId,
         transforms: recorder.transform[resolvedId] || [],
-      }
-    }
-
-    const isVirtual = (pluginName: string) => pluginName !== DUMMY_LOAD_PLUGIN_NAME
-    const getDeps = (id: string) => Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
-      .map(i => i.id || '')
-      .filter(Boolean)
-    function list() {
-      return {
-        root: config.root,
-        modules: ctx.getModulesInfo(ctx.recorderClient, getDeps, isVirtual),
-        ssrModules: ctx.getModulesInfo(ctx.recorderServer, getDeps, isVirtual),
       }
     }
 
@@ -210,32 +197,6 @@ export default function PluginInspect(options: Options = {}): Plugin {
     return rpcFunctions
   }
 
-  function createPreviewServer(staticPath: string) {
-    const server = createServer()
-
-    const statics = sirv(staticPath)
-    server.on('request', (req, res) => {
-      statics(req, res, () => {
-        res.statusCode = 404
-        res.end('File not found')
-      })
-    })
-
-    server.listen(0, () => {
-      const { port } = server.address() as AddressInfo
-      const url = `http://localhost:${port}`
-      // eslint-disable-next-line no-console
-      console.log(`  ${c.green('➜')}  ${c.bold('Inspect Preview Started')}: ${url}`)
-      openBrowser(url)
-    })
-  }
-
-  async function openBrowser(address: string) {
-    await import('open')
-      .then(r => r.default(address, { newInstance: true }))
-      .catch(() => {})
-  }
-
   const plugin = <Plugin>{
     name: NAME,
     enforce: 'pre',
@@ -247,7 +208,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       return false
     },
     configResolved(_config) {
-      config = _config
+      config = ctx.config = _config
       config.plugins.forEach(plugin => hijackPlugin(plugin, ctx))
       const _createResolver = config.createResolver
       // @ts-expect-error mutate readonly
