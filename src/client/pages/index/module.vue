@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
-import { msToTime } from '../../logic/utils'
 import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showBailout, showOneColumn } from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
