@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  options: { label: string; value: string }[]
+  options: { label: string, value: string }[]
   modelValue: string
 }>()
 defineEmits<{

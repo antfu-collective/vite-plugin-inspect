@@ -14,9 +14,9 @@ export default defineConfig({
     'bg-main': 'bg-white dark:bg-[#121212]',
     'bg-active': 'bg-gray-400/10',
     'icon-btn': 'inline-block cursor-pointer select-none !outline-none '
-      + 'opacity-75 transition duration-200 ease-in-out '
-      + 'hover:opacity-100 hover:text-teal-600 '
-      + 'text-0.9em h-1.2em',
+    + 'opacity-75 transition duration-200 ease-in-out '
+    + 'hover:opacity-100 hover:text-teal-600 '
+    + 'text-0.9em h-1.2em',
   },
   presets: [
     presetUno(),

@@ -42,7 +42,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
   let config: ResolvedConfig
   const serverPerf: {
-    middleware?: Record<string, { name: string; total: number; self: number }[]>
+    middleware?: Record<string, { name: string, total: number, self: number }[]>
   } = {
     middleware: {},
   }

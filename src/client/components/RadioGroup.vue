@@ -2,7 +2,7 @@
 defineProps<{
   name: string
   modelValue: string
-  options: { value: string; label: string }[]
+  options: { value: string, label: string }[]
 }>()
 
 const emit = defineEmits(['update:modelValue'])

@@ -28,7 +28,7 @@ export interface ParsedError {
 
 export interface ModuleInfo {
   id: string
-  plugins: { name: string; transform?: number; resolveId?: number }[]
+  plugins: { name: string, transform?: number, resolveId?: number }[]
   deps: string[]
   virtual: boolean
   totalTime: number
@@ -67,7 +67,7 @@ export interface RPCFunctions {
   resolveId(id: string, ssr: boolean): Awaitable<string>
   clear(id: string, ssr: boolean): Awaitable<void>
   getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
-  getServerMetrics(): Awaitable<Record<string, Record<string, { name: string; self: number; total: number }[]>>>
+  getServerMetrics(): Awaitable<Record<string, Record<string, { name: string, self: number, total: number }[]>>>
 }
 
 export interface HMRData {
