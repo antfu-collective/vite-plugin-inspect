@@ -20,24 +20,12 @@
   ],
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "require": "./dist/index.cjs"
-      }
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./nuxt": {
-      "import": {
-        "types": "./dist/nuxt.d.ts",
-        "default": "./dist/nuxt.js"
-      },
-      "require": {
-        "types": "./dist/nuxt.d.cts",
-        "require": "./dist/nuxt.cjs"
-      }
+      "import": "./dist/nuxt.js",
+      "require": "./dist/nuxt.cjs"
     },
     "./*": "./*"
   },
