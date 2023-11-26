@@ -5,9 +5,7 @@ function patchCjs(cjsModulePath: string, name: string) {
   const cjsModule = readFileSync(cjsModulePath, 'utf-8')
   writeFileSync(
     cjsModulePath,
-    cjsModule
-      .replace(`'use strict';`, `"use strict";Object.defineProperty(exports, "__esModule", {value: true});`)
-      .replace(`module.exports = ${name};`, `exports.default = ${name};`),
+    cjsModule.replace(`module.exports = ${name};`, `exports.default = ${name};`),
     { encoding: 'utf-8' },
   )
 }
