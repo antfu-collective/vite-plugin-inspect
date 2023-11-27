@@ -20,14 +20,24 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./nuxt": {
-      "types": "./dist/nuxt.d.ts",
-      "import": "./dist/nuxt.mjs",
-      "require": "./dist/nuxt.cjs"
+      "import": {
+        "types": "./dist/nuxt.d.ts",
+        "default": "./dist/nuxt.mjs"
+      },
+      "require": {
+        "types": "./dist/nuxt.d.cts",
+        "default": "./dist/nuxt.cjs"
+      }
     },
     "./*": "./*"
   },
@@ -50,7 +60,7 @@
     "node": ">=14"
   },
   "scripts": {
-    "build": "rimraf dist && run-s build:*",
+    "build": "rimraf dist && run-s build:* && esno ./scripts/postbuild.ts",
     "build:client": "vite build src/client",
     "build:js": "unbuild",
     "dev": "nr stub && cross-env INSPECT_DEV=true vite src/client",
