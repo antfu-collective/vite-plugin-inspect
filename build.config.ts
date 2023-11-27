@@ -7,7 +7,6 @@ export default defineBuildConfig({
   ],
   clean: false,
   declaration: true,
-  failOnWarn: false,
   externals: [
     'vite',
     '@nuxt/kit',
