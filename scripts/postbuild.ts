@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 function patchCjs(cjsModulePath: string, name: string) {
@@ -18,9 +18,6 @@ readdirSync('./dist/shared')
   .forEach((file) => {
     rmSync(resolve('./dist/shared', file))
   })
-
-renameSync(resolve('./dist/index.mjs'), resolve('dist/index.js'))
-renameSync(resolve('./dist/nuxt.mjs'), resolve('dist/nuxt.js'))
 
 patchCjs(resolve('./dist/index.cjs'), 'PluginInspect')
 patchCjs(resolve('./dist/nuxt.cjs'), 'nuxt')
