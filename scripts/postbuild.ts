@@ -6,7 +6,6 @@ function patchCjs(cjsModulePath: string, name: string) {
   writeFileSync(
     cjsModulePath,
     cjsModule.replace(`module.exports = ${name};`, `exports.default = ${name};\nexports.__esModule = true;`),
-    // cjsModule.replace(`module.exports = ${cjsName};`, `module.exports = ${cjsName};\nexports.default = ${cjsName};`),
     { encoding: 'utf-8' },
   )
 }
