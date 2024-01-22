@@ -1,9 +1,18 @@
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <HelloWorld msg="Vite + Vue" />
+  <main>
+    <nav>
+      <RouterLink to="/">
+        Home
+      </RouterLink>
+      <RouterLink to="/other">
+        Other
+      </RouterLink>
+    </nav>
+
+    <RouterView />
+  </main>
 </template>
