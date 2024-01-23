@@ -35,7 +35,6 @@ Then run `npm run dev` and visit [localhost:5173/__inspect/](http://localhost:51
 
 To inspect transformation in build mode, you can pass the `build: true` option:
 
-
 ```ts
 // vite.config.ts
 import Inspect from 'vite-plugin-inspect'
