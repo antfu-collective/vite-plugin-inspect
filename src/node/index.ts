@@ -3,6 +3,7 @@ import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
 import c from 'picocolors'
+import { debounce } from 'lodash-es'
 import type { HMRData, RPCFunctions } from '../types'
 import { DIR_CLIENT } from '../dir'
 import type { Options } from './options'
@@ -121,16 +122,26 @@ export default function PluginInspect(options: Options = {}): Plugin {
       dev: true,
     }))
 
-    const rpcFunctions = {
+    const rpcFunctions: RPCFunctions = {
       list: () => ctx.getList(server),
       getIdInfo,
       getPluginMetrics: (ssr = false) => ctx.getPluginMetrics(ssr),
       getServerMetrics,
       resolveId: (id: string, ssr = false) => ctx.resolveId(id, ssr),
       clear: clearId,
+      moduleUpdated: () => {},
     }
 
-    createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
+    const rpcServer = createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
+
+    const debouncedModuleUpdated = debounce(() => {
+      rpcServer.moduleUpdated.asEvent()
+    }, 100)
+
+    server.middlewares.use((req, res, next) => {
+      debouncedModuleUpdated()
+      next()
+    })
 
     function getServerMetrics() {
       return serverPerf || {}
