@@ -1,3 +1,7 @@
+<script setup>
+import message from 'virtual:hi'
+</script>
+
 <template>
-  <div>Other</div>
+  <div>Other: {{ message }}</div>
 </template>

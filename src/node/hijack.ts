@@ -111,7 +111,7 @@ export function hijackPlugin(
     const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code)
     const sourcemaps = typeof _result === 'string' ? null : _result?.map
 
-    if (ctx.filter(id) && result) {
+    if (result) {
       ctx
         .getRecorder(ssr)
         .recordLoad(id, {
@@ -145,6 +145,13 @@ export function hijackPlugin(
       error = err
     }
     const end = Date.now()
+
+    if (!ctx.filter(id)) {
+      if (error)
+        throw error
+
+      return _result
+    }
 
     const result = error ? stringifyError(error) : (typeof _result === 'object' ? _result?.id : _result)
 
