@@ -7,7 +7,7 @@ export class Recorder {
   transformCounter: Record<string, number> = {}
 
   recordTransform(id: string, info: TransformInfo, preTransformCode: string) {
-    // initial tranform (load from fs), add a dummy
+    // initial transform (load from fs), add a dummy
     if (!this.transform[id] || !this.transform[id].some(tr => tr.result)) {
       this.transform[id] = [{
         name: DUMMY_LOAD_PLUGIN_NAME,
