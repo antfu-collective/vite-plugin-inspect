@@ -1,8 +1,9 @@
 import { Buffer } from 'node:buffer'
+import { resolve } from 'node:path'
 import type { PluginEnvironment, ResolvedConfig } from 'vite'
 import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
-import type { ModuleInfo, ResolveIdInfo } from '../types'
+import type { ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo } from '../types'
 import { Recorder } from './recorder'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 
@@ -29,6 +30,17 @@ export class InspectContext {
     this.filter = createFilter(options.include, options.exclude)
   }
 
+  getMetadata() {
+    return {
+      instances: [...this._idToInstances.values()]
+        .map(vite => ({
+          root: vite.config.root,
+          vite: vite.id,
+          environments: [...vite.environments.keys()],
+        })),
+    }
+  }
+
   getViteContext(configOrId: ResolvedConfig | string): InspectContextVite {
     if (typeof configOrId === 'string') {
       if (!this._idToInstances.has(configOrId))
@@ -50,6 +62,12 @@ export class InspectContext {
       throw new Error('Environment is required')
     const vite = this.getViteContext(env.config)
     return vite.getEnvContext(env)
+  }
+
+  queryEnv(query: QueryEnv) {
+    const vite = this.getViteContext(query.vite)
+    const env = vite.getEnvContext(query.env)
+    return env
   }
 }
 
@@ -94,7 +112,7 @@ export class InspectContextViteEnv extends Recorder {
       .filter(Boolean)
     const isVirtual = (pluginName: string, transformName: string) => pluginName !== DUMMY_LOAD_PLUGIN_NAME && transformName !== 'vite:load-fallback'
 
-    const transformedIdMap = Object.values(this.resolveId).reduce((map, ids) => {
+    const transformedIdMap = Object.values(this.data.resolveId).reduce((map, ids) => {
       ids.forEach((id) => {
         map[id.result] ??= []
         map[id.result].push(id)
@@ -102,13 +120,13 @@ export class InspectContextViteEnv extends Recorder {
       return map
     }, {} as Record<string, ResolveIdInfo[]>)
 
-    const ids = new Set(Object.keys(this.transform)
+    const ids = new Set(Object.keys(this.data.transform)
       .concat(Object.keys(transformedIdMap)))
 
     return Array.from(ids).sort()
       .map((id): ModuleInfo => {
         let totalTime = 0
-        const plugins = (this.transform[id] || [])
+        const plugins = (this.data.transform[id] || [])
           .filter(tr => tr.result)
           .map((transItem) => {
             const delta = transItem.end - transItem.start
@@ -132,12 +150,96 @@ export class InspectContextViteEnv extends Recorder {
           id,
           deps: getDeps ? getDeps(id) : [],
           plugins,
-          virtual: isVirtual(plugins[0]?.name || '', this.transform[id]?.[0].name || ''),
+          virtual: isVirtual(plugins[0]?.name || '', this.data.transform[id]?.[0].name || ''),
           totalTime,
-          invokeCount: this.transformCounter?.[id] || 0,
-          sourceSize: getSize(this.transform[id]?.[0]?.result),
-          distSize: getSize(this.transform[id]?.[this.transform[id].length - 1]?.result),
+          invokeCount: this.data.transformCounter?.[id] || 0,
+          sourceSize: getSize(this.data.transform[id]?.[0]?.result),
+          distSize: getSize(this.data.transform[id]?.[this.data.transform[id].length - 1]?.result),
         }
       })
+  }
+
+  resolveId(id = '', ssr = false): string {
+    if (id.startsWith('./'))
+      id = resolve(this.env.config.root, id).replace(/\\/g, '/')
+    return this.resolveIdRecursive(id, ssr)
+  }
+
+  private resolveIdRecursive(id: string, ssr = false): string {
+    const resolved = this.data.resolveId[id]?.[0]?.result
+    return resolved
+      ? this.resolveIdRecursive(resolved, ssr)
+      : id
+  }
+
+  getPluginMetrics() {
+    const map: Record<string, PluginMetricInfo> = {}
+
+    const defaultMetricInfo = (): Pick<PluginMetricInfo, 'transform' | 'resolveId'> => ({
+      transform: { invokeCount: 0, totalTime: 0 },
+      resolveId: { invokeCount: 0, totalTime: 0 },
+    })
+
+    this.env.config.plugins.forEach((i) => {
+      map[i.name] = {
+        ...defaultMetricInfo(),
+        name: i.name,
+        enforce: i.enforce,
+      }
+    })
+
+    Object.values(this.data.transform)
+      .forEach((transformInfos) => {
+        transformInfos.forEach(({ name, start, end }) => {
+          if (name === DUMMY_LOAD_PLUGIN_NAME)
+            return
+          if (!map[name])
+            map[name] = { ...defaultMetricInfo(), name }
+          map[name].transform.totalTime += end - start
+          map[name].transform.invokeCount += 1
+        })
+      })
+
+    Object.values(this.data.resolveId)
+      .forEach((resolveIdInfos) => {
+        resolveIdInfos.forEach(({ name, start, end }) => {
+          if (!map[name])
+            map[name] = { ...defaultMetricInfo(), name }
+          map[name].resolveId.totalTime += end - start
+          map[name].resolveId.invokeCount += 1
+        })
+      })
+
+    const metrics = Object.values(map).filter(Boolean)
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    return metrics
+  }
+
+  async getModuleTransformInfo(id: string, clear = false) {
+    if (clear) {
+      this.clearId(id)
+      try {
+        if (this.env.mode === 'dev')
+          await this.env.transformRequest(id)
+      }
+      catch {}
+    }
+    const resolvedId = this.resolveId(id)
+    return {
+      resolvedId,
+      transforms: this.data.transform[resolvedId] || [],
+    }
+  }
+
+  clearId(_id: string) {
+    const id = this.resolveId(_id)
+    if (id) {
+      const moduleGraph = this.env.mode === 'dev' ? this.env.moduleGraph : undefined
+      const mod = moduleGraph?.getModuleById(id)
+      if (mod)
+        moduleGraph?.invalidateModule(mod)
+      this.invalidate(id)
+    }
   }
 }

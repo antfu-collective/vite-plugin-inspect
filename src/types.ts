@@ -1,4 +1,3 @@
-import type { Awaitable } from '@antfu/utils'
 import type { StackFrame } from 'error-stack-parser-es'
 
 export interface TransformInfo {
@@ -80,7 +79,10 @@ export interface Metadata {
 export interface RpcFunctions {
   getMetadata: () => Promise<Metadata>
   getModulesList: (query: QueryEnv) => Promise<ModulesList>
-  moduleUpdated: () => Promise<void>
+  getModuleTransformInfo: (query: QueryEnv, id: string, clear?: boolean) => Promise<ModuleTransformInfo>
+  getPluginMetrics: (query: QueryEnv) => Promise<PluginMetricInfo[]>
+  resolveId: (query: QueryEnv, id: string) => Promise<string>
+  onModuleUpdated: () => Promise<void>
 }
 
 export interface QueryEnv {

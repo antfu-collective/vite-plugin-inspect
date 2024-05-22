@@ -128,16 +128,6 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
     const rpc = createServerRpc(ctx)
 
-    // const rpcFunctions: RPCFunctions = {
-    //   list: () => ctx.getList(server),
-    //   getIdInfo,
-    //   getPluginMetrics: (ssr = false) => ctx.getPluginMetrics(ssr),
-    //   getServerMetrics,
-    //   resolveId: (id: string, ssr = false) => ctx.resolveId(id, ssr),
-    //   clear: clearId,
-    //   moduleUpdated: () => {},
-    // }
-
     const rpcServer = createRPCServer<RpcFunctions>(
       'vite-plugin-inspect',
       server.ws,
@@ -145,7 +135,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
     )
 
     const debouncedModuleUpdated = debounce(() => {
-      rpcServer.moduleUpdated.asEvent()
+      rpcServer.onModuleUpdated.asEvent()
     }, 100)
 
     server.middlewares.use((req, res, next) => {
@@ -153,34 +143,9 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       next()
     })
 
-    function getServerMetrics() {
+    // TODO:
+    function _getServerMetrics() {
       return serverPerf || {}
-    }
-
-    async function getIdInfo(id: string, ssr = false, clear = false) {
-      if (clear) {
-        clearId(id, ssr)
-        try {
-          await server.transformRequest(id, { ssr })
-        }
-        catch {}
-      }
-      const resolvedId = ctx.resolveId(id, ssr)
-      const recorder = ctx.getRecorder(ssr)
-      return {
-        resolvedId,
-        transforms: recorder.transform[resolvedId] || [],
-      }
-    }
-
-    function clearId(_id: string, ssr = false) {
-      const id = ctx.resolveId(_id)
-      if (id) {
-        const mod = server.moduleGraph.getModuleById(id)
-        if (mod)
-          server.moduleGraph.invalidateModule(mod)
-        ctx.getRecorder(ssr).invalidate(id)
-      }
     }
 
     const _print = server.printUrls

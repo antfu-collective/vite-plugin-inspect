@@ -16,13 +16,18 @@ export function createServerRpc(
       }
     },
     async getModulesList(query) {
-      const vite = ctx.getViteContext(query.vite)
-      const env = vite.getEnvContext(query.env)
-      return env.getModulesList()
+      return ctx.queryEnv(query).getModulesList()
     },
-    async moduleUpdated() {
-
+    async getPluginMetrics(query) {
+      return ctx.queryEnv(query).getPluginMetrics()
     },
+    async getModuleTransformInfo(query, id, clear) {
+      return ctx.queryEnv(query).getModuleTransformInfo(id, clear)
+    },
+    async resolveId(query, id) {
+      return ctx.queryEnv(query).resolveId(id)
+    },
+    async onModuleUpdated() {},
   }
 
   return rpc

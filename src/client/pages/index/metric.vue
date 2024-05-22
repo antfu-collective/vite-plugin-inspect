@@ -6,10 +6,13 @@ import {
 } from '../../logic'
 import { getHot } from '../../logic/hot'
 import { isStaticMode, rpc } from '../../logic/rpc'
+import { useDataStore } from '../../stores/data'
 import { useStateStore } from '../../stores/state'
 
 const state = useStateStore()
-const metrics = ref(await rpc.getPluginMetrics())
+const data = useDataStore()
+
+const metrics = ref(await rpc.getPluginMetrics(data.query))
 
 const selectedPlugin = ref('')
 
@@ -49,8 +52,14 @@ const plugins = computed(() => {
 })
 
 async function refetch() {
-  metrics.value = await rpc.getPluginMetrics(inspectSSR.value)
+  metrics.value = await rpc.getPluginMetrics(data.query)
 }
+
+watch(
+  () => data.query,
+  () => refetch(),
+  { deep: true },
+)
 
 onRefetch.on(async () => {
   await refetch()
@@ -90,6 +99,7 @@ getHot().then((hot) => {
       v-model="state.view.metricDisplayHook"
       :options="displayHookOptions"
     />
+    <QuerySelector />
     <div flex-auto />
   </NavBar>
   <Container v-if="metrics" of-auto>

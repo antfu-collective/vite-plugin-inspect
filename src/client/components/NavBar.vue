@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   isStaticMode,
-  metadata,
   refetch,
   toggleDark,
 } from '../logic'

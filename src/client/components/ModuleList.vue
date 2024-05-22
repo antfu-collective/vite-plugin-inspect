@@ -48,35 +48,38 @@ function byteToHumanReadable(byte: number) {
           :to="`/module?id=${encodeURIComponent(m.data.id)}`"
         >
           <ModuleId :id="m.data.id" />
-          <div v-if="state.view.listMode === 'detailed'" text-xs flex="~ gap-1">
-            <template
-              v-for="(i, idx) in m.data.plugins
-                .slice(1)
-                .filter((plugin) => plugin.transform !== undefined)"
-              :key="i"
-            >
-              <span v-if="idx !== 0" op20>|</span>
-              <span op50>
-                <PluginName :name="i.name" :hide="true" />
+          <div v-if="state.view.listMode === 'detailed'" flex="~ gap-1 wrap" text-xs>
+            <div flex="~ gap-1 wrap">
+              <template
+                v-for="(i, idx) in m.data.plugins
+                  .slice(1)
+                  .filter((plugin) => plugin.transform !== undefined)"
+                :key="i"
+              >
+                <span v-if="idx !== 0" op20>|</span>
+                <span ws-nowrap op50>
+                  <PluginName :name="i.name" :hide="true" />
+                </span>
+              </template>
+              <template v-if="m.data.invokeCount > 2">
+                <span op40>·</span>
+                <span
+                  text-green
+                  :title="`Transform invoked ${m.data.invokeCount} times`"
+                >x{{ m.data.invokeCount }}</span>
+              </template>
+            </div>
+            <div flex="~ auto gap-1 wrap justify-end">
+              <span op75>
+                <DurationDisplay :duration="m.data.totalTime" />
               </span>
-            </template>
-            <template v-if="m.data.invokeCount > 2">
-              <span op40>·</span>
-              <span
-                text-green
-                :title="`Transform invoked ${m.data.invokeCount} times`"
-              >x{{ m.data.invokeCount }}</span>
-            </template>
-            <div flex-auto />
-            <span op75>
-              <DurationDisplay :duration="m.data.totalTime" />
-            </span>
-            <template v-if="m.data.sourceSize && m.data.distSize">
-              <span op40>·</span>
-              <span op50>{{ byteToHumanReadable(m.data.sourceSize) }}</span>
-              <span i-carbon-arrow-right op40 />
-              <span op50 :class="m.data.distSize > m.data.sourceSize ? 'text-orange' : 'text-green'">{{ byteToHumanReadable(m.data.distSize) }}</span>
-            </template>
+              <template v-if="m.data.sourceSize && m.data.distSize">
+                <span op40>·</span>
+                <span op50>{{ byteToHumanReadable(m.data.sourceSize) }}</span>
+                <span i-carbon-arrow-right op40 />
+                <span op50 :class="m.data.distSize > m.data.sourceSize ? 'text-orange' : 'text-green'">{{ byteToHumanReadable(m.data.distSize) }}</span>
+              </template>
+            </div>
           </div>
         </RouterLink>
       </div>

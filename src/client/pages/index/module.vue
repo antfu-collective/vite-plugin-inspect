@@ -15,6 +15,7 @@ import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
 import { useStateStore } from '../../stores/state'
+import { useDataStore } from '../../stores/data'
 
 function getModuleId(fullPath?: string) {
   if (!fullPath)
@@ -24,11 +25,12 @@ function getModuleId(fullPath?: string) {
 }
 
 const state = useStateStore()
+const payload = useDataStore()
 
 const route = useRoute()
 const module = getModuleId(route.fullPath)
 const id = computed(() => getModuleId(route.fullPath))
-const data = ref(module ? await rpc.getIdInfo(module, inspectSSR.value) : undefined)
+const data = ref(module ? await rpc.getModuleTransformInfo(payload.query, module) : undefined)
 const index = useRouteQuery<string | undefined>('index')
 const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (data.value?.transforms.length || 1) - 1)
 const panelSize = useLocalStorage('vite-inspect-module-panel-size', '10')
@@ -52,16 +54,20 @@ const filteredTransforms = computed(() =>
   transforms.value?.filter(tr => state.view.showBailout || tr.result),
 )
 
-async function refetch() {
+async function refetch(clear = false) {
   if (id.value)
-    data.value = await rpc.getIdInfo(id.value, inspectSSR.value, true)
+    data.value = await rpc.getModuleTransformInfo(payload.query, id.value, clear)
 }
 
 onRefetch.on(async () => {
-  await refetch()
+  await refetch(true)
 })
 
-watch([id], refetch)
+watch(
+  () => [id.value, payload.query],
+  () => refetch(false),
+  { deep: true },
+)
 
 const lastTransform = computed(() =>
   transforms.value?.slice(0, currentIndex.value).reverse().find(tr => tr.result),
@@ -104,6 +110,7 @@ getHot().then((hot) => {
       <div i-carbon-arrow-left />
     </RouterLink>
     <ModuleId v-if="id" :id="id" />
+    <QuerySelector />
     <div flex-auto />
 
     <!-- <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">

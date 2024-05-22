@@ -1,39 +1,45 @@
+import type { ResolveIdInfo, TransformInfo } from '../types'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
-import type { ResolveIdInfo, TransformInfo } from './types'
 
 export class Recorder {
-  transform: Record<string, TransformInfo[]> = {}
-  resolveId: Record<string, ResolveIdInfo[]> = {}
-  transformCounter: Record<string, number> = {}
+  data: {
+    transform: Record<string, TransformInfo[]>
+    resolveId: Record<string, ResolveIdInfo[]>
+    transformCounter: Record<string, number>
+  } = {
+      transform: {},
+      resolveId: {},
+      transformCounter: {},
+    }
 
   recordTransform(id: string, info: TransformInfo, preTransformCode: string) {
     // initial transform (load from fs), add a dummy
-    if (!this.transform[id] || !this.transform[id].some(tr => tr.result)) {
-      this.transform[id] = [{
+    if (!this.data.transform[id] || !this.data.transform[id].some(tr => tr.result)) {
+      this.data.transform[id] = [{
         name: DUMMY_LOAD_PLUGIN_NAME,
         result: preTransformCode,
         start: info.start,
         end: info.start,
         sourcemaps: info.sourcemaps,
       }]
-      this.transformCounter[id] = (this.transformCounter[id] || 0) + 1
+      this.data.transformCounter[id] = (this.data.transformCounter[id] || 0) + 1
     }
     // record transform
-    this.transform[id].push(info)
+    this.data.transform[id].push(info)
   }
 
   recordLoad(id: string, info: TransformInfo) {
-    this.transform[id] = [info]
-    this.transformCounter[id] = (this.transformCounter[id] || 0) + 1
+    this.data.transform[id] = [info]
+    this.data.transformCounter[id] = (this.data.transformCounter[id] || 0) + 1
   }
 
   recordResolveId(id: string, info: ResolveIdInfo) {
-    if (!this.resolveId[id])
-      this.resolveId[id] = []
-    this.resolveId[id].push(info)
+    if (!this.data.resolveId[id])
+      this.data.resolveId[id] = []
+    this.data.resolveId[id].push(info)
   }
 
   invalidate(id: string) {
-    delete this.transform[id]
+    delete this.data.transform[id]
   }
 }

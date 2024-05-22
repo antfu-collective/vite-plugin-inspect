@@ -1,4 +1,4 @@
-import { createEventHook, useStorage } from '@vueuse/core'
+import { createEventHook } from '@vueuse/core'
 // import { computed, ref } from 'vue'
 // import type { ModulesList, QueryEnv } from '../../types'
 // import { rpc } from './rpc'
