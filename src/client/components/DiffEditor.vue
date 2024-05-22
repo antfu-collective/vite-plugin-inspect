@@ -3,8 +3,8 @@ import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
 import { Pane, Splitpanes } from 'splitpanes'
 import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
-import { lineWrapping } from '../logic/state'
 import { calculateDiffWithWorker } from '../worker/diff'
+import { useStateStore } from '../stores/state'
 
 const props = defineProps<{
   from: string
@@ -12,6 +12,9 @@ const props = defineProps<{
   oneColumn: boolean
   diff: boolean
 }>()
+
+const state = useStateStore()
+
 const { from, to } = toRefs(props)
 
 const panelSize = useLocalStorage('vite-inspect-diff-panel-size', 30)
@@ -45,8 +48,8 @@ onMounted(() => {
   syncCmHorizontalScrolling(cm1, cm2)
 
   watchEffect(() => {
-    cm1.setOption('lineWrapping', lineWrapping.value)
-    cm2.setOption('lineWrapping', lineWrapping.value)
+    cm1.setOption('lineWrapping', state.view.lineWrapping)
+    cm2.setOption('lineWrapping', state.view.lineWrapping)
   })
 
   watchEffect(() => {

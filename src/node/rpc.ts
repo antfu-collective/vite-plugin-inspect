@@ -18,10 +18,7 @@ export function createServerRpc(
     async getModulesList(query) {
       const vite = ctx.getViteContext(query.vite)
       const env = vite.getEnvContext(query.env)
-      return {
-        root: env.env.config.root,
-        modules: env.getModulesList(),
-      }
+      return env.getModulesList()
     },
     async moduleUpdated() {
 

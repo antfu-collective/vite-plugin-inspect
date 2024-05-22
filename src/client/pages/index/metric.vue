@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { inspectSSR, metricDisplayHook, onRefetch } from '../../logic'
+import {
+  // inspectSSR,
+  // metricDisplayHook,
+  onRefetch,
+} from '../../logic'
 import { getHot } from '../../logic/hot'
 import { isStaticMode, rpc } from '../../logic/rpc'
+import { useStateStore } from '../../stores/state'
 
-const data = ref(await rpc.getPluginMetrics(inspectSSR.value))
+const state = useStateStore()
+const metrics = ref(await rpc.getPluginMetrics())
 
 const selectedPlugin = ref('')
 
@@ -17,11 +23,11 @@ const displayHookOptions = ['transform', 'resolveId', isStaticMode ? '' : 'serve
 }))
 
 const plugins = computed(() => {
-  if (metricDisplayHook.value === 'server')
+  if (state.view.metricDisplayHook === 'server')
     return []
 
-  return data.value.map((info) => {
-    if (metricDisplayHook.value === 'transform') {
+  return metrics.value.map((info) => {
+    if (state.view.metricDisplayHook === 'transform') {
       return {
         name: info.name,
         enforce: info.enforce,
@@ -43,7 +49,7 @@ const plugins = computed(() => {
 })
 
 async function refetch() {
-  data.value = await rpc.getPluginMetrics(inspectSSR.value)
+  metrics.value = await rpc.getPluginMetrics(inspectSSR.value)
 }
 
 onRefetch.on(async () => {
@@ -58,7 +64,10 @@ function clearPlugin() {
   selectedPlugin.value = ''
 }
 
-watch(metricDisplayHook, clearPlugin)
+watch(
+  () => state.view.metricDisplayHook,
+  clearPlugin,
+)
 
 getHot().then((hot) => {
   if (hot) {
@@ -78,14 +87,19 @@ getHot().then((hot) => {
       Metrics
     </div>
     <SegmentControl
-      v-model="metricDisplayHook"
+      v-model="state.view.metricDisplayHook"
       :options="displayHookOptions"
     />
     <div flex-auto />
   </NavBar>
-  <Container v-if="data" of-auto>
-    <PluginChart v-if="selectedPlugin && metricDisplayHook !== 'server'" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
-    <ServerChart v-if="metricDisplayHook === 'server'" />
+  <Container v-if="metrics" of-auto>
+    <PluginChart
+      v-if="selectedPlugin && state.view.metricDisplayHook !== 'server'"
+      :plugin="selectedPlugin"
+      :hook="state.view.metricDisplayHook"
+      :exit="clearPlugin"
+    />
+    <ServerChart v-if=" state.view.metricDisplayHook === 'server'" />
     <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) text-sm font-mono">
       <div />
       <div class="text-xs font-bold">

@@ -37,10 +37,7 @@ export interface ModuleInfo {
   distSize: number
 }
 
-export interface ModulesList {
-  root: string
-  modules: ModuleInfo[]
-}
+export type ModulesList = ModuleInfo[]
 
 export interface ModuleTransformInfo {
   resolvedId: string

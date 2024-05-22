@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
-import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showBailout, showOneColumn } from '../../logic'
+import {
+  // enableDiff,
+  // inspectSSR,
+  inspectSourcemaps,
+  // lineWrapping,
+  onRefetch,
+  safeJsonParse,
+  // showBailout,
+  // showOneColumn,
+} from '../../logic'
 import { rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
+import { useStateStore } from '../../stores/state'
 
 function getModuleId(fullPath?: string) {
   if (!fullPath)
@@ -12,6 +22,8 @@ function getModuleId(fullPath?: string) {
 
   return new URL(fullPath, 'http://localhost').searchParams.get('id') || undefined
 }
+
+const state = useStateStore()
 
 const route = useRoute()
 const module = getModuleId(route.fullPath)
@@ -37,7 +49,7 @@ const transforms = computed(() => {
     }))
 })
 const filteredTransforms = computed(() =>
-  transforms.value?.filter(tr => showBailout.value || tr.result),
+  transforms.value?.filter(tr => state.view.showBailout || tr.result),
 )
 
 async function refetch() {
@@ -49,7 +61,7 @@ onRefetch.on(async () => {
   await refetch()
 })
 
-watch([id, inspectSSR], refetch)
+watch([id], refetch)
 
 const lastTransform = computed(() =>
   transforms.value?.slice(0, currentIndex.value).reverse().find(tr => tr.result),
@@ -92,29 +104,23 @@ getHot().then((hot) => {
       <div i-carbon-arrow-left />
     </RouterLink>
     <ModuleId v-if="id" :id="id" />
-    <Badge
-      v-if="inspectSSR"
-      class="bg-teal-400:10 text-green-700 font-bold dark:text-teal-400"
-    >
-      SSR
-    </Badge>
     <div flex-auto />
 
-    <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
+    <!-- <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
-    </button>
+    </button> -->
     <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
       <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">
-      <div i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+    <button text-lg icon-btn title="Line Wrapping" @click="state.view.lineWrapping = !state.view.lineWrapping">
+      <div i-carbon-text-wrap :class="state.view.lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Toggle one column" @click="showOneColumn = !showOneColumn">
-      <div v-if="showOneColumn" i-carbon-side-panel-open />
+    <button text-lg icon-btn title="Toggle one column" @click="state.view.showOneColumn = !state.view.showOneColumn">
+      <div v-if="state.view.showOneColumn" i-carbon-side-panel-open />
       <div v-else i-carbon-side-panel-close />
     </button>
-    <button class="text-lg icon-btn" title="Toggle Diff" @click="enableDiff = !enableDiff">
-      <div i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+    <button class="text-lg icon-btn" title="Toggle Diff" @click="state.view.diff = !state.view.diff">
+      <div i-carbon-compare :class="state.view.diff ? 'opacity-100' : 'opacity-25'" />
     </button>
   </NavBar>
   <Container
@@ -128,9 +134,12 @@ getHot().then((hot) => {
         overflow-y-auto
       >
         <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
-          <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
-          <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
-            <div :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
+          <span flex-auto text-center text-sm>TRANSFORM STACK</span>
+          <button
+            class="icon-btn" title="Toggle bailout plugins"
+            @click="state.view.showBailout = !state.view.showBailout"
+          >
+            <div :class="state.view.showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />
@@ -192,8 +201,8 @@ getHot().then((hot) => {
           <DiffEditor
             v-else
             :key="id"
-            :one-column="showOneColumn || !!currentTransform?.error"
-            :diff="enableDiff && !currentTransform?.error"
+            :one-column="state.view.showOneColumn || !!currentTransform?.error"
+            :diff="state.view.diff && !currentTransform?.error"
             :from="from" :to="to"
             h-unset
           />

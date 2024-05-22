@@ -14,7 +14,8 @@ import {
   TooltipComponent,
 } from 'echarts/components'
 import VChart from 'vue-echarts'
-import { isDark, searchResults } from '../logic'
+import { isDark } from '../logic'
+import { useSearchResults } from '../stores/search'
 
 const props = defineProps<{
   plugin: string
@@ -31,8 +32,10 @@ use([
   GridComponent,
 ])
 
+const search = useSearchResults()
+
 const sortedSearchResults = computed(() => {
-  return searchResults.value
+  return search.results
     .filter(({ plugins }) => {
       const plugin = plugins.find(({ name, ...hooks }) => name === props.plugin && hooks[props.hook])
       return plugin ? plugin[props.hook] : false

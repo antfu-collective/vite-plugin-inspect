@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import type { ModuleInfo } from '../../types'
-import { listMode, searchText } from '../logic'
+import { useStateStore } from '../stores/state'
 
 const props = defineProps<{
   modules: ModuleInfo[]
 }>()
 
+const state = useStateStore()
+
 const { list, containerProps, wrapperProps } = useVirtualList(
   toRef(props, 'modules'),
   {
-    itemHeight: listMode.value === 'detailed' ? 53 : 37,
+    itemHeight: state.view.listMode === 'detailed' ? 53 : 37,
   },
 )
 
@@ -27,7 +29,7 @@ function byteToHumanReadable(byte: number) {
 <template>
   <div v-if="modules" class="h-full">
     <div v-if="!modules.length" px-6 py-4 italic op50>
-      <div v-if="searchText">
+      <div v-if="state.search.text">
         No search result
       </div>
       <div v-else>
@@ -46,7 +48,7 @@ function byteToHumanReadable(byte: number) {
           :to="`/module?id=${encodeURIComponent(m.data.id)}`"
         >
           <ModuleId :id="m.data.id" />
-          <div v-if="listMode === &quot;detailed&quot;" text-xs flex="~ gap-1">
+          <div v-if="state.view.listMode === 'detailed'" text-xs flex="~ gap-1">
             <template
               v-for="(i, idx) in m.data.plugins
                 .slice(1)

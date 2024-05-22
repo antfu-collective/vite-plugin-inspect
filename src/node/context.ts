@@ -1,11 +1,12 @@
 import { Buffer } from 'node:buffer'
-import { nanoid } from 'nanoid'
 import type { PluginEnvironment, ResolvedConfig } from 'vite'
 import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
 import type { ModuleInfo, ResolveIdInfo } from '../types'
 import { Recorder } from './recorder'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
+
+let viteCount = 0
 
 export class InspectContext {
   _configToInstances = new Map<ResolvedConfig, InspectContextVite>()
@@ -37,7 +38,7 @@ export class InspectContext {
 
     if (this._configToInstances.has(configOrId))
       return this._configToInstances.get(configOrId)!
-    const id = nanoid()
+    const id = `vite${viteCount++}`
     const vite = new InspectContextVite(id, this, configOrId)
     this._idToInstances.set(id, vite)
     this._configToInstances.set(configOrId, vite)

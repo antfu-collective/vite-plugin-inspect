@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { currentModules, root } from '../logic'
+import { useDataStore } from '../stores/data'
 
 const props = defineProps<{ id?: string }>()
 
-const isVirtual = computed(() => currentModules.value?.modules.find(i => i.id === props.id)?.virtual)
+const data = useDataStore()
+
+const isVirtual = computed(() => data.modules.find(i => i.id === props.id)?.virtual)
 </script>
 
 <template>
   <div v-if="id" my-auto text-sm font-mono flex="~ items-center">
-    <template v-if="id.startsWith(root)">
+    <template v-if="id.startsWith(data.root)">
       <span class="op50">.</span>
-      <span>{{ id.slice(root.length) }}</span>
+      <span>{{ id.slice(data.root.length) }}</span>
     </template>
     <span v-else>{{ id }}</span>
     <slot />

@@ -1,23 +1,12 @@
 <script setup lang="ts">
-import {
-  currentInstance,
-  listMode,
-  metadata,
-  refetch,
-  searchResults,
-  searchText,
-  sortMode,
-  sortedSearchResults,
-  toggleMode,
-  toggleSort,
-} from '../logic'
+import { useStateStore } from '../stores/state'
+import { useSearchResults } from '../stores/search'
+
+const state = useStateStore()
+const search = useSearchResults()
 
 const route = useRoute()
 const isRoot = computed(() => route.path === '/')
-
-onMounted(() => {
-  refetch()
-})
 </script>
 
 <template>
@@ -27,22 +16,22 @@ onMounted(() => {
     <SearchBox />
     <div flex-auto />
 
-    <template v-if="listMode === 'detailed'">
+    <template v-if="state.view.listMode === 'detailed'">
       <button
         text-lg icon-btn title="Sort" flex="~ items-center"
-        :disabled="!!searchText"
-        :class="searchText ? 'op50 pointer-events-none' : ''"
-        @click="toggleSort()"
+        :disabled="!!state.search.text"
+        :class="state.search.text ? 'op50 pointer-events-none' : ''"
+        @click="state.toggleSort()"
       >
-        <template v-if="searchText">
+        <template v-if="state.search.text">
           <div i-carbon-search />
           <div i-carbon-arrow-down text-sm op70 />
         </template>
-        <template v-else-if="sortMode === 'time-asc'">
+        <template v-else-if="state.view.sort === 'time-asc'">
           <div i-carbon-time />
           <div i-carbon-arrow-down text-sm op70 />
         </template>
-        <template v-else-if="sortMode === 'time-desc'">
+        <template v-else-if="state.view.sort === 'time-desc'">
           <div i-carbon-time />
           <div i-carbon-arrow-up text-sm op70 />
         </template>
@@ -52,9 +41,9 @@ onMounted(() => {
         </template>
       </button>
     </template>
-    <button text-lg icon-btn title="View Mode" @click="toggleMode()">
-      <div v-if="listMode === 'detailed'" i-carbon-list-boxes />
-      <div v-else-if="listMode === 'list'" i-carbon-list />
+    <button text-lg icon-btn title="View Mode" @click="state.toggleListMode()">
+      <div v-if="state.view.listMode === 'detailed'" i-carbon-list-boxes />
+      <div v-else-if="state.view.listMode === 'list'" i-carbon-list />
       <div v-else i-carbon-network-4 />
     </button>
     <div h-full w-1 border="r main" />
@@ -64,8 +53,8 @@ onMounted(() => {
   </NavBar>
   <Container of-auto>
     <KeepAlive>
-      <Graph v-if="listMode === 'graph'" :modules="searchResults" />
-      <ModuleList v-else :modules="sortedSearchResults" />
+      <Graph v-if="state.view.listMode === 'graph'" :modules="search.results" />
+      <ModuleList v-else :modules="search.resultsSorted" />
     </KeepAlive>
   </Container>
   <div
