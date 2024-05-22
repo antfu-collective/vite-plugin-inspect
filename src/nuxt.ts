@@ -1,10 +1,10 @@
 import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
-import type { Options } from './node'
+import type { ViteInspectOptions } from './node'
 import Inspect from './node'
 
-export { Options as ModuleOptions }
+export { ViteInspectOptions as ModuleOptions }
 
-export default defineNuxtModule<Options>({
+export default defineNuxtModule<ViteInspectOptions>({
   meta: {
     name: 'vite-plugin-inspect',
     configKey: 'inspect',

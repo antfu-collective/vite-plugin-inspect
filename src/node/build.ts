@@ -6,9 +6,9 @@ import type { ModuleTransformInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
 import type { Recorder } from './recorder'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
-import type { ViteInspectContext } from './context'
+import type { InspectContext } from './context'
 
-export async function generateBuild(ctx: ViteInspectContext, config: ResolvedConfig) {
+export async function generateBuild(ctx: InspectContext, config: ResolvedConfig) {
   const {
     outputDir = '.vite-inspect',
   } = ctx.options

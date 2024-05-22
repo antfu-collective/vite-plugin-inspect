@@ -130,7 +130,7 @@
     "unplugin-vue-components": "^0.27.0",
     "vis-data": "7.1.7",
     "vis-network": "9.1.6",
-    "vite": "^5.2.11",
+    "vite": "^6.0.0-alpha.15",
     "vite-dev-rpc": "^0.1.4",
     "vite-hot-client": "^0.2.3",
     "vite-plugin-pages": "^0.32.1",
@@ -138,6 +138,14 @@
     "vue-echarts": "^6.7.2",
     "vue-router": "^4.3.2",
     "vue-tsc": "^2.0.19"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "6.0.0-alpha.15"
+    },
+    "patchedDependencies": {
+      "vite@6.0.0-alpha.15": "patches/vite@6.0.0-alpha.15.patch"
+    }
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"

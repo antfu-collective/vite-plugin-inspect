@@ -26,7 +26,7 @@ const router = useRouter()
 const data = computed<Data>(() => {
   const modules = (props.modules || [])
   const nodes: Data['nodes'] = modules.map((mod) => {
-    const path = mod.id.replace(/\?.*$/, '').replace(/\#.*$/, '')
+    const path = mod.id.replace(/\?.*$/, '').replace(/#.*$/, '')
     return {
       id: mod.id,
       label: path.split('/').splice(-1)[0],

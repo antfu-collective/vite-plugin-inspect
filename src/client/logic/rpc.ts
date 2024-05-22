@@ -1,12 +1,12 @@
 import { createRPCClient } from 'vite-dev-rpc'
 import type { BirpcReturn } from 'birpc'
 import { createHotContext } from 'vite-hot-client'
-import type { ModuleTransformInfo, RPCFunctions } from '../../types'
+import type { ModuleTransformInfo, RpcFunctions } from '../../types'
 import { refetch } from './state'
 
 export const isStaticMode = document.body.getAttribute('data-vite-inspect-mode') === 'BUILD'
 
-function createStaticRpcClient(): RPCFunctions {
+function createStaticRpcClient(): RpcFunctions {
   async function getIdInfo(id: string, ssr = false): Promise<ModuleTransformInfo> {
     const { hash } = await import('ohash')
     return await fetch(`./reports/${ssr ? 'transform-ssr' : 'transform'}/${hash(id)}.json`).then(r => r.json())
@@ -37,9 +37,9 @@ function createStaticRpcClient(): RPCFunctions {
 }
 
 export const rpc = isStaticMode
-  ? createStaticRpcClient() as BirpcReturn<RPCFunctions>
-  : createRPCClient<RPCFunctions, Pick<RPCFunctions, 'moduleUpdated'>>('vite-plugin-inspect', (await createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/')))!, {
-    moduleUpdated() {
+  ? createStaticRpcClient() as BirpcReturn<RpcFunctions>
+  : createRPCClient<RpcFunctions, Pick<RpcFunctions, 'moduleUpdated'>>('vite-plugin-inspect', (await createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/')))!, {
+    async moduleUpdated() {
       refetch()
     },
   })

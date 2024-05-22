@@ -1,4 +1,4 @@
-import { root } from './state'
+import { currentInstance } from './state'
 
 export function msToTime(ms: number) {
   if (ms <= 0.5)
@@ -19,8 +19,8 @@ export function msToTime(ms: number) {
 }
 
 export function clearRoot(path: string) {
-  if (path.startsWith(root.value))
-    return path.slice(root.value.length)
+  if (path.startsWith(currentInstance.value))
+    return path.slice(currentInstance.value.length)
   return path
 }
 

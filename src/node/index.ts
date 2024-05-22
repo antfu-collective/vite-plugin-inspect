@@ -4,14 +4,15 @@ import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
 import c from 'picocolors'
 import { debounce } from 'perfect-debounce'
-import type { HMRData, RPCFunctions } from '../types'
 import { DIR_CLIENT } from '../dir'
-import type { Options } from './options'
-import { ViteInspectContext } from './context'
+import type { HMRData, RpcFunctions } from '../types'
+import type { ViteInspectOptions } from './options'
 import { hijackPlugin } from './hijack'
 import { generateBuild } from './build'
 import { openBrowser } from './utils'
 import { createPreviewServer } from './preview'
+import { InspectContext } from './context'
+import { createServerRpc } from './rpc'
 
 export * from './options'
 
@@ -19,10 +20,10 @@ const NAME = 'vite-plugin-inspect'
 const isCI = !!process.env.CI
 
 export interface ViteInspectAPI {
-  rpc: RPCFunctions
+  rpc: RpcFunctions
 }
 
-export default function PluginInspect(options: Options = {}): Plugin {
+export default function PluginInspect(options: ViteInspectOptions = {}): Plugin {
   const {
     dev = true,
     build = false,
@@ -36,7 +37,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     }
   }
 
-  const ctx = new ViteInspectContext(options)
+  const ctx = new InspectContext(options)
 
   const timestampRE = /\bt=\d{13}&?\b/
   const trailingSeparatorRE = /[?&]$/
@@ -104,16 +105,19 @@ export default function PluginInspect(options: Options = {}): Plugin {
     })
   }
 
-  function configureServer(server: ViteDevServer): RPCFunctions {
-    const _invalidateModule = server.moduleGraph.invalidateModule
-    server.moduleGraph.invalidateModule = function (...args) {
-      const mod = args[0]
-      if (mod?.id) {
-        ctx.recorderClient.invalidate(mod.id)
-        ctx.recorderServer.invalidate(mod.id)
-      }
-      return _invalidateModule.apply(this, args)
-    }
+  function configureServer(server: ViteDevServer): RpcFunctions {
+    const config = server.config
+    Object.values(server.environments)
+      .forEach((env) => {
+        const envCtx = ctx.getEnvContext(env)
+        const _invalidateModule = env.moduleGraph.invalidateModule
+        env.moduleGraph.invalidateModule = function (...args) {
+          const mod = args[0]
+          if (mod?.id)
+            envCtx.invalidate(mod.id)
+          return _invalidateModule.apply(this, args)
+        }
+      })
 
     const base = (options.base ?? server.config.base) || '/'
 
@@ -122,17 +126,23 @@ export default function PluginInspect(options: Options = {}): Plugin {
       dev: true,
     }))
 
-    const rpcFunctions: RPCFunctions = {
-      list: () => ctx.getList(server),
-      getIdInfo,
-      getPluginMetrics: (ssr = false) => ctx.getPluginMetrics(ssr),
-      getServerMetrics,
-      resolveId: (id: string, ssr = false) => ctx.resolveId(id, ssr),
-      clear: clearId,
-      moduleUpdated: () => {},
-    }
+    const rpc = createServerRpc(ctx)
 
-    const rpcServer = createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
+    // const rpcFunctions: RPCFunctions = {
+    //   list: () => ctx.getList(server),
+    //   getIdInfo,
+    //   getPluginMetrics: (ssr = false) => ctx.getPluginMetrics(ssr),
+    //   getServerMetrics,
+    //   resolveId: (id: string, ssr = false) => ctx.resolveId(id, ssr),
+    //   clear: clearId,
+    //   moduleUpdated: () => {},
+    // }
+
+    const rpcServer = createRPCServer<RpcFunctions>(
+      'vite-plugin-inspect',
+      server.ws,
+      rpc,
+    )
 
     const debouncedModuleUpdated = debounce(() => {
       rpcServer.moduleUpdated.asEvent()
@@ -205,7 +215,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     }
 
-    return rpcFunctions
+    return rpc
   }
 
   const plugin = <Plugin>{
@@ -218,8 +228,8 @@ export default function PluginInspect(options: Options = {}): Plugin {
         return true
       return false
     },
-    configResolved(_config) {
-      config = ctx.config = _config
+    configResolved(config) {
+      // config = ctx.config = _config
       config.plugins.forEach(plugin => hijackPlugin(plugin, ctx))
       const _createResolver = config.createResolver
       // @ts-expect-error mutate readonly
@@ -237,8 +247,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
           if (result && result !== id) {
             const pluginName = aliasOnly ? 'alias' : 'vite:resolve (+alias)'
-            ctx
-              .getRecorder(ssr)
+            const vite = ctx.getViteContext(config)
+            const env = vite.getEnvContext(ssr ? 'ssr' : 'client')
+            env
               .recordResolveId(id, { name: pluginName, result, start, end })
           }
 
@@ -258,14 +269,15 @@ export default function PluginInspect(options: Options = {}): Plugin {
     },
     load: {
       order: 'pre',
-      handler(id, { ssr } = {}) {
-        ctx.getRecorder(ssr).invalidate(id)
+      handler(id) {
+        ctx.getEnvContext(this.environment)
+          .invalidate(id)
         return null
       },
     },
-    handleHotUpdate({ modules, server }) {
+    hotUpdate({ modules, environment }) {
       const ids = modules.map(module => module.id)
-      server.ws.send({
+      environment.hot.send({
         type: 'custom',
         event: 'vite-plugin-inspect:update',
         data: { ids } as HMRData,
@@ -282,8 +294,4 @@ export default function PluginInspect(options: Options = {}): Plugin {
     },
   }
   return plugin
-}
-
-PluginInspect.getViteInspectAPI = function (plugins: Plugin[]): ViteInspectAPI | undefined {
-  return plugins.find(p => p.name === NAME)?.api
 }

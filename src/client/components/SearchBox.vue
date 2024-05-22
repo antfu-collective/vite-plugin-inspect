@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { exactSearch, includeNodeModules, includeVirtual, inspectSSR, searchText } from '../logic'
+import {
+  currentInstance,
+  currentQuery,
+  exactSearch,
+  includeNodeModules,
+  includeVirtual,
+  searchText,
+} from '../logic'
 </script>
 
 <template>
@@ -19,14 +26,28 @@ import { exactSearch, includeNodeModules, includeVirtual, inspectSSR, searchText
         <input v-model="includeVirtual" type="checkbox" class="my-auto">
         <div class="ml-1">virtual</div>
       </label>
-      <label class="flex">
+      <!-- <label class="flex">
         <input v-model="inspectSSR" type="checkbox" class="my-auto">
         <div class="ml-1">ssr</div>
-      </label>
+      </label> -->
       <label class="flex">
         <input v-model="exactSearch" type="checkbox" class="my-auto">
         <div class="ml-1">exact search</div>
       </label>
+    </div>
+  </div>
+  <div>
+    <div flex="~ gap-1 items-center" border="~ subtle rounded" bg-subtle p1>
+      <Badge
+        v-for="env in currentInstance.environments"
+        :key="env"
+        size="none"
+        as="button" px2 py1 text-xs font-mono
+        :class="currentQuery.env === env ? '' : 'op50'"
+        :text="env"
+        :color="currentQuery.env === env"
+        @click="currentQuery.env = env"
+      />
     </div>
   </div>
 </template>

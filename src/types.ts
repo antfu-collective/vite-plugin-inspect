@@ -40,7 +40,6 @@ export interface ModuleInfo {
 export interface ModulesList {
   root: string
   modules: ModuleInfo[]
-  ssrModules: ModuleInfo[]
 }
 
 export interface ModuleTransformInfo {
@@ -61,16 +60,46 @@ export interface PluginMetricInfo {
   }
 }
 
-export interface RPCFunctions {
-  list(): Awaitable<ModulesList>
-  getIdInfo(id: string, ssr: boolean, clear?: boolean): Awaitable<ModuleTransformInfo>
-  resolveId(id: string, ssr: boolean): Awaitable<string>
-  clear(id: string, ssr: boolean): Awaitable<void>
-  getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
-  getServerMetrics(): Awaitable<Record<string, Record<string, { name: string, self: number, total: number }[]>>>
-  moduleUpdated(): void
-}
-
 export interface HMRData {
   ids: (string | null)[]
+}
+
+export interface InstanceInfo {
+  root: string
+  /**
+   * Vite instance ID
+   */
+  vite: string
+  /**
+   * Environment names
+   */
+  environments: string[]
+}
+
+export interface Metadata {
+  instances: InstanceInfo[]
+}
+
+export interface RpcFunctions {
+  getMetadata: () => Promise<Metadata>
+  getModulesList: (query: QueryEnv) => Promise<ModulesList>
+  moduleUpdated: () => Promise<void>
+}
+
+export interface QueryEnv {
+  /**
+   * Vite instance ID
+   */
+  vite: string
+  /**
+   * Environment name
+   */
+  env: string
+}
+
+export interface QueryId extends QueryEnv {
+  /**
+   * Module Id
+   */
+  id: string
 }

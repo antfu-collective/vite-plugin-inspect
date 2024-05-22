@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { list, root } from '../logic'
+import { currentModules, root } from '../logic'
 
 const props = defineProps<{ id?: string }>()
 
-const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id)?.virtual)
+const isVirtual = computed(() => currentModules.value?.modules.find(i => i.id === props.id)?.virtual)
 </script>
 
 <template>

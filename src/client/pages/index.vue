@@ -1,5 +1,16 @@
 <script setup lang="ts">
-import { listMode, refetch, searchResults, searchText, sortMode, sortedSearchResults, toggleMode, toggleSort } from '../logic'
+import {
+  currentInstance,
+  listMode,
+  metadata,
+  refetch,
+  searchResults,
+  searchText,
+  sortMode,
+  sortedSearchResults,
+  toggleMode,
+  toggleSort,
+} from '../logic'
 
 const route = useRoute()
 const isRoot = computed(() => route.path === '/')
@@ -12,6 +23,7 @@ onMounted(() => {
 <template>
   <NavBar>
     <div i-carbon-ibm-watson-discovery title="Vite Inspect" text-xl />
+
     <SearchBox />
     <div flex-auto />
 

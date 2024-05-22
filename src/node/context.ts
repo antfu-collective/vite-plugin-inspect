@@ -1,77 +1,113 @@
-import { resolve } from 'node:path'
 import { Buffer } from 'node:buffer'
+import { nanoid } from 'nanoid'
+import type { PluginEnvironment, ResolvedConfig } from 'vite'
+import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
-import type { ResolvedConfig, ViteDevServer } from 'vite'
-import type { ModuleInfo, PluginMetricInfo, ResolveIdInfo } from '../types'
+import type { ModuleInfo, ResolveIdInfo } from '../types'
 import { Recorder } from './recorder'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 
-export class ViteInspectContext {
+export class InspectContext {
+  _configToInstances = new Map<ResolvedConfig, InspectContextVite>()
+  _idToInstances = new Map<string, InspectContextVite>()
+
   public filter: (id: string) => boolean
-  public config: ResolvedConfig = undefined!
 
-  public recorderClient = new Recorder()
-  public recorderServer = new Recorder()
-
-  constructor(public options: any) {
+  constructor(
+    public options: {
+      /**
+       * Filter for modules to be inspected
+       */
+      include?: FilterPattern
+      /**
+       * Filter for modules to not be inspected
+       */
+      exclude?: FilterPattern
+    },
+  ) {
     this.filter = createFilter(options.include, options.exclude)
   }
 
-  getRecorder(ssr: boolean | undefined) {
-    return ssr
-      ? this.recorderServer
-      : this.recorderClient
+  getViteContext(configOrId: ResolvedConfig | string): InspectContextVite {
+    if (typeof configOrId === 'string') {
+      if (!this._idToInstances.has(configOrId))
+        throw new Error(`Can not found vite context for ${configOrId}`)
+      return this._idToInstances.get(configOrId)!
+    }
+
+    if (this._configToInstances.has(configOrId))
+      return this._configToInstances.get(configOrId)!
+    const id = nanoid()
+    const vite = new InspectContextVite(id, this, configOrId)
+    this._idToInstances.set(id, vite)
+    this._configToInstances.set(configOrId, vite)
+    return vite
   }
 
-  resolveId(id = '', ssr = false): string {
-    if (id.startsWith('./'))
-      id = resolve(this.config.root, id).replace(/\\/g, '/')
-    return this.resolveIdRecursive(id, ssr)
+  getEnvContext(env?: PluginEnvironment) {
+    if (!env)
+      throw new Error('Environment is required')
+    const vite = this.getViteContext(env.config)
+    return vite.getEnvContext(env)
+  }
+}
+
+export class InspectContextVite {
+  readonly environments = new Map<string, InspectContextViteEnv>()
+
+  constructor(
+    public readonly id: string,
+    public readonly context: InspectContext,
+    public readonly config: ResolvedConfig,
+  ) {}
+
+  getEnvContext(env: PluginEnvironment | string) {
+    if (typeof env === 'string') {
+      if (!this.environments.has(env))
+        throw new Error(`Can not found environment context for ${env}`)
+      return this.environments.get(env)!
+    }
+
+    if (env.config !== this.config)
+      throw new Error('Environment config does not match Vite config')
+    if (!this.environments.has(env.name))
+      this.environments.set(env.name, new InspectContextViteEnv(this.context, this, env))
+    return this.environments.get(env.name)!
+  }
+}
+
+export class InspectContextViteEnv extends Recorder {
+  constructor(
+    public readonly contextMain: InspectContext,
+    public readonly contextVite: InspectContextVite,
+    public readonly env: PluginEnvironment,
+  ) {
+    super()
   }
 
-  private resolveIdRecursive(id: string, ssr = false): string {
-    const rec = this.getRecorder(ssr)
-    const resolved = rec.resolveId[id]?.[0]?.result
-    return resolved
-      ? this.resolveIdRecursive(resolved, ssr)
-      : id
-  }
+  getModulesList() {
+    const moduleGraph = this.env.mode === 'dev' ? this.env.moduleGraph : undefined
 
-  getList(server: ViteDevServer) {
-    const isVirtual = (pluginName: string) => pluginName !== DUMMY_LOAD_PLUGIN_NAME
-    const getDeps = (id: string) => Array.from(server.moduleGraph.getModuleById(id)?.importedModules || [])
+    const getDeps = (id: string) => Array.from(moduleGraph?.getModuleById(id)?.importedModules || [])
       .map(i => i.id || '')
       .filter(Boolean)
+    const isVirtual = (pluginName: string, transformName: string) => pluginName !== DUMMY_LOAD_PLUGIN_NAME && transformName !== 'vite:load-fallback'
 
-    return {
-      root: this.config.root,
-      modules: this.getModulesInfo(this.recorderClient, getDeps, isVirtual),
-      ssrModules: this.getModulesInfo(this.recorderServer, getDeps, isVirtual),
-    }
-  }
+    const transformedIdMap = Object.values(this.resolveId).reduce((map, ids) => {
+      ids.forEach((id) => {
+        map[id.result] ??= []
+        map[id.result].push(id)
+      })
+      return map
+    }, {} as Record<string, ResolveIdInfo[]>)
 
-  getModulesInfo(
-    recorder: Recorder,
-    getDeps: ((id: string) => string[]) | null,
-    isVirtual: (pluginName: string, transformName: string) => boolean,
-  ) {
-    function transformIdMap(recorder: Recorder) {
-      return Object.values(recorder.resolveId).reduce((map, ids) => {
-        ids.forEach((id) => {
-          map[id.result] ??= []
-          map[id.result].push(id)
-        })
-        return map
-      }, {} as Record<string, ResolveIdInfo[]>)
-    }
-
-    const transformedIdMap = transformIdMap(recorder)
-    const ids = new Set(Object.keys(recorder.transform).concat(Object.keys(transformedIdMap)))
+    const ids = new Set(Object.keys(this.transform)
+      .concat(Object.keys(transformedIdMap)))
 
     return Array.from(ids).sort()
       .map((id): ModuleInfo => {
         let totalTime = 0
-        const plugins = (recorder.transform[id] || [])
+        const plugins = (this.transform[id] || [])
           .filter(tr => tr.result)
           .map((transItem) => {
             const delta = transItem.end - transItem.start
@@ -95,56 +131,12 @@ export class ViteInspectContext {
           id,
           deps: getDeps ? getDeps(id) : [],
           plugins,
-          virtual: isVirtual(plugins[0]?.name || '', recorder.transform[id]?.[0].name || ''),
+          virtual: isVirtual(plugins[0]?.name || '', this.transform[id]?.[0].name || ''),
           totalTime,
-          invokeCount: recorder.transformCounter?.[id] || 0,
-          sourceSize: getSize(recorder.transform[id]?.[0]?.result),
-          distSize: getSize(recorder.transform[id]?.[recorder.transform[id].length - 1]?.result),
+          invokeCount: this.transformCounter?.[id] || 0,
+          sourceSize: getSize(this.transform[id]?.[0]?.result),
+          distSize: getSize(this.transform[id]?.[this.transform[id].length - 1]?.result),
         }
       })
-  }
-
-  getPluginMetrics(ssr = false) {
-    const map: Record<string, PluginMetricInfo> = {}
-    const defaultMetricInfo = (): Pick<PluginMetricInfo, 'transform' | 'resolveId'> => ({
-      transform: { invokeCount: 0, totalTime: 0 },
-      resolveId: { invokeCount: 0, totalTime: 0 },
-    })
-
-    this.config.plugins.forEach((i) => {
-      map[i.name] = {
-        ...defaultMetricInfo(),
-        name: i.name,
-        enforce: i.enforce,
-      }
-    })
-
-    const recorder = this.getRecorder(ssr)
-    Object.values(recorder.transform)
-      .forEach((transformInfos) => {
-        transformInfos.forEach(({ name, start, end }) => {
-          if (name === DUMMY_LOAD_PLUGIN_NAME)
-            return
-          if (!map[name])
-            map[name] = { ...defaultMetricInfo(), name }
-          map[name].transform.totalTime += end - start
-          map[name].transform.invokeCount += 1
-        })
-      })
-
-    Object.values(recorder.resolveId)
-      .forEach((resolveIdInfos) => {
-        resolveIdInfos.forEach(({ name, start, end }) => {
-          if (!map[name])
-            map[name] = { ...defaultMetricInfo(), name }
-          map[name].resolveId.totalTime += end - start
-          map[name].resolveId.invokeCount += 1
-        })
-      })
-
-    const metrics = Object.values(map).filter(Boolean)
-      .sort((a, b) => a.name.localeCompare(b.name))
-
-    return metrics
   }
 }
