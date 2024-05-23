@@ -7,7 +7,7 @@ export const useSearchResults = defineStore('search', () => {
   const state = useOptionsStore()
   const data = usePayloadStore()
 
-  const results = computed(() => {
+  const filtered = computed(() => {
     let modules = data.modules || []
 
     if (!state.search.includeUnreached)
@@ -19,6 +19,11 @@ export const useSearchResults = defineStore('search', () => {
     if (!state.search.includeVirtual)
       modules = modules.filter(item => !item.virtual)
 
+    return modules
+  })
+
+  const results = computed(() => {
+    const modules = filtered.value
     if (!state.search.text)
       return modules
 
@@ -51,5 +56,6 @@ export const useSearchResults = defineStore('search', () => {
   return {
     results,
     resultsSorted,
+    filtered,
   }
 })

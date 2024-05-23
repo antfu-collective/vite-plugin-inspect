@@ -68,7 +68,7 @@ const isRoot = computed(() => route.path === '/')
   </NavBar>
   <Container of-auto>
     <KeepAlive>
-      <Graph v-if="options.view.listMode === 'graph'" :modules="search.results" />
+      <Graph v-if="options.view.listMode === 'graph'" />
       <ModuleList v-else :modules="search.resultsSorted" />
     </KeepAlive>
   </Container>
