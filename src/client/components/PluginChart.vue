@@ -141,7 +141,7 @@ const chartStyle = computed(() => {
 
 <template>
   <div class="h-full w-[calc(100vw-100px)] translate-x-0 transform overflow-auto border-none shadow-lg transition-transform duration-300 bg-main">
-    <NavBar>
+    <NavBar name="plugin">
       <a class="my-auto icon-btn !outline-none" @click="props.exit()">
         <div i-carbon-chevron-left />
       </a>

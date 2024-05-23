@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import type { Metadata, ModulesList, QueryEnv } from '../../types'
-import { rpc } from '../logic/rpc'
+import { onModuleUpdated, rpc } from '../logic/rpc'
 
-export const useDataStore = defineStore('data', () => {
+export const usePayloadStore = defineStore('payload', () => {
   const isLoading = ref(false)
   const metadata = shallowRef<Metadata>({
     instances: [],
@@ -25,6 +25,11 @@ export const useDataStore = defineStore('data', () => {
       () => doQuery(),
       { deep: true },
     )
+
+    onModuleUpdated.on(async () => {
+      queryCache.clear()
+      await doQuery()
+    })
   }
 
   async function doQuery() {

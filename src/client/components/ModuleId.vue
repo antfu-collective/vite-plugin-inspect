@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useDataStore } from '../stores/data'
+import { usePayloadStore } from '../stores/payload'
 
 const props = defineProps<{ id?: string }>()
 
-const data = useDataStore()
+const payload = usePayloadStore()
 
-const isVirtual = computed(() => data.modules.find(i => i.id === props.id)?.virtual)
+const isVirtual = computed(() => payload.modules.find(i => i.id === props.id)?.virtual)
 </script>
 
 <template>
   <div v-if="id" my-auto text-sm font-mono flex="~ items-center">
-    <template v-if="id.startsWith(data.root)">
+    <template v-if="id.startsWith(payload.root)">
       <span class="op50">.</span>
-      <span>{{ id.slice(data.root.length) }}</span>
+      <span>{{ id.slice(payload.root.length) }}</span>
     </template>
     <span v-else>{{ id }}</span>
     <slot />

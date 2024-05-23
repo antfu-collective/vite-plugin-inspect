@@ -56,6 +56,10 @@ export interface PluginMetricInfo {
   }
 }
 
+export interface ServerMetrics {
+  middleware?: Record<string, { name: string, self: number, total: number }[]>
+}
+
 export interface HMRData {
   ids: (string | null)[]
 }
@@ -81,6 +85,7 @@ export interface RpcFunctions {
   getModulesList: (query: QueryEnv) => Promise<ModulesList>
   getModuleTransformInfo: (query: QueryEnv, id: string, clear?: boolean) => Promise<ModuleTransformInfo>
   getPluginMetrics: (query: QueryEnv) => Promise<PluginMetricInfo[]>
+  getServerMetrics: (query: QueryEnv) => Promise<ServerMetrics>
   resolveId: (query: QueryEnv, id: string) => Promise<string>
   onModuleUpdated: () => Promise<void>
 }

@@ -2,12 +2,20 @@
 import type { Data, Options } from 'vis-network'
 import { Network } from 'vis-network'
 import type { ModuleInfo } from '../../types'
-import { getModuleWeight, graphWeightMode, isDark } from '../logic'
+import { isDark } from '../logic'
 import { colors } from '../../../color'
+import { useOptionsStore } from '../stores/options'
 
 const props = defineProps<{
   modules?: ModuleInfo[]
 }>()
+
+const options = useOptionsStore()
+
+function getModuleWeight(mod: ModuleInfo, mode: 'deps' | 'transform' | 'resolveId') {
+  const value = 10 + (mode === 'deps' ? Math.min(mod.deps.length, 30) : Math.min(mod.plugins.reduce((total, plg) => total + (plg[mode as 'transform' | 'resolveId'] || 0), 0) / 20, 30))
+  return value
+}
 
 const container = ref<HTMLDivElement | null>()
 const weightItems = [
@@ -31,7 +39,7 @@ const data = computed<Data>(() => {
       id: mod.id,
       label: path.split('/').splice(-1)[0],
       group: path.match(/\.(\w+)$/)?.[1] || 'unknown',
-      size: getModuleWeight(mod, graphWeightMode.value),
+      size: getModuleWeight(mod, options.view.graphWeightMode),
       font: { color: isDark.value ? 'white' : 'black' },
       shape: mod.id.includes('/node_modules/')
         ? 'hexagon'
@@ -140,7 +148,7 @@ onMounted(() => {
     >
       <span text-sm op50>weight by</span>
       <RadioGroup
-        v-model="graphWeightMode"
+        v-model="options.view.graphWeightMode"
         flex-col text-sm
         name="weight"
         :options="weightItems"

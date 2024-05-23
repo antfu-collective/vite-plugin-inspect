@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { isStaticMode } from './logic'
-import { useDataStore } from './stores/data'
+import { usePayloadStore } from './stores/payload'
 
 onMounted(() => {
   if (isStaticMode)
     document.title = 'Vite Inspect (Production)'
 })
 
-const data = useDataStore()
-await data.init()
+const payload = usePayloadStore()
+await payload.init()
 </script>
 
 <template>
@@ -21,3 +21,4 @@ await data.init()
     </Suspense>
   </main>
 </template>
+./stores/payload

@@ -1,16 +1,26 @@
 <script setup lang="ts">
 import {
   isStaticMode,
-  refetch,
   toggleDark,
 } from '../logic'
+import {
+  onUserRefresh,
+} from '../logic/rpc'
+
+const props = defineProps<{
+  name: string
+}>()
 </script>
 
 <template>
   <nav h-54px flex="~ none gap-5" border="b main" pl-4 pr-6 font-light children:my-auto>
     <slot />
     <slot name="actions">
-      <button v-if="!isStaticMode" class="text-lg icon-btn" title="Refetch" @click="refetch()">
+      <button
+        v-if="!isStaticMode"
+        class="text-lg icon-btn" title="Refetch"
+        @click="onUserRefresh.trigger(props.name)"
+      >
         <div i-carbon-renew />
       </button>
       <div h-full w-1 border="r main" />

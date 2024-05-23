@@ -11,6 +11,7 @@ import { hijackPlugin } from './hijack'
 import { generateBuild } from './build'
 import { openBrowser } from './utils'
 import { createPreviewServer } from './preview'
+import type { InspectContextVite } from './context'
 import { InspectContext } from './context'
 import { createServerRpc } from './rpc'
 
@@ -42,23 +43,19 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
   const timestampRE = /\bt=\d{13}&?\b/
   const trailingSeparatorRE = /[?&]$/
 
-  let config: ResolvedConfig
-  const serverPerf: {
-    middleware?: Record<string, { name: string, total: number, self: number }[]>
-  } = {
-    middleware: {},
-  }
-
   // a hack for wrapping connect server stack
   // see https://github.com/senchalabs/connect/blob/0a71c6b139b4c0b7d34c0f3fca32490595ecfd60/index.js#L50-L55
-  function setupMiddlewarePerf(middlewares: Connect.Server['stack']) {
+  function setupMiddlewarePerf(
+    ctx: InspectContextVite,
+    middlewares: Connect.Server['stack'],
+  ) {
     let firstMiddlewareIndex = -1
     middlewares.forEach((middleware, index) => {
       const { handle: originalHandle } = middleware
       if (typeof originalHandle !== 'function' || !originalHandle.name)
         return middleware
 
-      middleware.handle = (...middlewareArgs: any[]) => {
+      middleware.handle = function (...middlewareArgs: any[]) {
         let req: any
         if (middlewareArgs.length === 4)
           [, req] = middlewareArgs
@@ -67,25 +64,25 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
         const start = Date.now()
         const url = req.url?.replace(timestampRE, '').replace(trailingSeparatorRE, '')
-        serverPerf.middleware![url] ??= []
+        ctx.data.serverMetrics.middleware![url] ??= []
 
         if (firstMiddlewareIndex < 0)
           firstMiddlewareIndex = index
 
         // clear middleware timing
         if (index === firstMiddlewareIndex)
-          serverPerf.middleware![url] = []
+          ctx.data.serverMetrics.middleware![url] = []
 
         // @ts-expect-error handle needs 3 or 4 arguments
-        const result = originalHandle(...middlewareArgs)
+        const result = originalHandle.apply(this, middlewareArgs)
 
         Promise.resolve(result)
           .then(() => {
             const total = Date.now() - start
-            const metrics = serverPerf.middleware![url]
+            const metrics = ctx.data.serverMetrics.middleware![url]
 
             // middleware selfTime = totalTime - next.totalTime
-            serverPerf.middleware![url].push({
+            ctx.data.serverMetrics.middleware![url].push({
               self: metrics.length ? Math.max(total - metrics[metrics.length - 1].total, 0) : total,
               total,
               name: originalHandle.name,
@@ -143,11 +140,6 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       next()
     })
 
-    // TODO:
-    function _getServerMetrics() {
-      return serverPerf || {}
-    }
-
     const _print = server.printUrls
     server.printUrls = () => {
       let host = `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
@@ -194,7 +186,6 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       return false
     },
     configResolved(config) {
-      // config = ctx.config = _config
       config.plugins.forEach(plugin => hijackPlugin(plugin, ctx))
       const _createResolver = config.createResolver
       // @ts-expect-error mutate readonly
@@ -229,7 +220,10 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       }
 
       return () => {
-        setupMiddlewarePerf(server.middlewares.stack)
+        setupMiddlewarePerf(
+          ctx.getViteContext(server.config),
+          server.middlewares.stack,
+        )
       }
     },
     load: {
@@ -251,7 +245,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
     async buildEnd() {
       if (!build)
         return
-      const dir = await generateBuild(ctx, config)
+      const dir = await generateBuild(ctx)
       // eslint-disable-next-line no-console
       console.log(c.green('Inspect report generated at'), c.dim(`${dir}`))
       if (_open && !isCI)

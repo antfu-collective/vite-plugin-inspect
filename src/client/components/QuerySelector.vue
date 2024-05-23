@@ -1,22 +1,19 @@
 <script setup lang="ts">
-import { useDataStore } from '../stores/data'
+import { usePayloadStore } from '../stores/payload'
 
-const data = useDataStore()
+const payload = usePayloadStore()
 </script>
 
 <template>
-  <div>
-    <div flex="~ gap-1 items-center" border="~ subtle rounded" bg-subtle p1>
-      <Badge
-        v-for="env in data.instance.environments"
-        :key="env"
-        size="none"
-        as="button" px2 py1 text-xs font-mono
-        :class="data.query.env === env ? '' : 'op50'"
-        :text="env"
-        :color="data.query.env === env"
-        @click="data.query.env = env"
-      />
-    </div>
+  <div flex="~ gap-2">
+    <SegmentControl
+      v-if="payload.metadata.instances.length > 1"
+      v-model="payload.query.vite"
+      :options="payload.metadata.instances.map(i => ({ label: i.vite, value: i.vite }))"
+    />
+    <SegmentControl
+      v-model="payload.query.env"
+      :options="payload.instance.environments.map(i => ({ label: i, value: i }))"
+    />
   </div>
 </template>

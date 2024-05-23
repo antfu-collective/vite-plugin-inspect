@@ -2,40 +2,12 @@ import { createRPCClient } from 'vite-dev-rpc'
 import type { BirpcReturn } from 'birpc'
 import { createHotContext } from 'vite-hot-client'
 import type { RpcFunctions } from '../../types'
-import { refetch } from './state'
+import { createStaticRpcClient } from './rpc-static'
+
+export const onModuleUpdated = createEventHook<void>()
+export const onUserRefresh = createEventHook<string>()
 
 export const isStaticMode = document.body.getAttribute('data-vite-inspect-mode') === 'BUILD'
-
-function createStaticRpcClient(): RpcFunctions {
-  // async function getIdInfo(id: string, ssr = false): Promise<ModuleTransformInfo> {
-  //   const { hash } = await import('ohash')
-  //   return await fetch(`./reports/${ssr ? 'transform-ssr' : 'transform'}/${hash(id)}.json`).then(r => r.json())
-  // }
-
-  // return {
-  //   list: async () => {
-  //     return await fetch('./reports/list.json').then(r => r.json())
-  //   },
-  //   async resolveId(id, ssr) {
-  //     return (await getIdInfo(id, ssr)).resolvedId || id
-  //   },
-  //   async clear() {},
-  //   async getPluginMetrics(ssr: boolean) {
-  //     try {
-  //       return await fetch(`./reports/${ssr ? 'metrics-ssr' : 'metrics'}.json`).then(r => r.json())
-  //     }
-  //     catch (e) {
-  //       return []
-  //     }
-  //   },
-  //   async getServerMetrics() {
-  //     return {}
-  //   },
-  //   getIdInfo,
-  //   onModuleUpdated() {},
-  // }
-  return undefined!
-}
 
 export const rpc = isStaticMode
   ? createStaticRpcClient() as BirpcReturn<RpcFunctions>
@@ -44,7 +16,7 @@ export const rpc = isStaticMode
     (await createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/')))!,
     {
       async onModuleUpdated() {
-        refetch()
+        onModuleUpdated.trigger()
       },
     },
   )

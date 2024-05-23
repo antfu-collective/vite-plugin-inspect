@@ -1,13 +1,17 @@
 import { defineStore } from 'pinia'
 
+// @keep-sorted
 export interface ViewState {
   diff: boolean
+  graphWeightMode: 'deps' | 'transform' | 'resolveId'
   lineWrapping: boolean
-  showOneColumn: boolean
-  showBailout: boolean
   listMode: 'graph' | 'list' | 'detailed'
-  sort: 'default' | 'time-asc' | 'time-desc'
   metricDisplayHook: 'transform' | 'resolveId' | 'server'
+  panelSizeDiff: number
+  panelSizeModule: number
+  showBailout: boolean
+  showOneColumn: boolean
+  sort: 'default' | 'time-asc' | 'time-desc'
 }
 
 export interface SearchState {
@@ -17,17 +21,21 @@ export interface SearchState {
   exactSearch: boolean
 }
 
-export const useStateStore = defineStore('state', () => {
+export const useOptionsStore = defineStore('options', () => {
   const view = useStorage<ViewState>(
     'vite-inspect-v1-options',
+    // @keep-sorted
     {
       diff: true,
+      graphWeightMode: 'deps',
       lineWrapping: false,
-      showOneColumn: false,
-      showBailout: false,
       listMode: 'detailed',
-      sort: 'default',
       metricDisplayHook: 'transform',
+      panelSizeDiff: 30,
+      panelSizeModule: 10,
+      showBailout: false,
+      showOneColumn: false,
+      sort: 'default',
     },
     undefined,
     { mergeDefaults: true },

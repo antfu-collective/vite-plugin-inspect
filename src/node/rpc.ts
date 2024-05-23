@@ -6,14 +6,7 @@ export function createServerRpc(
 ): RpcFunctions {
   const rpc: RpcFunctions = {
     async getMetadata() {
-      return {
-        instances: [...ctx._idToInstances.values()]
-          .map(vite => ({
-            root: vite.config.root,
-            vite: vite.id,
-            environments: [...vite.environments.keys()],
-          })),
-      }
+      return ctx.getMetadata()
     },
     async getModulesList(query) {
       return ctx.queryEnv(query).getModulesList()
@@ -26,6 +19,10 @@ export function createServerRpc(
     },
     async resolveId(query, id) {
       return ctx.queryEnv(query).resolveId(id)
+    },
+    async getServerMetrics(query) {
+      return ctx.getViteContext(query.vite)
+        .data.serverMetrics || {}
     },
     async onModuleUpdated() {},
   }

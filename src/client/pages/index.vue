@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useStateStore } from '../stores/state'
+import { useOptionsStore } from '../stores/options'
 import { useSearchResults } from '../stores/search'
 
-const state = useStateStore()
+const state = useOptionsStore()
 const search = useSearchResults()
 
 const route = useRoute()
@@ -10,7 +10,7 @@ const isRoot = computed(() => route.path === '/')
 </script>
 
 <template>
-  <NavBar>
+  <NavBar name="main">
     <div i-carbon-ibm-watson-discovery title="Vite Inspect" text-xl />
 
     <SearchBox />

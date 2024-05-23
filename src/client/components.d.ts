@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Badge: typeof import('./components/Badge.vue')['default']
-    ColorBadge: typeof import('./components/ColorBadge.vue')['default']
     Container: typeof import('./components/Container.vue')['default']
     DiffEditor: typeof import('./components/DiffEditor.vue')['default']
     DurationDisplay: typeof import('./components/DurationDisplay.vue')['default']

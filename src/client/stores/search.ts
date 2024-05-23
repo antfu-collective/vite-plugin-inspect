@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 import Fuse from 'fuse.js'
-import { useStateStore } from './state'
-import { useDataStore } from './data'
+import { useOptionsStore } from './options'
+import { usePayloadStore } from './payload'
 
 export const useSearchResults = defineStore('search', () => {
-  const state = useStateStore()
-  const data = useDataStore()
+  const state = useOptionsStore()
+  const data = usePayloadStore()
 
   const results = computed(() => {
     let modules = data.modules || []
@@ -37,12 +37,12 @@ export const useSearchResults = defineStore('search', () => {
   const resultsSorted = computed(() => {
     if (state.search.text)
       return results.value
-    const clonedSearchResults = [...results.value]
+    const cloned = [...results.value]
     if (state.view.sort === 'time-asc')
-      clonedSearchResults.sort((a, b) => b.totalTime - a.totalTime)
+      cloned.sort((a, b) => b.totalTime - a.totalTime)
     if (state.view.sort === 'time-desc')
-      clonedSearchResults.sort((a, b) => a.totalTime - b.totalTime)
-    return clonedSearchResults
+      cloned.sort((a, b) => a.totalTime - b.totalTime)
+    return cloned
   })
 
   return {

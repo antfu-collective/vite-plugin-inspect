@@ -1,11 +1,11 @@
 import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
 import type { PluginEnvironment, ResolvedConfig } from 'vite'
-import type { FilterPattern } from '@rollup/pluginutils'
 import { createFilter } from '@rollup/pluginutils'
-import type { ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo } from '../types'
+import type { ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics } from '../types'
 import { Recorder } from './recorder'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
+import type { ViteInspectOptions } from './options'
 
 let viteCount = 0
 
@@ -16,16 +16,7 @@ export class InspectContext {
   public filter: (id: string) => boolean
 
   constructor(
-    public options: {
-      /**
-       * Filter for modules to be inspected
-       */
-      include?: FilterPattern
-      /**
-       * Filter for modules to not be inspected
-       */
-      exclude?: FilterPattern
-    },
+    public options: ViteInspectOptions,
   ) {
     this.filter = createFilter(options.include, options.exclude)
   }
@@ -50,7 +41,7 @@ export class InspectContext {
 
     if (this._configToInstances.has(configOrId))
       return this._configToInstances.get(configOrId)!
-    const id = `vite${viteCount++}`
+    const id = `vite${++viteCount}`
     const vite = new InspectContextVite(id, this, configOrId)
     this._idToInstances.set(id, vite)
     this._configToInstances.set(configOrId, vite)
@@ -73,6 +64,12 @@ export class InspectContext {
 
 export class InspectContextVite {
   readonly environments = new Map<string, InspectContextViteEnv>()
+
+  data: { serverMetrics: ServerMetrics } = {
+    serverMetrics: {
+      middleware: {},
+    },
+  }
 
   constructor(
     public readonly id: string,
@@ -110,7 +107,10 @@ export class InspectContextViteEnv extends Recorder {
     const getDeps = (id: string) => Array.from(moduleGraph?.getModuleById(id)?.importedModules || [])
       .map(i => i.id || '')
       .filter(Boolean)
-    const isVirtual = (pluginName: string, transformName: string) => pluginName !== DUMMY_LOAD_PLUGIN_NAME && transformName !== 'vite:load-fallback'
+
+    function isVirtual(pluginName: string, transformName: string) {
+      return pluginName !== DUMMY_LOAD_PLUGIN_NAME && transformName !== 'vite:load-fallback' && transformName !== 'vite:build-load-fallback'
+    }
 
     const transformedIdMap = Object.values(this.data.resolveId).reduce((map, ids) => {
       ids.forEach((id) => {

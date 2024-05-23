@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import {
-  // inspectSSR,
-  // metricDisplayHook,
-  onRefetch,
-} from '../../logic'
 import { getHot } from '../../logic/hot'
-import { isStaticMode, rpc } from '../../logic/rpc'
-import { useDataStore } from '../../stores/data'
-import { useStateStore } from '../../stores/state'
+import { isStaticMode, onModuleUpdated, onUserRefresh, rpc } from '../../logic/rpc'
+import { usePayloadStore } from '../../stores/payload'
+import { useOptionsStore } from '../../stores/options'
 
-const state = useStateStore()
-const data = useDataStore()
+const state = useOptionsStore()
+const data = usePayloadStore()
 
 const metrics = ref(await rpc.getPluginMetrics(data.query))
 
 const selectedPlugin = ref('')
 
-const displayHookOptions = ['transform', 'resolveId', isStaticMode ? '' : 'server'].filter(Boolean).map(h => ({
+const displayHookOptions = [
+  'transform',
+  'resolveId',
+  isStaticMode ? '' : 'server',
+].filter(Boolean).map(h => ({
   label: {
-    transform: 'plugin.transform',
-    resolveId: 'plugin.resolveId',
+    transform: 'transform',
+    resolveId: 'resolveId',
     server: 'server.middleware',
   }[h as string]!,
   value: h,
@@ -61,7 +60,11 @@ watch(
   { deep: true },
 )
 
-onRefetch.on(async () => {
+onModuleUpdated.on(async () => {
+  await refetch()
+})
+
+onUserRefresh.on(async () => {
   await refetch()
 })
 
@@ -88,7 +91,7 @@ getHot().then((hot) => {
 </script>
 
 <template>
-  <NavBar>
+  <NavBar name="metric">
     <RouterLink class="my-auto icon-btn !outline-none" to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
@@ -109,7 +112,9 @@ getHot().then((hot) => {
       :hook="state.view.metricDisplayHook"
       :exit="clearPlugin"
     />
-    <ServerChart v-if=" state.view.metricDisplayHook === 'server'" />
+    <ServerChart
+      v-if=" state.view.metricDisplayHook === 'server'"
+    />
     <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) text-sm font-mono">
       <div />
       <div class="text-xs font-bold">
