@@ -69,10 +69,10 @@
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "npm run build",
-    "release": "bumpp && npm publish"
+    "release": "bumpp && npm publish --tag next"
   },
   "peerDependencies": {
-    "vite": "^3.1.0 || ^4.0.0 || ^5.0.0-0"
+    "vite": "^6.0.0-alpha.16"
   },
   "peerDependenciesMeta": {
     "@nuxt/kit": {
@@ -142,10 +142,7 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "6.0.0-alpha.15"
-    },
-    "patchedDependencies": {
-      "vite@6.0.0-alpha.15": "patches/vite@6.0.0-alpha.15.patch"
+      "vite": "6.0.0-alpha.16"
     }
   },
   "simple-git-hooks": {
