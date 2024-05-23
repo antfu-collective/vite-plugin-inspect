@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import type { ModuleInfo } from '../../types'
 import { useOptionsStore } from '../stores/options'
+import { usePayloadStore } from '../stores/payload'
 
 const props = defineProps<{
   modules: readonly ModuleInfo[]
 }>()
 
 const options = useOptionsStore()
+const payload = usePayloadStore()
+
+const route = useRoute()
 
 const { list, containerProps, wrapperProps } = useVirtualList(
   toRef(props, 'modules') as Ref<ModuleInfo[]>,
@@ -43,9 +47,15 @@ function byteToHumanReadable(byte: number) {
       <div v-bind="wrapperProps">
         <RouterLink
           v-for="m in list"
-          :key="m.data.id"
+          :key="`${payload.query.vite}-${payload.query.env}-${m.data.id}`"
           class="block border-b border-main px-3 py-2 text-left text-sm font-mono"
-          :to="`/module?id=${encodeURIComponent(m.data.id)}`"
+          :to="{
+            path: '/module',
+            query: {
+              ...route.query,
+              id: m.data.id,
+            },
+          }"
         >
           <ModuleId :id="m.data.id" />
           <div v-if="options.view.listMode === 'detailed'" flex="~ gap-1 wrap" text-xs>

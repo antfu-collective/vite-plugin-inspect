@@ -51,7 +51,7 @@ function renderRow(idx: number) {
           v-for="e of payload.instance.environments" :key="e"
           border="~ main" p2 text-center
         >
-          <Badge :text="e" size="none" color px2 py1 text-sm font-mono />
+          <Badge :text="e" size="none" px2 py1 text-sm font-mono />
         </td>
       </thead>
       <tbody>

@@ -5,7 +5,7 @@ import {
   inspectSourcemaps,
   safeJsonParse,
 } from '../../logic'
-import { isStaticMode, onModuleUpdated, onUserRefresh, rpc } from '../../logic/rpc'
+import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
 import type { HMRData } from '../../../types'
 import { getHot } from '../../logic/hot'
 import { useOptionsStore } from '../../stores/options'
@@ -14,7 +14,6 @@ import { usePayloadStore } from '../../stores/payload'
 function getModuleId(fullPath?: string) {
   if (!fullPath)
     return undefined
-
   return new URL(fullPath, 'http://localhost').searchParams.get('id') || undefined
 }
 
@@ -54,11 +53,6 @@ async function refetch(clear = false) {
 
 onModuleUpdated.on(async () => {
   await refetch(false)
-})
-
-onUserRefresh.on(async (name) => {
-  if (name === 'module')
-    await refetch(true)
 })
 
 watch(
@@ -103,7 +97,7 @@ getHot().then((hot) => {
 </script>
 
 <template>
-  <NavBar name="module">
+  <NavBar>
     <RouterLink my-auto outline-none icon-btn to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
@@ -127,9 +121,16 @@ getHot().then((hot) => {
     <button class="text-lg icon-btn" title="Toggle Diff" @click="options.view.diff = !options.view.diff">
       <div i-carbon-compare :class="options.view.diff ? 'opacity-100' : 'opacity-25'" />
     </button>
+    <button
+      v-if="!payload.isStatic"
+      class="text-lg icon-btn" title="Refetch"
+      @click="refetch(true)"
+    >
+      <div i-carbon-renew />
+    </button>
   </NavBar>
   <div v-if="!data?.transforms.length" flex="~ col gap-2 items-center justify-center" h-full>
-    <div>No transform data for this module in the <Badge :text="payload.query.env" size="none" color px1 py0.5 line-height-1em /> env</div>
+    <div>No transform data for this module in the <Badge :text="payload.query.env" size="none" px1 py0.5 line-height-1em /> env</div>
     <button v-if="!isStaticMode" rounded bg-teal5 px2 py1 text-white @click="refetch(true)">
       Request the module
     </button>
@@ -173,8 +174,7 @@ getHot().then((hot) => {
             </span>
             <Badge
               v-if="!tr.result"
-              class="bg-gray-400:10 text-gray-700 dark:text-gray-400"
-              text="bailout"
+              text="bailout" saturate-0
             />
             <Badge
               v-else-if="tr.noChange"
@@ -184,17 +184,15 @@ getHot().then((hot) => {
             <Badge
               v-if="tr.load"
               text="load"
-              color
             />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
-              :text="tr.order" color
+              :text="tr.order"
             />
             <Badge
               v-if="tr.error"
               text="error"
-              color
             />
             <div flex-auto />
             <DurationDisplay :duration="tr.end - tr.start" />

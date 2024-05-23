@@ -12,22 +12,24 @@ const options = useOptionsStore()
     placeholder="Search..."
   >
   <div class="h-min flex flex-col select-none gap-1 whitespace-nowrap text-xs">
-    <label class="flex">
-      <input v-model="options.search.includeNodeModules" type="checkbox" class="my-auto">
-      <div class="ml-1">node_modules</div>
-    </label>
     <div class="flex gap-2">
+      <label class="flex">
+        <input v-model="options.search.exactSearch" type="checkbox" class="my-auto">
+        <div class="ml-1">exact search</div>
+      </label>
+    </div>
+    <div class="flex gap-2">
+      <label class="flex">
+        <input v-model="options.search.includeNodeModules" type="checkbox" class="my-auto">
+        <div class="ml-1">node_modules</div>
+      </label>
       <label class="flex">
         <input v-model="options.search.includeVirtual" type="checkbox" class="my-auto">
         <div class="ml-1">virtual</div>
       </label>
-      <!-- <label class="flex">
-        <input v-model="inspectSSR" type="checkbox" class="my-auto">
-        <div class="ml-1">ssr</div>
-      </label> -->
       <label class="flex">
-        <input v-model="options.search.exactSearch" type="checkbox" class="my-auto">
-        <div class="ml-1">exact search</div>
+        <input v-model="options.search.includeUnreached" type="checkbox" class="my-auto">
+        <div class="ml-1">unreached</div>
       </label>
     </div>
   </div>

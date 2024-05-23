@@ -18,6 +18,7 @@ export interface SearchState {
   text: string
   includeNodeModules: boolean
   includeVirtual: boolean
+  includeUnreached: boolean
   exactSearch: boolean
 }
 
@@ -47,6 +48,7 @@ export const useOptionsStore = defineStore('options', () => {
       text: '',
       includeNodeModules: false,
       includeVirtual: false,
+      includeUnreached: false,
       exactSearch: false,
     },
     undefined,

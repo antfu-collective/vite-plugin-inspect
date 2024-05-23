@@ -4,12 +4,17 @@ import {
   getHsla,
 } from '../logic/color'
 
-const props = defineProps<{
-  text?: string
-  color?: boolean | number
-  as?: string
-  size?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    text?: string
+    color?: boolean | number
+    as?: string
+    size?: string
+  }>(),
+  {
+    color: true,
+  },
+)
 
 const style = computed(() => {
   if (!props.text || props.color === false)
@@ -27,7 +32,7 @@ const style = computed(() => {
 const sizeClasses = computed(() => {
   switch (props.size || 'sm') {
     case 'sm':
-      return 'px-1 text-11px leading-1.6em'
+      return 'px-1.5 text-11px leading-1.6em'
   }
   return ''
 })

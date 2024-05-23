@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useOptionsStore } from '../stores/options'
+import { usePayloadStore } from '../stores/payload'
 import { useSearchResults } from '../stores/search'
 
-const state = useOptionsStore()
+const options = useOptionsStore()
+const payload = usePayloadStore()
 const search = useSearchResults()
 
 const route = useRoute()
@@ -10,28 +12,28 @@ const isRoot = computed(() => route.path === '/')
 </script>
 
 <template>
-  <NavBar name="main">
+  <NavBar>
     <div i-carbon-ibm-watson-discovery title="Vite Inspect" text-xl />
 
     <SearchBox />
     <div flex-auto />
 
-    <template v-if="state.view.listMode === 'detailed'">
+    <template v-if="options.view.listMode === 'detailed'">
       <button
         text-lg icon-btn title="Sort" flex="~ items-center"
-        :disabled="!!state.search.text"
-        :class="state.search.text ? 'op50 pointer-events-none' : ''"
-        @click="state.toggleSort()"
+        :disabled="!!options.search.text"
+        :class="options.search.text ? 'op50 pointer-events-none' : ''"
+        @click="options.toggleSort()"
       >
-        <template v-if="state.search.text">
+        <template v-if="options.search.text">
           <div i-carbon-search />
           <div i-carbon-arrow-down text-sm op70 />
         </template>
-        <template v-else-if="state.view.sort === 'time-asc'">
+        <template v-else-if="options.view.sort === 'time-asc'">
           <div i-carbon-time />
           <div i-carbon-arrow-down text-sm op70 />
         </template>
-        <template v-else-if="state.view.sort === 'time-desc'">
+        <template v-else-if="options.view.sort === 'time-desc'">
           <div i-carbon-time />
           <div i-carbon-arrow-up text-sm op70 />
         </template>
@@ -41,22 +43,29 @@ const isRoot = computed(() => route.path === '/')
         </template>
       </button>
     </template>
-    <button text-lg icon-btn title="View Mode" @click="state.toggleListMode()">
-      <div v-if="state.view.listMode === 'detailed'" i-carbon-list-boxes />
-      <div v-else-if="state.view.listMode === 'list'" i-carbon-list />
+    <button text-lg icon-btn title="View Mode" @click="options.toggleListMode()">
+      <div v-if="options.view.listMode === 'detailed'" i-carbon-list-boxes />
+      <div v-else-if="options.view.listMode === 'list'" i-carbon-list />
       <div v-else i-carbon-network-4 />
     </button>
     <div h-full w-1 border="r main" />
-    <RouterLink text-lg icon-btn to="/metric" title="Metrics">
+    <RouterLink text-lg icon-btn :to="{ path: '/metric', query: route.query }" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>
-    <RouterLink text-lg icon-btn to="/plugins" title="Plugins">
+    <RouterLink text-lg icon-btn :to="{ path: '/plugins', query: route.query }" title="Plugins">
       <div i-carbon-microservices-1 />
     </RouterLink>
+    <button
+      v-if="!payload.isStatic"
+      class="text-lg icon-btn" title="Refetch"
+      @click="payload.refetch()"
+    >
+      <div i-carbon-renew />
+    </button>
   </NavBar>
   <Container of-auto>
     <KeepAlive>
-      <Graph v-if="state.view.listMode === 'graph'" :modules="search.results" />
+      <Graph v-if="options.view.listMode === 'graph'" :modules="search.results" />
       <ModuleList v-else :modules="search.resultsSorted" />
     </KeepAlive>
   </Container>

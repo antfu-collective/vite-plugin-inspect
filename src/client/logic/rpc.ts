@@ -5,7 +5,6 @@ import type { RpcFunctions } from '../../types'
 import { createStaticRpcClient } from './rpc-static'
 
 export const onModuleUpdated = createEventHook<void>()
-export const onUserRefresh = createEventHook<string>()
 
 export const isStaticMode = document.body.getAttribute('data-vite-inspect-mode') === 'BUILD'
 

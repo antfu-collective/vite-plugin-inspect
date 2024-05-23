@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { getHot } from '../../logic/hot'
-import { isStaticMode, onModuleUpdated, onUserRefresh, rpc } from '../../logic/rpc'
+import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
 import { usePayloadStore } from '../../stores/payload'
 import { useOptionsStore } from '../../stores/options'
 
-const state = useOptionsStore()
-const data = usePayloadStore()
+const options = useOptionsStore()
+const payload = usePayloadStore()
 
-const metrics = ref(await rpc.getPluginMetrics(data.query))
+const metrics = ref(await rpc.getPluginMetrics(payload.query))
 
 const selectedPlugin = ref('')
 
@@ -25,11 +25,11 @@ const displayHookOptions = [
 }))
 
 const plugins = computed(() => {
-  if (state.view.metricDisplayHook === 'server')
+  if (options.view.metricDisplayHook === 'server')
     return []
 
   return metrics.value.map((info) => {
-    if (state.view.metricDisplayHook === 'transform') {
+    if (options.view.metricDisplayHook === 'transform') {
       return {
         name: info.name,
         enforce: info.enforce,
@@ -51,20 +51,16 @@ const plugins = computed(() => {
 })
 
 async function refetch() {
-  metrics.value = await rpc.getPluginMetrics(data.query)
+  metrics.value = await rpc.getPluginMetrics(payload.query)
 }
 
 watch(
-  () => data.query,
+  () => payload.query,
   () => refetch(),
   { deep: true },
 )
 
 onModuleUpdated.on(async () => {
-  await refetch()
-})
-
-onUserRefresh.on(async () => {
   await refetch()
 })
 
@@ -77,7 +73,7 @@ function clearPlugin() {
 }
 
 watch(
-  () => state.view.metricDisplayHook,
+  () => options.view.metricDisplayHook,
   clearPlugin,
 )
 
@@ -91,7 +87,7 @@ getHot().then((hot) => {
 </script>
 
 <template>
-  <NavBar name="metric">
+  <NavBar>
     <RouterLink class="my-auto icon-btn !outline-none" to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
@@ -99,21 +95,29 @@ getHot().then((hot) => {
       Metrics
     </div>
     <SegmentControl
-      v-model="state.view.metricDisplayHook"
+      v-model="options.view.metricDisplayHook"
       :options="displayHookOptions"
     />
     <QuerySelector />
     <div flex-auto />
+
+    <button
+      v-if="!payload.isStatic"
+      class="text-lg icon-btn" title="Refetch"
+      @click="refetch()"
+    >
+      <div i-carbon-renew />
+    </button>
   </NavBar>
   <Container v-if="metrics" of-auto>
     <PluginChart
-      v-if="selectedPlugin && state.view.metricDisplayHook !== 'server'"
+      v-if="selectedPlugin && options.view.metricDisplayHook !== 'server'"
       :plugin="selectedPlugin"
-      :hook="state.view.metricDisplayHook"
+      :hook="options.view.metricDisplayHook"
       :exit="clearPlugin"
     />
     <ServerChart
-      v-if=" state.view.metricDisplayHook === 'server'"
+      v-if=" options.view.metricDisplayHook === 'server'"
     />
     <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) text-sm font-mono">
       <div />
@@ -147,7 +151,7 @@ getHot().then((hot) => {
           <Badge
             v-if="enforce"
             :text="enforce"
-            color m-auto text-xs
+            m-auto text-xs
           />
         </div>
         <template v-if="invokeCount">

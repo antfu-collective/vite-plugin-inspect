@@ -10,6 +10,9 @@ export const useSearchResults = defineStore('search', () => {
   const results = computed(() => {
     let modules = data.modules || []
 
+    if (!state.search.includeUnreached)
+      modules = modules.filter(item => item.sourceSize)
+
     if (!state.search.includeNodeModules)
       modules = modules.filter(item => !item.id.includes('/node_modules/'))
 

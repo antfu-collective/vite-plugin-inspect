@@ -22,6 +22,7 @@ const predefinedColorMap = {
   vite: 250,
   vite1: 240,
   vite2: 120,
+  virtual: 140,
 } as Record<string, number>
 
 export function getHashColorFromString(

@@ -27,8 +27,8 @@ export class InspectContext {
         .map(vite => ({
           root: vite.config.root,
           vite: vite.id,
-          environments: [...vite.environments.keys()],
           plugins: vite.config.plugins.map(i => serializePlugin(i)),
+          environments: [...vite.environments.keys()],
           environmentPlugins: Object.fromEntries(
             [...vite.environments.entries()]
               .map(([name, env]) => {

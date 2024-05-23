@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import type { Metadata, ModuleInfo, ModulesList, QueryEnv } from '../../types'
-import { onModuleUpdated, rpc } from '../logic/rpc'
+import type { Metadata, ModuleInfo, QueryEnv } from '../../types'
+import { isStaticMode, onModuleUpdated, rpc } from '../logic/rpc'
 
 export const usePayloadStore = defineStore('payload', () => {
   const isLoading = ref(false)
@@ -8,32 +8,43 @@ export const usePayloadStore = defineStore('payload', () => {
     instances: [],
   })
   const query = ref<QueryEnv>({
-    vite: 'vite1',
-    env: 'client',
+    vite: '',
+    env: '',
   })
+
+  const route = useRoute()
+  const router = useRouter()
+
   const modules = shallowRef<readonly ModuleInfo[]>([])
   const queryCache = new Map<string, Promise<readonly ModuleInfo[]>>()
 
   async function init() {
     metadata.value = await rpc.getMetadata()
-    query.value.vite = metadata.value.instances[0].vite
-    query.value.env = metadata.value.instances[0].environments[0] || 'client'
+    query.value.vite ||= (route.query.vite as string) || metadata.value.instances[0].vite
+    query.value.env ||= (route.query.env as string) || metadata.value.instances[0].environments[0] || 'client'
     await doQuery()
 
     watch(
-      query.value,
-      () => doQuery(),
+      query,
+      async () => {
+        router.push({
+          path: route.path,
+          query: {
+            ...route.query,
+            vite: query.value.vite,
+            env: query.value.env,
+          },
+        })
+        await doQuery()
+      },
       { deep: true },
     )
 
-    onModuleUpdated.on(async () => {
-      queryCache.clear()
-      await doQuery()
-    })
+    onModuleUpdated.on(() => refetch())
   }
 
   async function doQuery() {
-    const key = `${query.value}-${query.value.env}`
+    const key = `${query.value.vite}-${query.value.env}`
     if (!queryCache.has(key))
       queryCache.set(key, rpc.getModulesList(query.value))
     isLoading.value = true
@@ -44,6 +55,13 @@ export const usePayloadStore = defineStore('payload', () => {
     finally {
       isLoading.value = false
     }
+  }
+
+  async function refetch(force = false) {
+    queryCache.clear()
+    if (force)
+      metadata.value = await rpc.getMetadata()
+    await doQuery()
   }
 
   const instance = computed(() => metadata.value.instances.find(i => i.vite === query.value.vite)!)
@@ -57,5 +75,7 @@ export const usePayloadStore = defineStore('payload', () => {
     instance,
     root,
     isLoading,
+    isStatic: isStaticMode,
+    refetch,
   }
 })

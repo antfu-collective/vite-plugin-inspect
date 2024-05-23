@@ -1,5 +1,5 @@
 import process from 'node:process'
-import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
+import type { Connect, Plugin, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
 import c from 'picocolors'
@@ -205,8 +205,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
             const pluginName = aliasOnly ? 'alias' : 'vite:resolve (+alias)'
             const vite = ctx.getViteContext(config)
             const env = vite.getEnvContext(ssr ? 'ssr' : 'client')
-            env
-              .recordResolveId(id, { name: pluginName, result, start, end })
+            env.recordResolveId(id, { name: pluginName, result, start, end })
           }
 
           return result
