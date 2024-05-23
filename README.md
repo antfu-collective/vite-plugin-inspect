@@ -17,7 +17,7 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 npm i -D vite-plugin-inspect
 ```
 
-> Since `vite-plugin-inspect@v0.8.0`, Vite v6 or above is required.
+> Since `vite-plugin-inspect@v0.9.0`, Vite v6 or above is required.
 
 Add plugin to your `vite.config.ts`:
 
