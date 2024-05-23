@@ -16,18 +16,26 @@ import { isDark } from './dark'
  * - 270: purple
  */
 const predefinedColorMap = {
+  error: 0,
   client: 60,
-} as Record<string, string | number>
+  ssr: 270,
+  vite: 250,
+  vite1: 240,
+  vite2: 120,
+} as Record<string, number>
 
 export function getHashColorFromString(
   name: string,
   opacity: number | string = 1,
 ) {
+  if (predefinedColorMap[name])
+    return getHsla(predefinedColorMap[name], opacity)
+
   let hash = 0
   for (let i = 0; i < name.length; i++)
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  const h = hash % 360
-  return getHsla(h, opacity)
+  const hue = hash % 360
+  return getHsla(hue, opacity)
 }
 
 export function getHsla(

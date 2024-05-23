@@ -3,13 +3,13 @@ import type { ModuleInfo } from '../../types'
 import { useOptionsStore } from '../stores/options'
 
 const props = defineProps<{
-  modules: ModuleInfo[]
+  modules: readonly ModuleInfo[]
 }>()
 
 const options = useOptionsStore()
 
 const { list, containerProps, wrapperProps } = useVirtualList(
-  toRef(props, 'modules'),
+  toRef(props, 'modules') as Ref<ModuleInfo[]>,
   {
     itemHeight: options.view.listMode === 'detailed' ? 53 : 37,
   },
@@ -58,7 +58,7 @@ function byteToHumanReadable(byte: number) {
               >
                 <span v-if="idx !== 0" op20>|</span>
                 <span ws-nowrap op50>
-                  <PluginName :name="i.name" :hide="true" />
+                  <PluginName :name="i.name" :compact="true" />
                 </span>
               </template>
               <template v-if="m.data.invokeCount > 2">

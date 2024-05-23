@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import { Fragment } from 'vue'
+import { getHashColorFromString } from '../logic/color'
+
 const props = defineProps<{
   name: string
-  hide?: boolean
+  compact?: boolean
 }>()
 
-const starts = [
+const startsGeneric = [
   '__load__',
-  'vite:',
   'vite-plugin-',
   'vite-',
   'rollup-plugin-',
@@ -14,20 +16,35 @@ const starts = [
   'unplugin-',
 ]
 
-const parts = computed(() => {
+const startCompact = [
+  ...startsGeneric,
+  'vite:',
+]
+
+function render() {
+  const starts = props.compact ? startCompact : startsGeneric
   for (const s of starts) {
-    if (props.name.startsWith(s))
-      return [s, props.name.slice(s.length)]
+    if (props.name.startsWith(s)) {
+      if (props.compact)
+        return h('span', props.name.slice(s.length))
+      return h(Fragment, [
+        h('span', { class: 'op50' }, s),
+        h('span', props.name.slice(s.length)),
+      ])
+    }
   }
-  return ['', props.name]
-})
+
+  const parts = props.name.split(':')
+  if (parts.length > 1) {
+    return h(Fragment, [
+      h('span', { style: { color: getHashColorFromString(parts[0]) } }, `${parts[0]}:`),
+      h('span', parts.slice(1).join(':')),
+    ])
+  }
+  return h('span', props.name)
+}
 </script>
 
 <template>
-  <span v-if="parts[0] && !hide" class="op50">
-    {{ parts[0] }}
-  </span>
-  <span>
-    {{ parts[1] }}
-  </span>
+  <component :is="render" />
 </template>

@@ -7,7 +7,7 @@ import { colors } from '../../../color'
 import { useOptionsStore } from '../stores/options'
 
 const props = defineProps<{
-  modules?: ModuleInfo[]
+  modules?: readonly ModuleInfo[]
 }>()
 
 const options = useOptionsStore()

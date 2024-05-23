@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import {
   getHashColorFromString,
+  getHsla,
 } from '../logic/color'
 
 const props = defineProps<{
   text?: string
-  color?: boolean
+  color?: boolean | number
   as?: string
   size?: string
 }>()
@@ -14,8 +15,12 @@ const style = computed(() => {
   if (!props.text || props.color === false)
     return {}
   return {
-    color: getHashColorFromString(props.text),
-    background: getHashColorFromString(props.text, 0.1),
+    color: typeof props.color === 'number'
+      ? getHsla(props.color)
+      : getHashColorFromString(props.text),
+    background: typeof props.color === 'number'
+      ? getHsla(props.color, 0.1)
+      : getHashColorFromString(props.text, 0.1),
   }
 })
 

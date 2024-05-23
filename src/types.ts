@@ -64,6 +64,17 @@ export interface HMRData {
   ids: (string | null)[]
 }
 
+export interface SerializedPlugin {
+  name: string
+  enforce?: string
+  resolveId: string
+  load: string
+  transform: string
+  generateBundle: string
+  handleHotUpdate: string
+  api: string
+}
+
 export interface InstanceInfo {
   root: string
   /**
@@ -74,6 +85,14 @@ export interface InstanceInfo {
    * Environment names
    */
   environments: string[]
+  /**
+   * Plugins
+   */
+  plugins: SerializedPlugin[]
+  /**
+   * Environment plugins, the index of the plugin in the `plugins` array
+   */
+  environmentPlugins: Record<string, number[]>
 }
 
 export interface Metadata {

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Metadata, ModulesList, QueryEnv } from '../../types'
+import type { Metadata, ModuleInfo, ModulesList, QueryEnv } from '../../types'
 import { onModuleUpdated, rpc } from '../logic/rpc'
 
 export const usePayloadStore = defineStore('payload', () => {
@@ -11,8 +11,8 @@ export const usePayloadStore = defineStore('payload', () => {
     vite: 'vite1',
     env: 'client',
   })
-  const modules = shallowRef<ModulesList>([])
-  const queryCache = new Map<string, Promise<ModulesList>>()
+  const modules = shallowRef<readonly ModuleInfo[]>([])
+  const queryCache = new Map<string, Promise<readonly ModuleInfo[]>>()
 
   async function init() {
     metadata.value = await rpc.getMetadata()
@@ -39,7 +39,7 @@ export const usePayloadStore = defineStore('payload', () => {
     isLoading.value = true
     modules.value = []
     try {
-      modules.value = await queryCache.get(key)!
+      modules.value = Object.freeze(await queryCache.get(key))!
     }
     finally {
       isLoading.value = false

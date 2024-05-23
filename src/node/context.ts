@@ -2,10 +2,10 @@ import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
 import type { PluginEnvironment, ResolvedConfig } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
-import type { ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics } from '../types'
-import { Recorder } from './recorder'
+import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo } from '../types'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 import type { ViteInspectOptions } from './options'
+import { serializePlugin } from './utils'
 
 let viteCount = 0
 
@@ -21,13 +21,20 @@ export class InspectContext {
     this.filter = createFilter(options.include, options.exclude)
   }
 
-  getMetadata() {
+  getMetadata(): Metadata {
     return {
       instances: [...this._idToInstances.values()]
         .map(vite => ({
           root: vite.config.root,
           vite: vite.id,
           environments: [...vite.environments.keys()],
+          plugins: vite.config.plugins.map(i => serializePlugin(i)),
+          environmentPlugins: Object.fromEntries(
+            [...vite.environments.entries()]
+              .map(([name, env]) => {
+                return [name, env.env.config.plugins.map(i => vite.config.plugins.indexOf(i))]
+              }),
+          ),
         })),
     }
   }
@@ -92,13 +99,52 @@ export class InspectContextVite {
   }
 }
 
-export class InspectContextViteEnv extends Recorder {
+export class InspectContextViteEnv {
   constructor(
     public readonly contextMain: InspectContext,
     public readonly contextVite: InspectContextVite,
     public readonly env: PluginEnvironment,
-  ) {
-    super()
+  ) {}
+
+  data: {
+    transform: Record<string, TransformInfo[]>
+    resolveId: Record<string, ResolveIdInfo[]>
+    transformCounter: Record<string, number>
+  } = {
+      transform: {},
+      resolveId: {},
+      transformCounter: {},
+    }
+
+  recordTransform(id: string, info: TransformInfo, preTransformCode: string) {
+    // initial transform (load from fs), add a dummy
+    if (!this.data.transform[id] || !this.data.transform[id].some(tr => tr.result)) {
+      this.data.transform[id] = [{
+        name: DUMMY_LOAD_PLUGIN_NAME,
+        result: preTransformCode,
+        start: info.start,
+        end: info.start,
+        sourcemaps: info.sourcemaps,
+      }]
+      this.data.transformCounter[id] = (this.data.transformCounter[id] || 0) + 1
+    }
+    // record transform
+    this.data.transform[id].push(info)
+  }
+
+  recordLoad(id: string, info: TransformInfo) {
+    this.data.transform[id] = [info]
+    this.data.transformCounter[id] = (this.data.transformCounter[id] || 0) + 1
+  }
+
+  recordResolveId(id: string, info: ResolveIdInfo) {
+    if (!this.data.resolveId[id])
+      this.data.resolveId[id] = []
+    this.data.resolveId[id].push(info)
+  }
+
+  invalidate(id: string) {
+    delete this.data.transform[id]
   }
 
   getModulesList() {

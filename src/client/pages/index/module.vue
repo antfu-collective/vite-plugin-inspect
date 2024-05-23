@@ -174,28 +174,27 @@ getHot().then((hot) => {
             <Badge
               v-if="!tr.result"
               class="bg-gray-400:10 text-gray-700 dark:text-gray-400"
-              v-text="'bailout'"
+              text="bailout"
             />
             <Badge
               v-else-if="tr.noChange"
-              class="bg-orange-400:10 text-orange-800 dark:text-orange-400"
-              v-text="'no change'"
+              text="no change"
+              :color="20"
             />
             <Badge
               v-if="tr.load"
-              class="bg-light-blue-400/10 text-blue-700 dark:text-light-blue-400"
-              v-text="'load'"
+              text="load"
+              color
             />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
-              class="bg-violet-400:10 text-violet-700 dark:text-violet-400"
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
-              v-text="tr.order"
+              :text="tr.order" color
             />
             <Badge
               v-if="tr.error"
-              class="bg-red-400:10 text-red7 dark:text-red-400"
-              v-text="'error'"
+              text="error"
+              color
             />
             <div flex-auto />
             <DurationDisplay :duration="tr.end - tr.start" />

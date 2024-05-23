@@ -18,7 +18,7 @@ export default defineConfig({
 
   plugins: [
     {
-      name: 'local-object-transform',
+      name: 'local:object-hook-transform',
       transform: {
         order: 'post',
         async handler(code) {
@@ -27,7 +27,7 @@ export default defineConfig({
       },
     },
     {
-      name: 'generate-error',
+      name: 'local:generate-error',
       load(id) {
         if (id === '/__LOAD_ERROR')
           throw new Error('Load error')
@@ -41,7 +41,7 @@ export default defineConfig({
     },
 
     {
-      name: 'no-change',
+      name: 'local:no-change',
       transform: {
         order: 'post',
         async handler(code) {

@@ -50,6 +50,9 @@ const isRoot = computed(() => route.path === '/')
     <RouterLink text-lg icon-btn to="/metric" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>
+    <RouterLink text-lg icon-btn to="/plugins" title="Plugins">
+      <div i-carbon-microservices-1 />
+    </RouterLink>
   </NavBar>
   <Container of-auto>
     <KeepAlive>

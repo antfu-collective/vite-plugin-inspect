@@ -146,11 +146,9 @@ getHot().then((hot) => {
         <div class="flex items-center text-center p0!">
           <Badge
             v-if="enforce"
-            class="m-auto text-xs"
-            :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5' : 'bg-green5/10 text-green5']"
-          >
-            {{ enforce }}
-          </Badge>
+            :text="enforce"
+            color m-auto text-xs
+          />
         </div>
         <template v-if="invokeCount">
           <div class="text-right">
