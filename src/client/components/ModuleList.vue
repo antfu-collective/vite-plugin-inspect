@@ -57,7 +57,7 @@ function byteToHumanReadable(byte: number) {
             },
           }"
         >
-          <ModuleId :id="m.data.id" />
+          <ModuleId :id="m.data.id" badges />
           <div v-if="options.view.listMode === 'detailed'" flex="~ gap-1 wrap" text-xs>
             <div flex="~ gap-1 wrap">
               <template

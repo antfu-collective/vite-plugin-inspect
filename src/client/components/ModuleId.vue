@@ -2,7 +2,10 @@
 import { computed } from 'vue'
 import { usePayloadStore } from '../stores/payload'
 
-const props = defineProps<{ id?: string }>()
+const props = defineProps<{
+  id?: string
+  badges?: boolean
+}>()
 
 const payload = usePayloadStore()
 
@@ -18,13 +21,15 @@ const mod = computed(() => payload.modules.find(i => i.id === props.id))
     <span v-else>{{ id }}</span>
     <slot />
 
-    <Badge
-      v-if="mod?.virtual"
-      text="virtual"
-    />
-    <Badge
-      v-if="mod && !mod.sourceSize"
-      text="unreached" saturate-0
-    />
+    <template v-if="badges">
+      <Badge
+        v-if="mod?.virtual"
+        text="virtual"
+      />
+      <Badge
+        v-if="mod && !mod.sourceSize"
+        text="unreached" saturate-0
+      />
+    </template>
   </div>
 </template>

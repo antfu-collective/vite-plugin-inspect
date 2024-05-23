@@ -102,12 +102,10 @@ getHot().then((hot) => {
       <div i-carbon-arrow-left />
     </RouterLink>
     <ModuleId v-if="id" :id="id" />
-    <QuerySelector />
     <div flex-auto />
 
-    <!-- <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
-      <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
-    </button> -->
+    <QuerySelector />
+    <div mx1 h-full w-0 border="r main" />
     <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
       <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>

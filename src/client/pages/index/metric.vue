@@ -98,9 +98,9 @@ getHot().then((hot) => {
       v-model="options.view.metricDisplayHook"
       :options="displayHookOptions"
     />
-    <QuerySelector />
     <div flex-auto />
-
+    <QuerySelector />
+    <div mx1 h-full w-0 border="r main" />
     <button
       v-if="!payload.isStatic"
       class="text-lg icon-btn" title="Refetch"

@@ -33,5 +33,4 @@ const options = useOptionsStore()
       </label>
     </div>
   </div>
-  <QuerySelector />
 </template>

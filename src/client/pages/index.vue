@@ -18,6 +18,9 @@ const isRoot = computed(() => route.path === '/')
     <SearchBox />
     <div flex-auto />
 
+    <QuerySelector />
+    <div mx1 h-full w-0 border="r main" />
+
     <template v-if="options.view.listMode === 'detailed'">
       <button
         text-lg icon-btn title="Sort" flex="~ items-center"
@@ -48,7 +51,7 @@ const isRoot = computed(() => route.path === '/')
       <div v-else-if="options.view.listMode === 'list'" i-carbon-list />
       <div v-else i-carbon-network-4 />
     </button>
-    <div h-full w-1 border="r main" />
+    <div mx2 h-full w-1 border="r main" />
     <RouterLink text-lg icon-btn :to="{ path: '/metric', query: route.query }" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>

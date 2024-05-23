@@ -23,7 +23,7 @@ export interface SearchState {
 }
 
 export const useOptionsStore = defineStore('options', () => {
-  const view = useStorage<ViewState>(
+  const view = useLocalStorage<ViewState>(
     'vite-inspect-v1-options',
     // @keep-sorted
     {
@@ -38,11 +38,10 @@ export const useOptionsStore = defineStore('options', () => {
       showOneColumn: false,
       sort: 'default',
     },
-    undefined,
     { mergeDefaults: true },
   )
 
-  const search = useStorage<SearchState>(
+  const search = useLocalStorage<SearchState>(
     'vite-inspect-v1-search',
     {
       text: '',
@@ -51,7 +50,6 @@ export const useOptionsStore = defineStore('options', () => {
       includeUnreached: false,
       exactSearch: false,
     },
-    undefined,
     { mergeDefaults: true },
   )
 

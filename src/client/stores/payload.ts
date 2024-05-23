@@ -7,34 +7,36 @@ export const usePayloadStore = defineStore('payload', () => {
   const metadata = shallowRef<Metadata>({
     instances: [],
   })
-  const query = ref<QueryEnv>({
-    vite: '',
-    env: '',
-  })
-
-  const route = useRoute()
-  const router = useRouter()
+  const query = useLocalStorage<QueryEnv>(
+    'vite-inspect-v1-query',
+    {
+      vite: '',
+      env: '',
+    },
+    { mergeDefaults: true },
+  )
 
   const modules = shallowRef<readonly ModuleInfo[]>([])
   const queryCache = new Map<string, Promise<readonly ModuleInfo[]>>()
 
   async function init() {
     metadata.value = await rpc.getMetadata()
-    query.value.vite ||= (route.query.vite as string) || metadata.value.instances[0].vite
-    query.value.env ||= (route.query.env as string) || metadata.value.instances[0].environments[0] || 'client'
+
+    if (!metadata.value.instances.some(i => i.vite === query.value.vite))
+      query.value.vite = metadata.value.instances[0].vite
+    if (!metadata.value.instances.some(i => i.vite === query.value.vite && i.environments.includes(query.value.env))) {
+      const instance = metadata.value.instances.find(i => i.vite === query.value.vite)
+      if (instance)
+        query.value.env = instance.environments[0] || 'client'
+      else
+        query.value.env = metadata.value.instances[0].environments[0] || 'client'
+    }
+
     await doQuery()
 
     watch(
       query,
       async () => {
-        router.push({
-          path: route.path,
-          query: {
-            ...route.query,
-            vite: query.value.vite,
-            env: query.value.env,
-          },
-        })
         await doQuery()
       },
       { deep: true },

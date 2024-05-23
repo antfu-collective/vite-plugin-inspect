@@ -35,12 +35,12 @@ function renderRow(idx: number) {
 </script>
 
 <template>
-  <NavBar name="module">
+  <NavBar>
     <RouterLink my-auto outline-none icon-btn to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
-    <QuerySelector />
     <div flex-auto />
+    <QuerySelector />
   </NavBar>
   <Container
     flex overflow-auto p5

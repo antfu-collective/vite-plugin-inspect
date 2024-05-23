@@ -26,6 +26,10 @@ html.dark {
 
 
 /* Splitpanes */
+.splitpanes__pane {
+  transition: none !important;
+}
+
 .splitpanes__splitter {
   position: relative;
 }
