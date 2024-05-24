@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
+import { Dropdown } from 'floating-vue'
 import {
   inspectSourcemaps,
   safeJsonParse,
 } from '../../logic'
 import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
-import type { HMRData } from '../../../types'
+import type { HMRData, ModuleInfo } from '../../../types'
 import { getHot } from '../../logic/hot'
 import { useOptionsStore } from '../../stores/options'
 import { usePayloadStore } from '../../stores/payload'
@@ -21,14 +22,26 @@ const options = useOptionsStore()
 const payload = usePayloadStore()
 
 const route = useRoute()
-const module = getModuleId(route.fullPath)
 const id = computed(() => getModuleId(route.fullPath))
-const data = ref(module ? await rpc.getModuleTransformInfo(payload.query, module) : undefined)
+const info = ref(id.value ? await rpc.getModuleTransformInfo(payload.query, id.value) : undefined)
+const mod = computed(() => payload.modules.find(m => m.id === id.value))
 const index = useRouteQuery<string | undefined>('index')
-const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (data.value?.transforms.length || 1) - 1)
+const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (info.value?.transforms.length || 1) - 1)
+
+const deps = computed(() => {
+  return mod.value?.deps
+    .map(dep => payload.modules.find(m => m.id === dep) as ModuleInfo)
+    .filter(Boolean)
+})
+
+const importers = computed(() => {
+  return mod.value?.importers
+    .map(dep => payload.modules.find(m => m.id === dep) as ModuleInfo)
+    .filter(Boolean)
+})
 
 const transforms = computed(() => {
-  const trs = data.value?.transforms
+  const trs = info.value?.transforms
   if (!trs)
     return undefined
 
@@ -48,7 +61,7 @@ const filteredTransforms = computed(() =>
 
 async function refetch(clear = false) {
   if (id.value)
-    data.value = await rpc.getModuleTransformInfo(payload.query, id.value, clear)
+    info.value = await rpc.getModuleTransformInfo(payload.query, id.value, clear)
 }
 
 onModuleUpdated.on(async () => {
@@ -105,6 +118,31 @@ getHot().then((hot) => {
     <div flex-auto />
 
     <QuerySelector />
+    <template v-if="deps?.length || importers?.length">
+      <div mx1 h-full w-0 border="r main" />
+      <Dropdown v-if="deps?.length">
+        <button title="Dependencies" flex="~ gap-2 items-center" text-lg icon-btn>
+          <div i-carbon-downstream />
+          <span line-height-1em>{{ deps.length }}</span>
+        </button>
+        <template #popper>
+          <div max-h-400 max-w-200 of-auto>
+            <ModuleList :modules="deps" />
+          </div>
+        </template>
+      </Dropdown>
+      <Dropdown v-if="importers?.length">
+        <button title="Importers" flex="~ gap-2 items-center" text-lg icon-btn>
+          <div i-carbon-upstream />
+          <span line-height-1em>{{ importers.length }}</span>
+        </button>
+        <template #popper>
+          <div max-h-400 max-w-200 of-auto>
+            <ModuleList :modules="importers" />
+          </div>
+        </template>
+      </Dropdown>
+    </template>
     <div mx1 h-full w-0 border="r main" />
     <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
       <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
@@ -127,14 +165,14 @@ getHot().then((hot) => {
       <div i-carbon-renew />
     </button>
   </NavBar>
-  <div v-if="!data?.transforms.length" flex="~ col gap-2 items-center justify-center" h-full>
+  <div v-if="!info?.transforms.length" flex="~ col gap-2 items-center justify-center" h-full>
     <div>No transform data for this module in the <Badge :text="payload.query.env" size="none" px1 py0.5 line-height-1em /> env</div>
     <button v-if="!isStaticMode" rounded bg-teal5 px2 py1 text-white @click="refetch(true)">
       Request the module
     </button>
   </div>
   <Container
-    v-else-if="data && filteredTransforms"
+    v-else-if="info && filteredTransforms"
     flex overflow-hidden
   >
     <Splitpanes h-full of-hidden @resize="options.view.panelSizeModule = $event[0].size">

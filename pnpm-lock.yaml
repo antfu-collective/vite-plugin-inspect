@@ -5,12 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vite: 6.0.0-alpha.15
-
-patchedDependencies:
-  vite@6.0.0-alpha.15:
-    hash: yt3b5d6sox2yypsdkbbwajxw24
-    path: patches/vite@6.0.0-alpha.15.patch
+  vite: 6.0.0-alpha.16
 
 importers:
 
@@ -79,7 +74,7 @@ importers:
         version: 0.60.3(eslint@9.3.0)(typescript@5.4.5)
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
-        version: 5.0.4(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))
+        version: 5.0.4(vite@6.0.0-alpha.16(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))
       '@vue/compiler-sfc':
         specifier: ^3.4.27
         version: 3.4.27
@@ -116,6 +111,9 @@ importers:
       esno:
         specifier: ^4.7.0
         version: 4.7.0
+      floating-vue:
+        specifier: ^5.2.2
+        version: 5.2.2(@nuxt/kit@3.11.2(rollup@3.29.4))(vue@3.4.27(typescript@5.4.5))
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
@@ -151,7 +149,7 @@ importers:
         version: 2.0.0(typescript@5.4.5)
       unocss:
         specifier: ^0.60.3
-        version: 0.60.3(postcss@8.4.38)(rollup@3.29.4)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))
+        version: 0.60.3(postcss@8.4.38)(rollup@3.29.4)(vite@6.0.0-alpha.16(@types/node@20.12.12))
       unplugin-auto-import:
         specifier: ^0.17.6
         version: 0.17.6(@nuxt/kit@3.11.2(rollup@3.29.4))(@vueuse/core@10.9.0(vue@3.4.27(typescript@5.4.5)))(rollup@3.29.4)
@@ -165,17 +163,17 @@ importers:
         specifier: 9.1.6
         version: 9.1.6(@egjs/hammerjs@2.0.17)(component-emitter@1.3.1)(keycharm@0.4.0)(timsort@0.3.0)(uuid@9.0.1)(vis-data@7.1.7(uuid@9.0.1)(vis-util@5.0.7(@egjs/hammerjs@2.0.17)(component-emitter@1.3.1)))(vis-util@5.0.7(@egjs/hammerjs@2.0.17)(component-emitter@1.3.1))
       vite:
-        specifier: 6.0.0-alpha.15
-        version: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
+        specifier: 6.0.0-alpha.16
+        version: 6.0.0-alpha.16(@types/node@20.12.12)
       vite-dev-rpc:
         specifier: ^0.1.4
-        version: 0.1.4(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))
+        version: 0.1.4(vite@6.0.0-alpha.16(@types/node@20.12.12))
       vite-hot-client:
         specifier: ^0.2.3
-        version: 0.2.3(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))
+        version: 0.2.3(vite@6.0.0-alpha.16(@types/node@20.12.12))
       vite-plugin-pages:
         specifier: ^0.32.1
-        version: 0.32.1(@vue/compiler-sfc@3.4.27)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))
+        version: 0.32.1(@vue/compiler-sfc@3.4.27)(vite@6.0.0-alpha.16(@types/node@20.12.12))
       vue:
         specifier: ^3.4.27
         version: 3.4.27(typescript@5.4.5)
@@ -200,7 +198,7 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
-        version: 5.0.4(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))
+        version: 5.0.4(vite@6.0.0-alpha.16(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))
       serve:
         specifier: ^14.2.3
         version: 14.2.3
@@ -208,8 +206,8 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
       vite:
-        specifier: 6.0.0-alpha.15
-        version: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
+        specifier: 6.0.0-alpha.16
+        version: 6.0.0-alpha.16(@types/node@20.12.12)
       vite-plugin-inspect:
         specifier: workspace:*
         version: link:..
@@ -746,6 +744,15 @@ packages:
     resolution: {integrity: sha512-niBqk8iwv96+yuTwjM6bWg8ovzAPF9qkICsGtcoa5/dmqcEMfdwNAX7+/OHcJHc7wj7XqPxH98oAHytFYlw6Sw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@floating-ui/core@1.6.2':
+    resolution: {integrity: sha512-+2XpQV9LLZeanU4ZevzRnGFg2neDeKHgFLjP6YLW+tly0IvrhqT4u8enLGjLH3qeh85g19xY5rsAusfwTdn5lg==}
+
+  '@floating-ui/dom@1.1.1':
+    resolution: {integrity: sha512-TpIO93+DIujg3g7SykEAGZMDtbJRrmnYRCNYSjJlvIbGhBjRSNTLVbNeDQBrzy9qDgUbiWdc7KA0uZHZ2tJmiw==}
+
+  '@floating-ui/utils@0.2.2':
+    resolution: {integrity: sha512-J4yDIIthosAsRZ5CPYP/jQvUAQtlZTTD/4suA08/FEnlxqW3sKS9iAhgsa9VYLZ6vDHn/ixJgIqRQPotoBjxIw==}
+
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
     engines: {node: '>=10.10.0'}
@@ -1113,7 +1120,7 @@ packages:
   '@unocss/astro@0.60.3':
     resolution: {integrity: sha512-duFuyVhqYqQ15JZqx41UNgIxndqYRbOwDkJ7Y+R5N+u59a27vImz8B9eOFkHaZCFBWyH5jywkT8LVK1sfddFaw==}
     peerDependencies:
-      vite: 6.0.0-alpha.15
+      vite: 6.0.0-alpha.16
     peerDependenciesMeta:
       vite:
         optional: true
@@ -1202,13 +1209,13 @@ packages:
   '@unocss/vite@0.60.3':
     resolution: {integrity: sha512-I3EOR3g245IGDp3DS17AQAMwNQrh6L6kIlXG3+wt5IZ1zu1ahZmKA8/xxh6oo2TNdu4rI6nQbcLIRn+8eSyfQw==}
     peerDependencies:
-      vite: 6.0.0-alpha.15
+      vite: 6.0.0-alpha.16
 
   '@vitejs/plugin-vue@5.0.4':
     resolution: {integrity: sha512-WS3hevEszI6CEVEx28F8RjTX97k3KsrcY6kvTg7+Whm5y3oYvcqzVeGCU3hxSAn4uY2CLCkeokkGKpoctccilQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      vite: 6.0.0-alpha.15
+      vite: 6.0.0-alpha.16
       vue: ^3.2.25
 
   '@volar/language-core@2.2.4':
@@ -2112,6 +2119,15 @@ packages:
 
   flatted@3.2.9:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
+
+  floating-vue@5.2.2:
+    resolution: {integrity: sha512-afW+h2CFafo+7Y9Lvw/xsqjaQlKLdJV7h1fCHfcYQ1C4SVMlu7OAekqWgu5d4SgvkBVU0pVpLlVsrSTBURFRkg==}
+    peerDependencies:
+      '@nuxt/kit': ^3.2.0
+      vue: ^3.2.0
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
 
   for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -3712,7 +3728,7 @@ packages:
     engines: {node: '>=14'}
     peerDependencies:
       '@unocss/webpack': 0.60.3
-      vite: 6.0.0-alpha.15
+      vite: 6.0.0-alpha.16
     peerDependenciesMeta:
       '@unocss/webpack':
         optional: true
@@ -3805,24 +3821,24 @@ packages:
   vite-dev-rpc@0.1.4:
     resolution: {integrity: sha512-6I/qF7EDGLQfm3DGdcbkZ7JRl3FIbaVgD1TqDWBaCosJ1QljLzNzDBmMEa7cYkEyAMxHDBqT7zJrOiuYlFYcAA==}
     peerDependencies:
-      vite: 6.0.0-alpha.15
+      vite: 6.0.0-alpha.16
 
   vite-hot-client@0.2.3:
     resolution: {integrity: sha512-rOGAV7rUlUHX89fP2p2v0A2WWvV3QMX2UYq0fRqsWSvFvev4atHWqjwGoKaZT1VTKyLGk533ecu3eyd0o59CAg==}
     peerDependencies:
-      vite: 6.0.0-alpha.15
+      vite: 6.0.0-alpha.16
 
   vite-plugin-pages@0.32.1:
     resolution: {integrity: sha512-4oPlIbb+J+zpJGfT2xI/27xqY+qTkRc3MBgWKfbW6IWM3CTcSyybuL9kRMCFRdBHfmgkF28qDs7fqVf/HjH1Xw==}
     peerDependencies:
       '@vue/compiler-sfc': ^2.7.0 || ^3.0.0
-      vite: 6.0.0-alpha.15
+      vite: 6.0.0-alpha.16
     peerDependenciesMeta:
       '@vue/compiler-sfc':
         optional: true
 
-  vite@6.0.0-alpha.15:
-    resolution: {integrity: sha512-wwC7BNvrAuNOgBdUvEXaqaySdktDhRmXGthwq7+Im/OPcr0+mpk4vIFNTQPqL8Mnbaycp5bAncX5WyhoRYR+BQ==}
+  vite@6.0.0-alpha.16:
+    resolution: {integrity: sha512-VVzNJeNyyA1KJube14LANVN+W8gB6ThIAJCPbzXKAQYATmW/q0f/zOqNJ6eSI962T+SJm/jjvt3zp10QBkXpVA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -3889,6 +3905,11 @@ packages:
     engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: '>=6.0.0'
+
+  vue-resize@2.0.0-alpha.1:
+    resolution: {integrity: sha512-7+iqOueLU7uc9NrMfrzbG8hwMqchfVfSzpVlCMeJQe4pyibqyoifDNbKTZvwxZKDvGkB+PdFeKvnGZMoEb8esg==}
+    peerDependencies:
+      vue: ^3.0.0
 
   vue-router@4.3.2:
     resolution: {integrity: sha512-hKQJ1vDAZ5LVkKEnHhmm1f9pMiWIBNGF5AwU67PdH7TyXCj/a4hTccuUuYCAMgJK6rO/NVYtQIEN3yL8CECa7Q==}
@@ -4453,6 +4474,16 @@ snapshots:
 
   '@eslint/js@9.3.0': {}
 
+  '@floating-ui/core@1.6.2':
+    dependencies:
+      '@floating-ui/utils': 0.2.2
+
+  '@floating-ui/dom@1.1.1':
+    dependencies:
+      '@floating-ui/core': 1.6.2
+
+  '@floating-ui/utils@0.2.2': {}
+
   '@humanwhocodes/config-array@0.13.0':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.3
@@ -4862,13 +4893,13 @@ snapshots:
       '@typescript-eslint/types': 7.10.0
       eslint-visitor-keys: 3.4.3
 
-  '@unocss/astro@0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))':
+  '@unocss/astro@0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.16(@types/node@20.12.12))':
     dependencies:
       '@unocss/core': 0.60.3
       '@unocss/reset': 0.60.3
-      '@unocss/vite': 0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))
+      '@unocss/vite': 0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.16(@types/node@20.12.12))
     optionalDependencies:
-      vite: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
+      vite: 6.0.0-alpha.16(@types/node@20.12.12)
     transitivePeerDependencies:
       - rollup
 
@@ -5019,7 +5050,7 @@ snapshots:
     dependencies:
       '@unocss/core': 0.60.3
 
-  '@unocss/vite@0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))':
+  '@unocss/vite@0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.16(@types/node@20.12.12))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
@@ -5031,13 +5062,13 @@ snapshots:
       chokidar: 3.6.0
       fast-glob: 3.3.2
       magic-string: 0.30.10
-      vite: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
+      vite: 6.0.0-alpha.16(@types/node@20.12.12)
     transitivePeerDependencies:
       - rollup
 
-  '@vitejs/plugin-vue@5.0.4(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))':
+  '@vitejs/plugin-vue@5.0.4(vite@6.0.0-alpha.16(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))':
     dependencies:
-      vite: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
+      vite: 6.0.0-alpha.16(@types/node@20.12.12)
       vue: 3.4.27(typescript@5.4.5)
 
   '@volar/language-core@2.2.4':
@@ -6214,6 +6245,14 @@ snapshots:
   flat@5.0.2: {}
 
   flatted@3.2.9: {}
+
+  floating-vue@5.2.2(@nuxt/kit@3.11.2(rollup@3.29.4))(vue@3.4.27(typescript@5.4.5)):
+    dependencies:
+      '@floating-ui/dom': 1.1.1
+      vue: 3.4.27(typescript@5.4.5)
+      vue-resize: 2.0.0-alpha.1(vue@3.4.27(typescript@5.4.5))
+    optionalDependencies:
+      '@nuxt/kit': 3.11.2(rollup@3.29.4)
 
   for-each@0.3.3:
     dependencies:
@@ -7806,9 +7845,9 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unocss@0.60.3(postcss@8.4.38)(rollup@3.29.4)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)):
+  unocss@0.60.3(postcss@8.4.38)(rollup@3.29.4)(vite@6.0.0-alpha.16(@types/node@20.12.12)):
     dependencies:
-      '@unocss/astro': 0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))
+      '@unocss/astro': 0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.16(@types/node@20.12.12))
       '@unocss/cli': 0.60.3(rollup@3.29.4)
       '@unocss/core': 0.60.3
       '@unocss/extractor-arbitrary-variants': 0.60.3
@@ -7827,9 +7866,9 @@ snapshots:
       '@unocss/transformer-compile-class': 0.60.3
       '@unocss/transformer-directives': 0.60.3
       '@unocss/transformer-variant-group': 0.60.3
-      '@unocss/vite': 0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))
+      '@unocss/vite': 0.60.3(rollup@3.29.4)(vite@6.0.0-alpha.16(@types/node@20.12.12))
     optionalDependencies:
-      vite: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
+      vite: 6.0.0-alpha.16(@types/node@20.12.12)
     transitivePeerDependencies:
       - postcss
       - rollup
@@ -7936,17 +7975,17 @@ snapshots:
       '@egjs/hammerjs': 2.0.17
       component-emitter: 1.3.1
 
-  vite-dev-rpc@0.1.4(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)):
+  vite-dev-rpc@0.1.4(vite@6.0.0-alpha.16(@types/node@20.12.12)):
     dependencies:
       birpc: 0.2.14
-      vite: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
-      vite-hot-client: 0.2.3(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12))
+      vite: 6.0.0-alpha.16(@types/node@20.12.12)
+      vite-hot-client: 0.2.3(vite@6.0.0-alpha.16(@types/node@20.12.12))
 
-  vite-hot-client@0.2.3(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)):
+  vite-hot-client@0.2.3(vite@6.0.0-alpha.16(@types/node@20.12.12)):
     dependencies:
-      vite: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
+      vite: 6.0.0-alpha.16(@types/node@20.12.12)
 
-  vite-plugin-pages@0.32.1(@vue/compiler-sfc@3.4.27)(vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)):
+  vite-plugin-pages@0.32.1(@vue/compiler-sfc@3.4.27)(vite@6.0.0-alpha.16(@types/node@20.12.12)):
     dependencies:
       '@types/debug': 4.1.12
       debug: 4.3.4
@@ -7956,14 +7995,14 @@ snapshots:
       json5: 2.2.3
       local-pkg: 0.5.0
       picocolors: 1.0.1
-      vite: 6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12)
+      vite: 6.0.0-alpha.16(@types/node@20.12.12)
       yaml: 2.4.2
     optionalDependencies:
       '@vue/compiler-sfc': 3.4.27
     transitivePeerDependencies:
       - supports-color
 
-  vite@6.0.0-alpha.15(patch_hash=yt3b5d6sox2yypsdkbbwajxw24)(@types/node@20.12.12):
+  vite@6.0.0-alpha.16(@types/node@20.12.12):
     dependencies:
       esbuild: 0.20.2
       postcss: 8.4.38
@@ -8001,6 +8040,10 @@ snapshots:
       semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
+
+  vue-resize@2.0.0-alpha.1(vue@3.4.27(typescript@5.4.5)):
+    dependencies:
+      vue: 3.4.27(typescript@5.4.5)
 
   vue-router@4.3.2(vue@3.4.27(typescript@5.4.5)):
     dependencies:

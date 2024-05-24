@@ -21,4 +21,3 @@ await payload.init()
     </Suspense>
   </main>
 </template>
-./stores/payload

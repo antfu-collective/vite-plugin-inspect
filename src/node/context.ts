@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
-import type { PluginEnvironment, ResolvedConfig } from 'vite'
+import type { Environment, ResolvedConfig } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo } from '../types'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
@@ -55,7 +55,7 @@ export class InspectContext {
     return vite
   }
 
-  getEnvContext(env?: PluginEnvironment) {
+  getEnvContext(env?: Environment) {
     if (!env)
       throw new Error('Environment is required')
     const vite = this.getViteContext(env.config)
@@ -84,7 +84,7 @@ export class InspectContextVite {
     public readonly config: ResolvedConfig,
   ) {}
 
-  getEnvContext(env: PluginEnvironment | string) {
+  getEnvContext(env: Environment | string) {
     if (typeof env === 'string') {
       if (!this.environments.has(env))
         throw new Error(`Can not found environment context for ${env}`)
@@ -103,7 +103,7 @@ export class InspectContextViteEnv {
   constructor(
     public readonly contextMain: InspectContext,
     public readonly contextVite: InspectContextVite,
-    public readonly env: PluginEnvironment,
+    public readonly env: Environment,
   ) {}
 
   data: {
@@ -154,6 +154,10 @@ export class InspectContextViteEnv {
       .map(i => i.id || '')
       .filter(Boolean)
 
+    const getImporters = (id: string) => Array.from(moduleGraph?.getModuleById(id)?.importers || [])
+      .map(i => i.id || '')
+      .filter(Boolean)
+
     function isVirtual(pluginName: string, transformName: string) {
       return pluginName !== DUMMY_LOAD_PLUGIN_NAME && transformName !== 'vite:load-fallback' && transformName !== 'vite:build-load-fallback'
     }
@@ -194,7 +198,8 @@ export class InspectContextViteEnv {
 
         return {
           id,
-          deps: getDeps ? getDeps(id) : [],
+          deps: getDeps(id),
+          importers: getImporters(id),
           plugins,
           virtual: isVirtual(plugins[0]?.name || '', this.data.transform[id]?.[0].name || ''),
           totalTime,

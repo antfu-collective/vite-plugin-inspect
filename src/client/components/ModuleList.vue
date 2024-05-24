@@ -48,7 +48,7 @@ function byteToHumanReadable(byte: number) {
         <RouterLink
           v-for="m in list"
           :key="`${payload.query.vite}-${payload.query.env}-${m.data.id}`"
-          class="block border-b border-main px-3 py-2 text-left text-sm font-mono"
+          class="block border-b border-main hover:bg-active px-3 py-2 text-left text-sm font-mono"
           :to="{
             path: '/module',
             query: {
@@ -57,9 +57,9 @@ function byteToHumanReadable(byte: number) {
             },
           }"
         >
-          <ModuleId :id="m.data.id" badges />
-          <div v-if="options.view.listMode === 'detailed'" flex="~ gap-1 wrap" text-xs>
-            <div flex="~ gap-1 wrap">
+          <ModuleId :id="m.data.id" badges ws-nowrap />
+          <div v-if="options.view.listMode === 'detailed'" flex="~ gap-1" text-xs>
+            <div flex="~ auto gap-1" of-hidden>
               <template
                 v-for="(i, idx) in m.data.plugins
                   .slice(1)
@@ -79,7 +79,7 @@ function byteToHumanReadable(byte: number) {
                 >x{{ m.data.invokeCount }}</span>
               </template>
             </div>
-            <div flex="~ auto gap-1 wrap justify-end">
+            <div flex="~ none gap-1 wrap justify-end">
               <span op75>
                 <DurationDisplay :duration="m.data.totalTime" />
               </span>

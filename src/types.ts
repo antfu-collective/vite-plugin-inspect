@@ -29,6 +29,7 @@ export interface ModuleInfo {
   id: string
   plugins: { name: string, transform?: number, resolveId?: number }[]
   deps: string[]
+  importers: string[]
   virtual: boolean
   totalTime: number
   invokeCount: number

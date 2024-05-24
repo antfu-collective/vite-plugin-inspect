@@ -14,7 +14,7 @@ export default defineConfig({
     'border-main': 'border-gray-400 border-opacity-30',
     'border-subtle': 'border-gray-400 border-opacity-10',
     'bg-main': 'bg-white dark:bg-[#121212]',
-    'bg-active': 'bg-gray-400/10',
+    'bg-active': 'bg-gray-400/8',
     'bg-subtle': 'bg-gray-400/3',
     'text-main': 'text-gray-700 dark:text-gray-200',
 
