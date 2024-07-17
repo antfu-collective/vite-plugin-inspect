@@ -10,14 +10,14 @@
     "build-inspect": "serve .vite-inspect"
   },
   "dependencies": {
-    "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "vue": "^3.4.32",
+    "vue-router": "^4.4.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "^5.0.5",
     "serve": "^14.2.3",
-    "typescript": "^5.4.5",
-    "vite": "^5.2.11",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4",
     "vite-plugin-inspect": "workspace:*"
   }
 }

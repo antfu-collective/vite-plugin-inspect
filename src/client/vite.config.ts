@@ -80,6 +80,10 @@ export default defineConfig({
     ],
   },
 
+  future: {
+    deprecationWarnings: true,
+  },
+
   build: {
     target: 'esnext',
     outDir: resolve(__dirname, '../../dist/client'),
