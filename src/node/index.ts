@@ -152,7 +152,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
           host = `${u.protocol}//${u.host}`
         }
         catch (error) {
-          console.warn('Parse resolved url failed:', error)
+          config.logger.warn(`Parse resolved url failed: ${error}`)
         }
       }
 
@@ -160,8 +160,8 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
       if (!silent) {
         const colorUrl = (url: string) => c.green(url.replace(/:(\d+)\//, (_, port) => `:${c.bold(port)}/`))
-        // eslint-disable-next-line no-console
-        console.log(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
+
+        config.logger.info(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
       }
 
       if (_open && !isCI) {
@@ -245,8 +245,8 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       if (!build)
         return
       const dir = await generateBuild(ctx)
-      // eslint-disable-next-line no-console
-      console.log(c.green('Inspect report generated at'), c.dim(`${dir}`))
+
+      this.environment!.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(`${dir}`)}`)
       if (_open && !isCI)
         createPreviewServer(dir)
     },
