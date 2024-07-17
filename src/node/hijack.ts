@@ -175,7 +175,7 @@ export function hijackPlugin(
 }
 
 function parseError(error: any): ParsedError {
-  const stack = parseErrorStacks(error)
+  const stack = error.stack ? parseErrorStacks(error) : []
   const message = error.message || String(error)
   return {
     message,
