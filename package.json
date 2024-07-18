@@ -83,7 +83,7 @@
     "@antfu/utils": "^0.7.10",
     "@rollup/pluginutils": "^5.1.0",
     "debug": "^4.3.5",
-    "error-stack-parser-es": "^0.1.4",
+    "error-stack-parser-es": "^0.1.5",
     "fs-extra": "^11.2.0",
     "open": "^10.1.0",
     "perfect-debounce": "^1.0.0",
