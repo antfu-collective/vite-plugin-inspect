@@ -1,4 +1,3 @@
-import type { Awaitable } from '@antfu/utils'
 import type { StackFrame } from 'error-stack-parser-es'
 
 export interface TransformInfo {
@@ -30,6 +29,7 @@ export interface ModuleInfo {
   id: string
   plugins: { name: string, transform?: number, resolveId?: number }[]
   deps: string[]
+  importers: string[]
   virtual: boolean
   totalTime: number
   invokeCount: number
@@ -37,11 +37,7 @@ export interface ModuleInfo {
   distSize: number
 }
 
-export interface ModulesList {
-  root: string
-  modules: ModuleInfo[]
-  ssrModules: ModuleInfo[]
-}
+export type ModulesList = ModuleInfo[]
 
 export interface ModuleTransformInfo {
   resolvedId: string
@@ -61,16 +57,73 @@ export interface PluginMetricInfo {
   }
 }
 
-export interface RPCFunctions {
-  list(): Awaitable<ModulesList>
-  getIdInfo(id: string, ssr: boolean, clear?: boolean): Awaitable<ModuleTransformInfo>
-  resolveId(id: string, ssr: boolean): Awaitable<string>
-  clear(id: string, ssr: boolean): Awaitable<void>
-  getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
-  getServerMetrics(): Awaitable<Record<string, Record<string, { name: string, self: number, total: number }[]>>>
-  moduleUpdated(): void
+export interface ServerMetrics {
+  middleware?: Record<string, { name: string, self: number, total: number }[]>
 }
 
 export interface HMRData {
   ids: (string | null)[]
+}
+
+export interface SerializedPlugin {
+  name: string
+  enforce?: string
+  resolveId: string
+  load: string
+  transform: string
+  generateBundle: string
+  handleHotUpdate: string
+  api: string
+}
+
+export interface InstanceInfo {
+  root: string
+  /**
+   * Vite instance ID
+   */
+  vite: string
+  /**
+   * Environment names
+   */
+  environments: string[]
+  /**
+   * Plugins
+   */
+  plugins: SerializedPlugin[]
+  /**
+   * Environment plugins, the index of the plugin in the `plugins` array
+   */
+  environmentPlugins: Record<string, number[]>
+}
+
+export interface Metadata {
+  instances: InstanceInfo[]
+}
+
+export interface RpcFunctions {
+  getMetadata: () => Promise<Metadata>
+  getModulesList: (query: QueryEnv) => Promise<ModulesList>
+  getModuleTransformInfo: (query: QueryEnv, id: string, clear?: boolean) => Promise<ModuleTransformInfo>
+  getPluginMetrics: (query: QueryEnv) => Promise<PluginMetricInfo[]>
+  getServerMetrics: (query: QueryEnv) => Promise<ServerMetrics>
+  resolveId: (query: QueryEnv, id: string) => Promise<string>
+  onModuleUpdated: () => Promise<void>
+}
+
+export interface QueryEnv {
+  /**
+   * Vite instance ID
+   */
+  vite: string
+  /**
+   * Environment name
+   */
+  env: string
+}
+
+export interface QueryId extends QueryEnv {
+  /**
+   * Module Id
+   */
+  id: string
 }

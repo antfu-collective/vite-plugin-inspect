@@ -14,6 +14,7 @@ import {
 } from 'echarts/components'
 import VChart from 'vue-echarts'
 import { isDark, rpc } from '../logic'
+import { usePayloadStore } from '../stores/payload'
 
 use([
   CanvasRenderer,
@@ -24,19 +25,20 @@ use([
   GridComponent,
 ])
 
-const data = ref(await rpc.getServerMetrics())
+const payload = usePayloadStore()
+const metrics = ref(await rpc.getServerMetrics(payload.query))
 
 function getMiddlewareTotalTime(m: { total: number }[]) {
   return m[m.length - 1].total
 }
 
 const middlewareYData = computed(() => {
-  return Object.keys(data.value.middleware || {}).sort((a, b) => getMiddlewareTotalTime(data.value.middleware![a]) - getMiddlewareTotalTime(data.value.middleware![b])).slice(-50)
+  return Object.keys(metrics.value.middleware || {}).sort((a, b) => getMiddlewareTotalTime(metrics.value.middleware![a]) - getMiddlewareTotalTime(metrics.value.middleware![b])).slice(-50)
 })
 
 const middewareSeries = computed(() => {
   return (Array.from(middlewareYData.value.reduce((acc, m) => {
-    data.value.middleware[m].forEach(({ name }) => acc.add(name))
+    metrics.value.middleware?.[m].forEach(({ name }) => acc.add(name))
     return acc
   }, new Set())) as string[]).sort((a, b) => a.localeCompare(b)).map(m => ({
     name: m,
@@ -44,7 +46,7 @@ const middewareSeries = computed(() => {
     type: 'bar',
     barWidth: 12,
     data: middlewareYData.value.map((url) => {
-      const middleware = data.value.middleware![url].find(({ name }) => name === m)
+      const middleware = metrics.value.middleware![url].find(({ name }) => name === m)
       return middleware ? middleware.self : 0
     }),
   }))

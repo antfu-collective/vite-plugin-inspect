@@ -1,27 +1,35 @@
 <script setup lang="ts">
-import { inspectSSR, metricDisplayHook, onRefetch } from '../../logic'
 import { getHot } from '../../logic/hot'
-import { isStaticMode, rpc } from '../../logic/rpc'
+import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
+import { usePayloadStore } from '../../stores/payload'
+import { useOptionsStore } from '../../stores/options'
 
-const data = ref(await rpc.getPluginMetrics(inspectSSR.value))
+const options = useOptionsStore()
+const payload = usePayloadStore()
+
+const metrics = ref(await rpc.getPluginMetrics(payload.query))
 
 const selectedPlugin = ref('')
 
-const displayHookOptions = ['transform', 'resolveId', isStaticMode ? '' : 'server'].filter(Boolean).map(h => ({
+const displayHookOptions = [
+  'transform',
+  'resolveId',
+  isStaticMode ? '' : 'server',
+].filter(Boolean).map(h => ({
   label: {
-    transform: 'plugin.transform',
-    resolveId: 'plugin.resolveId',
+    transform: 'transform',
+    resolveId: 'resolveId',
     server: 'server.middleware',
   }[h as string]!,
   value: h,
 }))
 
 const plugins = computed(() => {
-  if (metricDisplayHook.value === 'server')
+  if (options.view.metricDisplayHook === 'server')
     return []
 
-  return data.value.map((info) => {
-    if (metricDisplayHook.value === 'transform') {
+  return metrics.value.map((info) => {
+    if (options.view.metricDisplayHook === 'transform') {
       return {
         name: info.name,
         enforce: info.enforce,
@@ -43,10 +51,16 @@ const plugins = computed(() => {
 })
 
 async function refetch() {
-  data.value = await rpc.getPluginMetrics(inspectSSR.value)
+  metrics.value = await rpc.getPluginMetrics(payload.query)
 }
 
-onRefetch.on(async () => {
+watch(
+  () => payload.query,
+  () => refetch(),
+  { deep: true },
+)
+
+onModuleUpdated.on(async () => {
   await refetch()
 })
 
@@ -58,7 +72,10 @@ function clearPlugin() {
   selectedPlugin.value = ''
 }
 
-watch(metricDisplayHook, clearPlugin)
+watch(
+  () => options.view.metricDisplayHook,
+  clearPlugin,
+)
 
 getHot().then((hot) => {
   if (hot) {
@@ -78,14 +95,30 @@ getHot().then((hot) => {
       Metrics
     </div>
     <SegmentControl
-      v-model="metricDisplayHook"
+      v-model="options.view.metricDisplayHook"
       :options="displayHookOptions"
     />
     <div flex-auto />
+    <QuerySelector />
+    <div mx1 h-full w-0 border="r main" />
+    <button
+      v-if="!payload.isStatic"
+      class="text-lg icon-btn" title="Refetch"
+      @click="refetch()"
+    >
+      <div i-carbon-renew />
+    </button>
   </NavBar>
-  <Container v-if="data" of-auto>
-    <PluginChart v-if="selectedPlugin && metricDisplayHook !== 'server'" :plugin="selectedPlugin" :hook="metricDisplayHook" :exit="clearPlugin" />
-    <ServerChart v-if="metricDisplayHook === 'server'" />
+  <Container v-if="metrics" of-auto>
+    <PluginChart
+      v-if="selectedPlugin && options.view.metricDisplayHook !== 'server'"
+      :plugin="selectedPlugin"
+      :hook="options.view.metricDisplayHook"
+      :exit="clearPlugin"
+    />
+    <ServerChart
+      v-if=" options.view.metricDisplayHook === 'server'"
+    />
     <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) text-sm font-mono">
       <div />
       <div class="text-xs font-bold">
@@ -117,11 +150,9 @@ getHot().then((hot) => {
         <div class="flex items-center text-center p0!">
           <Badge
             v-if="enforce"
-            class="m-auto text-xs"
-            :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5' : 'bg-green5/10 text-green5']"
-          >
-            {{ enforce }}
-          </Badge>
+            :text="enforce"
+            m-auto text-xs
+          />
         </div>
         <template v-if="invokeCount">
           <div class="text-right">

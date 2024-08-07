@@ -1,25 +1,35 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { list, root } from '../logic'
+import { usePayloadStore } from '../stores/payload'
 
-const props = defineProps<{ id?: string }>()
+const props = defineProps<{
+  id?: string
+  badges?: boolean
+}>()
 
-const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id)?.virtual)
+const payload = usePayloadStore()
+
+const mod = computed(() => payload.modules.find(i => i.id === props.id))
 </script>
 
 <template>
-  <div v-if="id" my-auto text-sm font-mono flex="~ items-center">
-    <template v-if="id.startsWith(root)">
+  <div v-if="id" my-auto text-sm font-mono flex="~ items-center gap-1">
+    <span v-if="id.startsWith(payload.root)">
       <span class="op50">.</span>
-      <span>{{ id.slice(root.length) }}</span>
-    </template>
+      <span>{{ id.slice(payload.root.length) }}</span>
+    </span>
     <span v-else>{{ id }}</span>
     <slot />
 
-    <Badge
-      v-if="isVirtual"
-      class="ml1 bg-teal-400:10 text-green-700 dark:text-teal-400"
-      v-text="'virtual'"
-    />
+    <template v-if="badges">
+      <Badge
+        v-if="mod?.virtual"
+        text="virtual"
+      />
+      <Badge
+        v-if="mod && !mod.sourceSize"
+        text="unreached" saturate-0
+      />
+    </template>
   </div>
 </template>

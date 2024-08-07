@@ -3,8 +3,8 @@ import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
 import { Pane, Splitpanes } from 'splitpanes'
 import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
-import { lineWrapping } from '../logic/state'
 import { calculateDiffWithWorker } from '../worker/diff'
+import { useOptionsStore } from '../stores/options'
 
 const props = defineProps<{
   from: string
@@ -12,9 +12,10 @@ const props = defineProps<{
   oneColumn: boolean
   diff: boolean
 }>()
-const { from, to } = toRefs(props)
 
-const panelSize = useLocalStorage('vite-inspect-diff-panel-size', 30)
+const options = useOptionsStore()
+
+const { from, to } = toRefs(props)
 
 const fromEl = ref<HTMLTextAreaElement>()
 const toEl = ref<HTMLTextAreaElement>()
@@ -45,8 +46,8 @@ onMounted(() => {
   syncCmHorizontalScrolling(cm1, cm2)
 
   watchEffect(() => {
-    cm1.setOption('lineWrapping', lineWrapping.value)
-    cm2.setOption('lineWrapping', lineWrapping.value)
+    cm1.setOption('lineWrapping', options.view.lineWrapping)
+    cm2.setOption('lineWrapping', options.view.lineWrapping)
   })
 
   watchEffect(() => {
@@ -119,13 +120,13 @@ onMounted(() => {
 const leftPanelSize = computed(() => {
   return props.oneColumn
     ? 0
-    : panelSize.value
+    : options.view.panelSizeDiff
 })
 
 function onUpdate(size: number) {
   if (props.oneColumn)
     return
-  panelSize.value = size
+  options.view.panelSizeDiff = size
 }
 </script>
 
