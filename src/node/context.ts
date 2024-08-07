@@ -32,7 +32,7 @@ export class InspectContext {
           environmentPlugins: Object.fromEntries(
             [...vite.environments.entries()]
               .map(([name, env]) => {
-                return [name, env.env.config.plugins.map(i => vite.config.plugins.indexOf(i))]
+                return [name, env.env.getTopLevelConfig().plugins.map(i => vite.config.plugins.indexOf(i))]
               }),
           ),
         })),
@@ -58,7 +58,7 @@ export class InspectContext {
   getEnvContext(env?: Environment) {
     if (!env)
       throw new Error('Environment is required')
-    const vite = this.getViteContext(env.config)
+    const vite = this.getViteContext(env.getTopLevelConfig())
     return vite.getEnvContext(env)
   }
 
@@ -91,7 +91,7 @@ export class InspectContextVite {
       return this.environments.get(env)!
     }
 
-    if (env.config !== this.config)
+    if (env.getTopLevelConfig() !== this.config)
       throw new Error('Environment config does not match Vite config')
     if (!this.environments.has(env.name))
       this.environments.set(env.name, new InspectContextViteEnv(this.context, this, env))
@@ -212,7 +212,7 @@ export class InspectContextViteEnv {
 
   resolveId(id = '', ssr = false): string {
     if (id.startsWith('./'))
-      id = resolve(this.env.config.root, id).replace(/\\/g, '/')
+      id = resolve(this.env.getTopLevelConfig().root, id).replace(/\\/g, '/')
     return this.resolveIdRecursive(id, ssr)
   }
 
@@ -231,13 +231,14 @@ export class InspectContextViteEnv {
       resolveId: { invokeCount: 0, totalTime: 0 },
     })
 
-    this.env.config.plugins.forEach((i) => {
-      map[i.name] = {
-        ...defaultMetricInfo(),
-        name: i.name,
-        enforce: i.enforce,
-      }
-    })
+    this.env.getTopLevelConfig()
+      .plugins.forEach((i) => {
+        map[i.name] = {
+          ...defaultMetricInfo(),
+          name: i.name,
+          enforce: i.enforce,
+        }
+      })
 
     Object.values(this.data.transform)
       .forEach((transformInfos) => {

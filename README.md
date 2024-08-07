@@ -3,7 +3,7 @@
 [![NPM version](https://img.shields.io/npm/v/vite-plugin-inspect?color=a1b858&label=)](https://www.npmjs.com/package/vite-plugin-inspect)
 
 > [!IMPORTANT]
-> This branch requires Vite v6, current supported version: `6.0.0-alpha.16`
+> This branch requires Vite v6, current supported version: `6.0.0-alpha.19`
 
 Inspect the intermediate state of Vite plugins. Useful for debugging and authoring plugins.
 
