@@ -4,6 +4,7 @@ import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
 import c from 'picocolors'
 import { debounce } from 'perfect-debounce'
+import { objectMap } from '@antfu/utils'
 import type { HMRData, RPCFunctions } from '../types'
 import { DIR_CLIENT } from '../dir'
 import type { Options } from './options'
@@ -125,6 +126,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
     const rpcFunctions: RPCFunctions = {
       list: () => ctx.getList(server),
       getIdInfo,
+      getWaterfallInfo,
       getPluginMetrics: (ssr = false) => ctx.getPluginMetrics(ssr),
       getServerMetrics,
       resolveId: (id: string, ssr = false) => ctx.resolveId(id, ssr),
@@ -161,6 +163,18 @@ export default function PluginInspect(options: Options = {}): Plugin {
         resolvedId,
         transforms: recorder.transform[resolvedId] || [],
       }
+    }
+
+    function getWaterfallInfo(ssr = false) {
+      const recorder = ctx.getRecorder(ssr)
+      return objectMap(recorder.transform, (id, transforms) => [
+        id,
+        transforms.map(transform => ({
+          name: transform.name,
+          start: transform.start,
+          end: transform.end,
+        })),
+      ])
     }
 
     function clearId(_id: string, ssr = false) {

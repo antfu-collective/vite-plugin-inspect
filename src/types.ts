@@ -48,6 +48,14 @@ export interface ModuleTransformInfo {
   transforms: TransformInfo[]
 }
 
+export interface WaterfallInfo {
+  [id: string]: {
+    name: string
+    start: number
+    end: number
+  }[]
+}
+
 export interface PluginMetricInfo {
   name: string
   enforce?: string
@@ -62,13 +70,14 @@ export interface PluginMetricInfo {
 }
 
 export interface RPCFunctions {
-  list(): Awaitable<ModulesList>
-  getIdInfo(id: string, ssr: boolean, clear?: boolean): Awaitable<ModuleTransformInfo>
-  resolveId(id: string, ssr: boolean): Awaitable<string>
-  clear(id: string, ssr: boolean): Awaitable<void>
-  getPluginMetrics(ssr: boolean): Awaitable<PluginMetricInfo[]>
-  getServerMetrics(): Awaitable<Record<string, Record<string, { name: string, self: number, total: number }[]>>>
-  moduleUpdated(): void
+  list: () => Awaitable<ModulesList>
+  getIdInfo: (id: string, ssr: boolean, clear?: boolean) => Awaitable<ModuleTransformInfo>
+  getWaterfallInfo: (ssr: boolean) => Awaitable<WaterfallInfo>
+  resolveId: (id: string, ssr: boolean) => Awaitable<string>
+  clear: (id: string, ssr: boolean) => Awaitable<void>
+  getPluginMetrics: (ssr: boolean) => Awaitable<PluginMetricInfo[]>
+  getServerMetrics: () => Awaitable<Record<string, Record<string, { name: string, self: number, total: number }[]>>>
+  moduleUpdated: () => void
 }
 
 export interface HMRData {
