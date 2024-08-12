@@ -122,7 +122,7 @@ watch(scale, (newScale, oldScale) => {
     <div my-auto text-sm font-mono>
       Waterfall
     </div>
-    <input v-model="searchText" placeholder="Search here..." class="w-full px-4 py-2 text-xs">
+    <input v-model="searchText" placeholder="Search..." class="w-full px-4 py-2 text-xs">
 
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
