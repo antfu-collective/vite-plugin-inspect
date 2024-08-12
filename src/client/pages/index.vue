@@ -49,7 +49,7 @@ onMounted(() => {
     <RouterLink text-lg icon-btn to="/metric" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>
-    <RouterLink text-lg icon-btn to="/waterfall" title="Metrics">
+    <RouterLink text-lg icon-btn to="/waterfall" title="Waterfall">
       <div i-carbon-chart-waterfall />
     </RouterLink>
   </NavBar>
