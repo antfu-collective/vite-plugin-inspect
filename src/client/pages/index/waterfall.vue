@@ -104,9 +104,9 @@ function getPositionStyle(start: number, end: number) {
 }
 
 const classNames = {
-  resolve: 'outline-red-200 outline-offset--1 bg-gray-500 bg-op-80 z-1',
-  transform: 'outline-blue-200 outline-offset--1 bg-gray-500 bg-op-80 z-1',
-  group: 'outline-orange-200',
+  resolve: 'outline-red-200 outline-offset--1 bg-gray-300 dark:bg-gray-500 bg-op-80 z-1',
+  transform: 'outline-blue-200 outline-offset--1 bg-gray-300 dark:bg-gray-500 bg-op-80 z-1',
+  group: 'outline-orange-700 dark:outline-orange-200',
 }
 
 watch(scale, (newScale, oldScale) => {
@@ -141,7 +141,7 @@ watch(scale, (newScale, oldScale) => {
   <Container of-auto @element="el => container = el">
     <div relative m-4 w-full flex flex-col gap-1 pb-2 pt-8>
       <div absolute left-8 top-0 h-full w-0 of-x-visible>
-        <div v-for="i in tickNum" :key="i" absolute h-full bg-red-200 bg-op-20 :style="{ left: `${1000 * i * scale - 2}px`, width: '2px' }">
+        <div v-for="i in tickNum" :key="i" absolute h-full bg-gray-400 bg-op-30 :style="{ left: `${1000 * i * scale - 2}px`, width: '2px' }">
           <span absolute left-1 top--1 w-max op-80>
             {{ i }}
             <span op-70>s</span>
