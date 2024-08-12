@@ -5,7 +5,7 @@ import { createRPCServer } from 'vite-dev-rpc'
 import c from 'picocolors'
 import { debounce } from 'perfect-debounce'
 import { objectMap } from '@antfu/utils'
-import type { HMRData, RPCFunctions } from '../types'
+import type { HMRData, RPCFunctions, ResolveIdInfo, WaterfallInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
 import type { Options } from './options'
 import { ViteInspectContext } from './context'
@@ -167,14 +167,46 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
     function getWaterfallInfo(ssr = false) {
       const recorder = ctx.getRecorder(ssr)
-      return objectMap(recorder.transform, (id, transforms) => [
-        id,
-        transforms.map(transform => ({
-          name: transform.name,
-          start: transform.start,
-          end: transform.end,
-        })),
-      ])
+      const resolveIdByResult: Record<string, ResolveIdInfo> = {}
+      for (const id in recorder.resolveId) {
+        const info = recorder.resolveId[id][0]
+        resolveIdByResult[info.result] = {
+          ...info,
+          result: id,
+        }
+      }
+      return objectMap(recorder.transform, (id, transforms) => {
+        const result: WaterfallInfo[string] = []
+        let currentId = id
+        while (resolveIdByResult[currentId]) {
+          const info = resolveIdByResult[currentId]
+          result.push({
+            name: info.name,
+            start: info.start,
+            end: info.end,
+            isResolveId: true,
+          })
+          if (currentId === info.result)
+            break
+          currentId = info.result
+        }
+        for (const transform of transforms) {
+          result.push({
+            name: transform.name,
+            start: transform.start,
+            end: transform.end,
+            isResolveId: false,
+          })
+        }
+        result.sort((a, b) => a.start - b.start)
+        const filtered = result.filter(({ start, end }, i) => i === 0 || i === result.length - 1 || start < end)
+        return filtered.length
+          ? [
+              id,
+              filtered,
+            ]
+          : undefined
+      })
     }
 
     function clearId(_id: string, ssr = false) {

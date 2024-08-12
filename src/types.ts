@@ -48,13 +48,12 @@ export interface ModuleTransformInfo {
   transforms: TransformInfo[]
 }
 
-export interface WaterfallInfo {
-  [id: string]: {
-    name: string
-    start: number
-    end: number
-  }[]
-}
+export type WaterfallInfo = Record<string, {
+  name: string
+  start: number
+  end: number
+  isResolveId: boolean
+}[]>
 
 export interface PluginMetricInfo {
   name: string

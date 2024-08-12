@@ -1,20 +1,12 @@
 <script setup lang="ts">
-import { inspectSSR, onRefetch, root } from '../../logic'
+import { range } from '@antfu/utils'
+import { inspectSSR, onRefetch, root, waterfallShowResolveId } from '../../logic'
 import { getHot } from '../../logic/hot'
 import { rpc } from '../../logic/rpc'
 
-const data = ref(await rpc.getWaterfallInfo(inspectSSR.value))
-const durationData = computed(() => Object.fromEntries(Object.entries(data.value).map(
-  ([id, transforms]) => [id, {
-    start: Math.min(...transforms.map(i => i.start), ...transforms.map(i => i.end)),
-    end: Math.max(...transforms.map(i => i.start), ...transforms.map(i => i.end)),
-  }],
-)))
-const startTime = computed(() => Math.min(...Object.values(durationData.value).map(i => i.start)))
-const endTime = computed(() => Math.max(...Object.values(durationData.value).map(i => i.end)))
+const data = shallowRef(await rpc.getWaterfallInfo(inspectSSR.value))
+const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? -1)))
 const scale = ref(0.3)
-const tickFreq = computed(() => 1000)
-const tickNum = computed(() => Math.ceil((endTime.value - startTime.value) / tickFreq.value) + 1)
 
 const searchText = ref('')
 const searchFn = computed(() => {
@@ -26,28 +18,44 @@ const searchFn = computed(() => {
   return (name: string) => regex.test(name)
 })
 
+const container = ref<HTMLElement>()
+const { x: containerScrollX } = useScroll(container)
+const { width: containerWidth } = useElementSize(container)
+const visibleMin = computed(() => (containerScrollX.value - 100) / scale.value)
+const visibleMax = computed(() => (containerScrollX.value + containerWidth.value + 100) / scale.value)
+const tickNum = computed(() => range(Math.floor(visibleMin.value / 1000), Math.ceil(visibleMax.value / 1000) + 1))
+
+interface WaterfallSpan {
+  kind: keyof typeof classNames
+  fade: boolean
+  start: number
+  end: number
+  id: string
+  name: string
+}
+
 const waterfallData = computed(() => {
-  const result: {
-    isGroup?: boolean
-    fade: boolean
-    start: number
-    end: number
-    id: string
-    name: string
-  }[][] = []
+  const result: WaterfallSpan[][] = []
   const rowsEnd: number[] = []
-  for (const [id, transforms] of Object.entries(data.value)) {
-    const sorted = [...transforms]
-      .sort((a, b) => a.start - b.start)
-      .filter(({ start, end }) => start + 2 < end)
-    if (sorted.length === 0) {
+  for (let [id, steps] of Object.entries(data.value)) {
+    if (!waterfallShowResolveId.value) {
+      steps = steps.filter(i => !i.isResolveId)
+    }
+    if (steps.length === 0) {
       continue
     }
-    const start = sorted[0].start
-    const end = sorted[sorted.length - 1].end
-    const spans = sorted.map(v => ({ ...v, id, fade: !searchFn.value(v.name) && !searchFn.value(id) }))
-    const groupSpan = {
-      isGroup: true,
+    const start = steps[0].start - startTime.value
+    const end = steps[steps.length - 1].end - startTime.value
+    const spans: WaterfallSpan[] = steps.map(v => ({
+      kind: v.isResolveId ? 'resolve' : 'transform',
+      start: v.start - startTime.value,
+      end: v.end - startTime.value,
+      name: v.name,
+      id,
+      fade: !searchFn.value(v.name) && !searchFn.value(id),
+    }))
+    const groupSpan: WaterfallSpan = {
+      kind: 'group',
       fade: spans.every(i => i.fade),
       start,
       end,
@@ -75,10 +83,7 @@ async function refetch() {
   data.value = await rpc.getWaterfallInfo(inspectSSR.value)
 }
 
-onRefetch.on(async () => {
-  await refetch()
-})
-
+onRefetch.on(refetch)
 watch(inspectSSR, refetch)
 
 getHot().then((hot) => {
@@ -89,9 +94,15 @@ getHot().then((hot) => {
 
 function getPositionStyle(start: number, end: number) {
   return {
-    left: `${(start - startTime.value) * scale.value}px`,
-    width: `${(end - start) * scale.value}px`,
+    left: `${start * scale.value}px`,
+    width: `${Math.max((end - start) * scale.value, 1)}px`,
   }
+}
+
+const classNames = {
+  resolve: 'outline-red-200 outline-offset--1 bg-gray-500 bg-op-80 z-1',
+  transform: 'outline-blue-200 outline-offset--1 bg-gray-500 bg-op-80 z-1',
+  group: 'outline-orange-200',
 }
 </script>
 
@@ -108,6 +119,9 @@ function getPositionStyle(start: number, end: number) {
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
+    <button class="text-lg icon-btn" title="Toggle Diff" @click="waterfallShowResolveId = !waterfallShowResolveId">
+      <div i-carbon-connect-source :class="waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
+    </button>
     <button text-lg icon-btn title="Zoom in" @click="scale += 0.1">
       <div i-carbon-zoom-in />
     </button>
@@ -116,31 +130,40 @@ function getPositionStyle(start: number, end: number) {
     </button>
     <div flex-auto />
   </NavBar>
-  <Container v-if="data" of-auto>
+  <Container ref="container" of-auto>
     <div relative m-4 w-full flex flex-col gap-1 pb-2 pt-8>
-      <div absolute top-0 h-full flex>
-        <div w-10 overflow-hidden text-nowrap text-xs />
-        <div relative flex-grow>
-          <div v-for="i in tickNum" :key="i" absolute h-full bg-red-200 bg-op-40 :style="{ left: `${tickFreq * (i - 1) * scale}px`, width: '1px' }">
-            <span absolute top--1 w-max> {{ i - 1 }} s </span>
-          </div>
+      <div absolute left-8 top-0 h-full w-0 of-x-visible>
+        <div v-for="i in tickNum" :key="i" absolute h-full bg-red-200 bg-op-20 :style="{ left: `${1000 * i * scale - 2}px`, width: '2px' }">
+          <span absolute left-1 top--1 w-max op-80>
+            {{ i }}
+            <span op-70>s</span>
+          </span>
         </div>
       </div>
       <div v-for="spans, i in waterfallData" :key="i" h-5 flex>
-        <div w-10 overflow-hidden text-nowrap text-xs>
+        <div w-8 overflow-hidden pr-4 text-right text-nowrap text-xs tabular-nums>
           {{ i }}
         </div>
         <div relative flex-grow>
-          <div v-for="{ isGroup, fade, start, end, id, name }, j in spans" :key="j" :title="`${name} - ${id}`" :class="(isGroup ? 'outline-orange-200 outline-offset-1 pointer-events-none' : 'outline-blue-200 outline-offset--1 bg-gray-500 bg-op-80') + (fade ? ' op-20 bg-op-20' : '')" :style="getPositionStyle(start, end)" absolute h-full flex items-center overflow-hidden text-nowrap outline-1 outline-solid>
-            <template v-if="!isGroup">
-              {{ name }} -
-              <template v-if="id.startsWith(root)">
-                <span class="op50">.</span>
-                <span>{{ id.slice(root.length) }}</span>
+          <template v-for="{ kind, fade, start, end, id, name }, j in spans" :key="j">
+            <div
+              v-if="visibleMin <= end && start <= visibleMax"
+              :title="`${kind === 'group' ? '' : `${kind === 'resolve' ? '(resolve)' : ''} ${name} - `}${id} (${start}+${end - start}ms)`"
+              :class="(classNames[kind]) + (fade ? ' op-20 bg-op-20' : '')"
+              :style="getPositionStyle(start, end)"
+              absolute h-full flex items-center overflow-hidden pl-1 text-nowrap font-mono outline-1 outline-solid
+            >
+              <template v-if="kind !== 'group'">
+                <PluginName :name />
+                <span mx-.5 op-50>-</span>
+                <template v-if="id.startsWith(root)">
+                  <span class="op50">.</span>
+                  <span>{{ id.slice(root.length) }}</span>
+                </template>
+                <span v-else>{{ id }}</span>
               </template>
-              <span v-else>{{ id }}</span>
-            </template>
-          </div>
+            </div>
+          </template>
         </div>
       </div>
     </div>
