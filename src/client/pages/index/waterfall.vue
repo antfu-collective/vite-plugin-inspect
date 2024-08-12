@@ -5,7 +5,8 @@ import { getHot } from '../../logic/hot'
 import { rpc } from '../../logic/rpc'
 
 const data = shallowRef(await rpc.getWaterfallInfo(inspectSSR.value))
-const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? -1)))
+const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity)))
+const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
 const scale = ref(0.3)
 
 const searchText = ref('')
@@ -21,9 +22,12 @@ const searchFn = computed(() => {
 const container = ref<HTMLElement>()
 const { x: containerScrollX } = useScroll(container)
 const { width: containerWidth } = useElementSize(container)
-const visibleMin = computed(() => (containerScrollX.value - 100) / scale.value)
-const visibleMax = computed(() => (containerScrollX.value + containerWidth.value + 100) / scale.value)
-const tickNum = computed(() => range(Math.floor(visibleMin.value / 1000), Math.ceil(visibleMax.value / 1000) + 1))
+const visibleMin = computed(() => (containerScrollX.value - 500) / scale.value)
+const visibleMax = computed(() => (containerScrollX.value + containerWidth.value + 500) / scale.value)
+const tickNum = computed(() => range(
+  Math.floor(Math.max(0, visibleMin.value) / 1000),
+  Math.ceil(Math.min(endTime.value - startTime.value, visibleMax.value) / 1000),
+))
 
 interface WaterfallSpan {
   kind: keyof typeof classNames
@@ -104,6 +108,10 @@ const classNames = {
   transform: 'outline-blue-200 outline-offset--1 bg-gray-500 bg-op-80 z-1',
   group: 'outline-orange-200',
 }
+
+watch(scale, (newScale, oldScale) => {
+  containerScrollX.value *= newScale / oldScale
+})
 </script>
 
 <template>
@@ -119,7 +127,7 @@ const classNames = {
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button class="text-lg icon-btn" title="Toggle Diff" @click="waterfallShowResolveId = !waterfallShowResolveId">
+    <button class="text-lg icon-btn" title="Show resolveId" @click="waterfallShowResolveId = !waterfallShowResolveId">
       <div i-carbon-connect-source :class="waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Zoom in" @click="scale += 0.1">
@@ -130,7 +138,7 @@ const classNames = {
     </button>
     <div flex-auto />
   </NavBar>
-  <Container ref="container" of-auto>
+  <Container of-auto @element="el => container = el">
     <div relative m-4 w-full flex flex-col gap-1 pb-2 pt-8>
       <div absolute left-8 top-0 h-full w-0 of-x-visible>
         <div v-for="i in tickNum" :key="i" absolute h-full bg-red-200 bg-op-20 :style="{ left: `${1000 * i * scale - 2}px`, width: '2px' }">
@@ -144,6 +152,7 @@ const classNames = {
         <div w-8 overflow-hidden pr-4 text-right text-nowrap text-xs tabular-nums>
           {{ i }}
         </div>
+        <div absolute h-full :style="getPositionStyle(0, endTime - startTime)" />
         <div relative flex-grow>
           <template v-for="{ kind, fade, start, end, id, name }, j in spans" :key="j">
             <div
