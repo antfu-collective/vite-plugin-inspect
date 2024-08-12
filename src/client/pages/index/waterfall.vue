@@ -110,7 +110,7 @@ const classNames = {
 }
 
 watch(scale, (newScale, oldScale) => {
-  containerScrollX.value *= newScale / oldScale
+  containerScrollX.value = (containerScrollX.value - 40) * newScale / oldScale + 40
 })
 </script>
 
