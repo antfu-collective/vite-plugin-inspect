@@ -12,6 +12,7 @@ declare module 'vue' {
     DiffEditor: typeof import('./components/DiffEditor.vue')['default']
     DurationDisplay: typeof import('./components/DurationDisplay.vue')['default']
     ErrorDisplay: typeof import('./components/ErrorDisplay.vue')['default']
+    FileIcon: typeof import('./components/FileIcon.vue')['default']
     FilepathItem: typeof import('./components/FilepathItem.vue')['default']
     Graph: typeof import('./components/Graph.vue')['default']
     ModuleId: typeof import('./components/ModuleId.vue')['default']

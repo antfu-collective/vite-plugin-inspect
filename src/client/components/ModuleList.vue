@@ -46,7 +46,7 @@ function byteToHumanReadable(byte: number) {
           :to="`/module?id=${encodeURIComponent(m.data.id)}`"
         >
           <ModuleId :id="m.data.id" />
-          <div v-if="listMode === &quot;detailed&quot;" text-xs flex="~ gap-1">
+          <div v-if="listMode === 'detailed'" text-xs flex="~ gap-1">
             <template
               v-for="(i, idx) in m.data.plugins
                 .slice(1)
