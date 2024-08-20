@@ -3,7 +3,6 @@ import type { Data, Options } from 'vis-network'
 import { Network } from 'vis-network'
 import { DataSet } from 'vis-data'
 import type { ModuleInfo } from '../../types'
-import { isDark } from '../logic'
 import { useOptionsStore } from '../stores/options'
 import { useSearchResults } from '../stores/search'
 
