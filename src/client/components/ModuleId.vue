@@ -2,10 +2,16 @@
 import { computed } from 'vue'
 import { usePayloadStore } from '../stores/payload'
 
-const props = defineProps<{
-  id?: string
-  badges?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    id?: string
+    badges?: boolean
+    icon?: boolean
+  }>(),
+  {
+    icon: true,
+  },
+)
 
 const payload = usePayloadStore()
 
@@ -14,6 +20,7 @@ const mod = computed(() => payload.modules.find(i => i.id === props.id))
 
 <template>
   <div v-if="id" my-auto text-sm font-mono flex="~ items-center gap-1">
+    <FileIcon v-if="icon" :filename="id" />
     <span v-if="id.startsWith(payload.root)">
       <span class="op50">.</span>
       <span>{{ id.slice(payload.root.length) }}</span>

@@ -93,6 +93,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^2.26.0",
     "@antfu/ni": "^0.22.4",
+    "@iconify-json/catppuccin": "^1.1.4",
     "@iconify/json": "^2.2.239",
     "@nuxt/kit": "^3.12.4",
     "@types/codemirror": "^5.60.15",
