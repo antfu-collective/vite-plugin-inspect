@@ -26,6 +26,10 @@ html.dark {
 
 
 /* Splitpanes */
+.splitpanes__pane {
+  transition: none !important;
+}
+
 .splitpanes__splitter {
   position: relative;
 }
@@ -63,4 +67,27 @@ html.dark {
   top: -5px;
   bottom: -4px;
   width: 100%;
+}
+
+/* Overrides Floating Vue */
+.v-popper--theme-dropdown .v-popper__inner,
+.v-popper--theme-tooltip .v-popper__inner {
+  --at-apply: bg-main text-main font-sans rounded border border-main shadow dark-shadow-2xl;
+  box-shadow: 0 6px 30px #0000001a;
+}
+
+.v-popper--theme-tooltip .v-popper__arrow-inner,
+.v-popper--theme-dropdown .v-popper__arrow-inner {
+  visibility: visible;
+  --at-apply: border-white dark-border-neutral-900;
+}
+
+.v-popper--theme-tooltip .v-popper__arrow-outer,
+.v-popper--theme-dropdown .v-popper__arrow-outer {
+  --at-apply: border-main;
+}
+
+.v-popper--theme-tooltip.v-popper--shown,
+.v-popper--theme-tooltip.v-popper--shown * {
+  transition: none !important;
 }
