@@ -5,18 +5,6 @@ const props = defineProps<{
   filename: string
 }>()
 
-const ext = computed(() => {
-  let file = props.filename
-  file = file
-    .replace(/(\?|&)v=[^&]*/, '$1')
-    .replace(/\?$/, '')
-
-  if (file.match(/[\\/]node_modules[\\/]/))
-    return 'node_modules'
-
-  return file.split('.').pop().toLowerCase()
-})
-
 const map = {
   angular: 'i-catppuccin-angular',
   vue: 'i-catppuccin-vue',
@@ -40,10 +28,29 @@ const map = {
   yaml: 'i-catppuccin-yaml',
   toml: 'i-catppuccin-toml',
   svg: 'i-catppuccin-svg',
-  node_modules: 'i-catppuccin-folder-node-open',
-}
+} as Record<string, string>
 
-const icon = computed(() => map[ext.value] || 'i-catppuccin-file')
+const icon = computed(() => {
+  let file = props.filename
+  file = file
+    .replace(/(\?|&)v=[^&]*/, '$1')
+    .replace(/\?$/, '')
+
+  if (file.match(/[\\/]node_modules[\\/]/))
+    return 'i-catppuccin-folder-node-open'
+
+  let ext = (file.split('.').pop() || '').toLowerCase()
+  let icon = map[ext]
+  if (icon)
+    return icon
+
+  ext = ext.split('?')[0]
+  icon = map[ext]
+  if (icon)
+    return icon
+
+  return 'i-catppuccin-file'
+})
 </script>
 
 <template>
