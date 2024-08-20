@@ -48,7 +48,7 @@ export function safeJsonParse(str: string) {
   try {
     return JSON.parse(str)
   }
-  catch (e) {
+  catch {
     console.error('Failed to parse JSON', str)
     return null
   }

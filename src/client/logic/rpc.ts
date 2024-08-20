@@ -24,7 +24,7 @@ function createStaticRpcClient(): RPCFunctions {
       try {
         return await fetch(`./reports/${ssr ? 'metrics-ssr' : 'metrics'}.json`).then(r => r.json())
       }
-      catch (e) {
+      catch {
         return []
       }
     },
