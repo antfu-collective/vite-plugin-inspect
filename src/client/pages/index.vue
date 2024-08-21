@@ -23,27 +23,27 @@ onMounted(() => {
         @click="toggleSort()"
       >
         <template v-if="searchText">
-          <div i-carbon-search />
-          <div i-carbon-arrow-down text-sm op70 />
+          <span i-carbon-search block />
+          <span i-carbon-arrow-down block text-sm op70 />
         </template>
         <template v-else-if="sortMode === 'time-asc'">
-          <div i-carbon-time />
-          <div i-carbon-arrow-down text-sm op70 />
+          <span i-carbon-time block />
+          <span i-carbon-arrow-down block text-sm op70 />
         </template>
         <template v-else-if="sortMode === 'time-desc'">
-          <div i-carbon-time />
-          <div i-carbon-arrow-up text-sm op70 />
+          <span i-carbon-time block />
+          <span i-carbon-arrow-up block text-sm op70 />
         </template>
         <template v-else>
-          <div i-carbon-menu />
-          <div i-carbon-chevron-sort text-sm op70 />
+          <span i-carbon-menu block />
+          <span i-carbon-chevron-sort block text-sm op70 />
         </template>
       </button>
     </template>
     <button text-lg icon-btn title="View Mode" @click="toggleMode()">
-      <div v-if="listMode === 'detailed'" i-carbon-list-boxes />
-      <div v-else-if="listMode === 'list'" i-carbon-list />
-      <div v-else i-carbon-network-4 />
+      <span v-if="listMode === 'detailed'" i-carbon-list-boxes block />
+      <span v-else-if="listMode === 'list'" i-carbon-list block />
+      <span v-else i-carbon-network-4 block />
     </button>
     <div h-full w-1 border="r main" />
     <RouterLink text-lg icon-btn to="/metric" title="Metrics">
