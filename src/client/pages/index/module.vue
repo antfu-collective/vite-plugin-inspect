@@ -94,7 +94,7 @@ getHot().then((hot) => {
     <ModuleId v-if="id" :id="id" />
     <Badge
       v-if="inspectSSR"
-      class="bg-teal-400:10 text-green-700 font-bold dark:text-teal-400"
+      class="badge-green"
     >
       SSR
     </Badge>
@@ -153,28 +153,28 @@ getHot().then((hot) => {
             </span>
             <Badge
               v-if="!tr.result"
-              class="bg-gray-400:10 text-gray-700 dark:text-gray-400"
+              class="badge-gray"
               v-text="'bailout'"
             />
             <Badge
               v-else-if="tr.noChange"
-              class="bg-orange-400:10 text-orange-800 dark:text-orange-400"
+              class="badge-orange"
               v-text="'no change'"
             />
             <Badge
               v-if="tr.load"
-              class="bg-light-blue-400/10 text-blue-700 dark:text-light-blue-400"
+              class="badge-load"
               v-text="'load'"
             />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
-              class="bg-violet-400:10 text-violet-700 dark:text-violet-400"
+              class="badge-order"
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
               v-text="tr.order"
             />
             <Badge
               v-if="tr.error"
-              class="bg-red-400:10 text-red7 dark:text-red-400"
+              class="badge-error"
               v-text="'error'"
             />
             <div flex-auto />

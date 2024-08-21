@@ -15,16 +15,16 @@ function getDurationColor(duration: number | undefined) {
   if (!props.color)
     return ''
   if (duration == null)
-    return 'text-gray:75'
+    return 'status-gray'
   duration = duration * props.factor
   if (duration < 1)
-    return 'text-gray:75'
+    return 'status-gray'
   if (duration > 1000)
-    return 'text-red-400'
+    return 'status-red'
   if (duration > 500)
-    return 'text-orange-400'
+    return 'status-yellow'
   if (duration > 200)
-    return 'text-yellow-400'
+    return 'status-green'
   return ''
 }
 
@@ -43,6 +43,21 @@ const units = computed(() => {
 
 <template>
   <div :class="getDurationColor(duration)">
-    {{ units[0] }}<span ml-0.4 text-xs op50>{{ units[1] }}</span>
+    <span>{{ units[0] }}</span><span ml-0.4 text-xs>{{ units[1] }}</span>
   </div>
 </template>
+
+<style scoped>
+div:not(.status-red) > span:first-of-type {
+  @apply op80 dark:op65;
+}
+div:not(.status-red) > span:last-of-type {
+  @apply op75 dark:op50;
+}
+div.status-red > span:first-of-type {
+  @apply op80 dark:op95;
+}
+div.status-red > span:last-of-type {
+  @apply op75 dark:op90;
+}
+</style>

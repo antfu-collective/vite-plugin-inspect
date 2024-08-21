@@ -54,26 +54,26 @@ function byteToHumanReadable(byte: number) {
               :key="i"
             >
               <span v-if="idx !== 0" op20>|</span>
-              <span op50>
+              <span>
                 <PluginName :name="i.name" :hide="true" />
               </span>
             </template>
             <template v-if="m.data.invokeCount > 2">
               <span op40>·</span>
               <span
-                text-green
+                status-green
                 :title="`Transform invoked ${m.data.invokeCount} times`"
               >x{{ m.data.invokeCount }}</span>
             </template>
             <div flex-auto />
-            <span op75>
+            <span>
               <DurationDisplay :duration="m.data.totalTime" />
             </span>
             <template v-if="m.data.sourceSize && m.data.distSize">
               <span op40>·</span>
-              <span op50>{{ byteToHumanReadable(m.data.sourceSize) }}</span>
+              <span class="op75 dark:op50">{{ byteToHumanReadable(m.data.sourceSize) }}</span>
               <span i-carbon-arrow-right op40 />
-              <span op50 :class="m.data.distSize > m.data.sourceSize ? 'text-orange' : 'text-green'">{{ byteToHumanReadable(m.data.distSize) }}</span>
+              <span class="op100 dark:op-65" :class="m.data.distSize > m.data.sourceSize ? 'status-yellow' : 'status-green'">{{ byteToHumanReadable(m.data.distSize) }}</span>
             </template>
           </div>
         </RouterLink>

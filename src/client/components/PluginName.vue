@@ -24,10 +24,10 @@ const parts = computed(() => {
 </script>
 
 <template>
-  <span v-if="parts[0] && !hide" class="op50">
+  <span v-if="parts[0] && !hide" class="op75 dark:op50">
     {{ parts[0] }}
   </span>
-  <span>
+  <span class="op75 dark:op50">
     {{ parts[1] }}
   </span>
 </template>
