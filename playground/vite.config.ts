@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [
     vue(),
     {
-      name: 'virtual-loader',
+      name: 'custom-loader',
       resolveId(id) {
         return id === 'virtual:hi' ? `\0${id}` : undefined
       },
@@ -20,7 +20,7 @@ export default defineConfig({
       },
     },
     {
-      name: 'slow-virtual-loader',
+      name: 'custom-slow-loader',
       // for testing purpose, don't change it
       enforce: 'post',
       resolveId(id) {
