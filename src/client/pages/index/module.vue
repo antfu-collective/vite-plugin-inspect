@@ -101,20 +101,20 @@ getHot().then((hot) => {
     <div flex-auto />
 
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
-      <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-cloud-services block :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
-      <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-choropleth-map block :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">
-      <div i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-text-wrap block :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Toggle one column" @click="showOneColumn = !showOneColumn">
-      <div v-if="showOneColumn" i-carbon-side-panel-open />
-      <div v-else i-carbon-side-panel-close />
+      <span v-if="showOneColumn" i-carbon-side-panel-open block />
+      <span v-else i-carbon-side-panel-close block />
     </button>
     <button class="text-lg icon-btn" title="Toggle Diff" @click="enableDiff = !enableDiff">
-      <div i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-compare block :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
     </button>
   </NavBar>
   <Container
@@ -130,7 +130,7 @@ getHot().then((hot) => {
         <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
           <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
           <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
-            <div :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
+            <span block :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />
