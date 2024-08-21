@@ -143,12 +143,12 @@ getHot().then((hot) => {
               currentIndex === tr.index
                 ? 'bg-active'
                 : tr.noChange || !tr.result
-                  ? 'op50'
+                  ? 'op95 font-italic'
                   : ''
             "
             @click="index = tr.index.toString()"
           >
-            <span :class="currentIndex === tr.index ? 'font-bold' : ''">
+            <span :class="currentIndex !== tr.index && (tr.noChange || !tr.result) ? '' : 'fw-600'">
               <PluginName :name="tr.name" />
             </span>
             <Badge
@@ -177,7 +177,7 @@ getHot().then((hot) => {
               class="badge-error"
               v-text="'error'"
             />
-            <div flex-auto />
+            <span flex-auto />
             <DurationDisplay :duration="tr.end - tr.start" />
           </button>
         </template>
