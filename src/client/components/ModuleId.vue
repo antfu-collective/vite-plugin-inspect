@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { list, root } from '../logic'
 
 const props = withDefaults(
@@ -27,7 +26,7 @@ const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id
 
     <Badge
       v-if="isVirtual"
-      class="ml1 badge-green"
+      class="ml1 badge-virtual"
       v-text="'virtual'"
     />
   </div>

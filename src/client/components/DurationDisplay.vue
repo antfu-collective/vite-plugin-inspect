@@ -15,10 +15,10 @@ function getDurationColor(duration: number | undefined) {
   if (!props.color)
     return ''
   if (duration == null)
-    return 'status-gray'
+    return ''
   duration = duration * props.factor
   if (duration < 1)
-    return 'status-gray'
+    return ''
   if (duration > 1000)
     return 'status-red'
   if (duration > 500)
