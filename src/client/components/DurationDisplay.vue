@@ -42,22 +42,22 @@ const units = computed(() => {
 </script>
 
 <template>
-  <div :class="getDurationColor(duration)">
+  <span block :class="getDurationColor(duration)">
     <span>{{ units[0] }}</span><span ml-0.4 text-xs>{{ units[1] }}</span>
-  </div>
+  </span>
 </template>
 
 <style scoped>
-div:not(.status-red) > span:first-of-type {
+span:not(.status-red) > span:first-of-type {
   @apply op80 dark:op65;
 }
-div:not(.status-red) > span:last-of-type {
+span:not(.status-red) > span:last-of-type {
   @apply op75 dark:op50;
 }
-div.status-red > span:first-of-type {
+span.status-red > span:first-of-type {
   @apply op80 dark:op95;
 }
-div.status-red > span:last-of-type {
+span.status-red > span:last-of-type {
   @apply op75 dark:op90;
 }
 </style>
