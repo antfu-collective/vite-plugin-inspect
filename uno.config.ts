@@ -28,6 +28,7 @@ export default defineConfig({
     'status-green': 'text-green-700 dark:text-[#34E676]',
     'status-yellow': 'text-[#827717] dark:text-[#EAB306]',
     'status-red': 'text-[#b71c1c] dark:text-[#EF5350]',
+    'status-lime': 'text-lime-700 dark:text-lime-200',
     'module-title': 'whitespace-nowrap overflow-hidden text-ellipsis',
   },
   presets: [

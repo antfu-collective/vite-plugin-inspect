@@ -108,7 +108,7 @@ getHot().then((hot) => {
 
       <template v-for="{ name, totalTime, invokeCount, enforce } in plugins" :key="name">
         <div />
-        <div v-if="totalTime > 0" class="cursor-pointer status-green hover:underline" @click="selectPlugin(name)">
+        <div v-if="totalTime > 0" class="cursor-pointer status-lime hover:underline" @click="selectPlugin(name)">
           <PluginName :name="name" colored />
         </div>
         <div v-else>
