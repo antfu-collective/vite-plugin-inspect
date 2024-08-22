@@ -5,16 +5,25 @@ import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { ModuleInfo, PluginMetricInfo, ResolveIdInfo } from '../types'
 import { Recorder } from './recorder'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
+import { removeVersionQuery } from './utils'
 
 export class ViteInspectContext {
   public filter: (id: string) => boolean
   public config: ResolvedConfig = undefined!
 
-  public recorderClient = new Recorder()
-  public recorderServer = new Recorder()
+  public recorderClient: Recorder
+  public recorderServer: Recorder
 
   constructor(public options: any) {
     this.filter = createFilter(options.include, options.exclude)
+    this.recorderClient = new Recorder(this)
+    this.recorderServer = new Recorder(this)
+  }
+
+  normalizeId(id: string) {
+    if (this.options.removeVersionQuery !== false)
+      return removeVersionQuery(id)
+    return id
   }
 
   getRecorder(ssr: boolean | undefined) {
