@@ -141,7 +141,7 @@ getHot().then((hot) => {
               currentIndex === tr.index
                 ? 'bg-active'
                 : tr.noChange || !tr.result
-                  ? 'font-italic'
+                  ? 'op75 saturate-50'
                   : ''
             "
             @click="index = tr.index.toString()"

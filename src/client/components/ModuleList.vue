@@ -3,11 +3,13 @@ import type { ModuleInfo } from '../../types'
 import { listMode, searchText } from '../logic'
 
 const props = defineProps<{
-  modules: ModuleInfo[]
+  modules: readonly ModuleInfo[]
 }>()
 
+const route = useRoute()
+
 const { list, containerProps, wrapperProps } = useVirtualList(
-  toRef(props, 'modules'),
+  toRef(props, 'modules') as Ref<ModuleInfo[]>,
   {
     itemHeight: listMode.value === 'detailed' ? 53 : 37,
   },
@@ -32,8 +34,14 @@ const { list, containerProps, wrapperProps } = useVirtualList(
         <RouterLink
           v-for="m in list"
           :key="m.data.id"
-          class="block border-b border-main px-3 py-2 text-left text-sm font-mono"
-          :to="`/module?id=${encodeURIComponent(m.data.id)}`"
+          class="block border-b border-main hover:bg-active px-3 py-2 text-left text-sm font-mono"
+          :to="{
+            path: '/module',
+            query: {
+              ...route.query,
+              id: m.data.id,
+            },
+          }"
         >
           <ModuleId :id="m.data.id" />
           <div v-if="listMode === 'detailed'" text-xs flex="~ gap-1">
@@ -44,8 +52,8 @@ const { list, containerProps, wrapperProps } = useVirtualList(
               :key="i"
             >
               <span v-if="idx !== 0" op20>|</span>
-              <span>
-                <PluginName :name="i.name" :hide="true" />
+              <span ws-nowrap op50>
+                <PluginName :name="i.name" :compact="true" />
               </span>
             </template>
             <template v-if="m.data.invokeCount > 2">
