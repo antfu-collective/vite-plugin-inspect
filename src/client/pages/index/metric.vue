@@ -89,7 +89,7 @@ getHot().then((hot) => {
 <template>
   <NavBar>
     <RouterLink class="my-auto icon-btn !outline-none" to="/">
-      <div i-carbon-arrow-left />
+      <span i-carbon-arrow-left />
     </RouterLink>
     <div my-auto text-sm font-mono>
       Metrics
@@ -150,8 +150,8 @@ getHot().then((hot) => {
         <div class="flex items-center text-center p0!">
           <Badge
             v-if="enforce"
-            :text="enforce"
             m-auto text-xs
+            :text="enforce"
           />
         </div>
         <template v-if="invokeCount">

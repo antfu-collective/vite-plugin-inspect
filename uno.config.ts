@@ -7,6 +7,7 @@ import {
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
+import { createLocalFontProcessor } from '@unocss/preset-web-fonts/local'
 
 // @unocss-include
 export default defineConfig({
@@ -52,6 +53,7 @@ export default defineConfig({
         mono: 'DM Mono',
         sans: 'DM Sans',
       },
+      processors: createLocalFontProcessor(),
     }),
   ],
   transformers: [

@@ -41,29 +41,29 @@ const isRoot = computed(() => route.path === '/')
           <span i-carbon-arrow-up text-sm op70 />
         </template>
         <template v-else>
-          <span i-carbon-menu block />
-          <span i-carbon-chevron-sort block text-sm op70 />
+          <span i-carbon-menu />
+          <span i-carbon-chevron-sort text-sm op70 />
         </template>
       </button>
     </template>
     <button text-lg icon-btn title="View Mode" @click="options.toggleListMode()">
-      <div v-if="options.view.listMode === 'detailed'" i-carbon-list-boxes />
-      <div v-else-if="options.view.listMode === 'list'" i-carbon-list />
-      <div v-else i-carbon-network-4 />
+      <span v-if="options.view.listMode === 'detailed'" i-carbon-list-boxes />
+      <span v-else-if="options.view.listMode === 'list'" i-carbon-list />
+      <span v-else i-carbon-network-4 />
     </button>
     <div mx2 h-full w-1 border="r main" />
     <RouterLink text-lg icon-btn :to="{ path: '/metric', query: route.query }" title="Metrics">
-      <div i-carbon-meter />
+      <span i-carbon-meter />
     </RouterLink>
     <RouterLink text-lg icon-btn :to="{ path: '/plugins', query: route.query }" title="Plugins">
-      <div i-carbon-microservices-1 />
+      <span i-carbon-microservices-1 />
     </RouterLink>
     <button
       v-if="!payload.isStatic"
       class="text-lg icon-btn" title="Refetch"
       @click="payload.refetch()"
     >
-      <div i-carbon-renew />
+      <span i-carbon-renew />
     </button>
   </NavBar>
   <Container of-auto>

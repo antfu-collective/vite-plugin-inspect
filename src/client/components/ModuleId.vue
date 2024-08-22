@@ -146,8 +146,8 @@ const containerClass = computed(() => {
 
     <Badge
       v-if="isVirtual"
-      class="ml1 badge-virtual"
-      v-text="'virtual'"
+      class="ml1"
+      text="virtual"
     />
   </div>
 </template>
