@@ -91,7 +91,7 @@ getHot().then((hot) => {
     <RouterLink my-auto outline-none icon-btn to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
-    <ModuleId v-if="id" :id="id" />
+    <ModuleId v-if="id" :id="id" module />
     <Badge
       v-if="inspectSSR"
       class="badge-green"
