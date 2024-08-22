@@ -92,15 +92,3 @@ html.dark {
 .v-popper--theme-tooltip.v-popper--shown * {
   transition: none !important;
 }
-
-.v-popper__popper .v-popper__inner {
-  font-size: 12px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  background-color: #121212;
-  color: white;
-}
-
-.v-popper__popper .v-popper__arrow-outer {
-  border-color: #121212;
-}

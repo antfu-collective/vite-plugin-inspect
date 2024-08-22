@@ -12,6 +12,7 @@ export default defineConfig({
   shortcuts: {
     'border-main': 'border-gray-400 border-opacity-30',
     'bg-main': 'bg-white dark:bg-[#121212]',
+    'text-main': 'text-[#121212] dark:text-white',
     'bg-active': 'bg-gray-400/10',
     'icon-btn': 'inline-block cursor-pointer select-none !outline-none '
     + 'opacity-75 transition duration-200 ease-in-out '
