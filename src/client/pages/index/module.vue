@@ -128,7 +128,7 @@ getHot().then((hot) => {
         <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
           <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
           <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
-            <span :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
+            <span :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-75 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />

@@ -13,9 +13,11 @@ import { createLocalFontProcessor } from '@unocss/preset-web-fonts/local'
 export default defineConfig({
   shortcuts: {
     'border-main': 'border-gray-400 border-opacity-30',
+    'border-subtle': 'border-gray-400 border-opacity-10',
     'bg-main': 'bg-white dark:bg-[#121212]',
-    'text-main': 'text-[#121212] dark:text-white',
     'bg-active': 'bg-gray-400/10',
+    'bg-subtle': 'bg-gray-400/3',
+    'text-main': 'text-[#121212] dark:text-white',
 
     'icon-btn': [
       'inline-block cursor-pointer select-none !outline-none',
