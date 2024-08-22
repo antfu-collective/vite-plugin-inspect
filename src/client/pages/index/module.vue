@@ -187,7 +187,7 @@ getHot().then((hot) => {
             class="icon-btn" title="Toggle bailout plugins"
             @click="options.view.showBailout = !options.view.showBailout"
           >
-            <div :class="options.view.showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
+            <div :class="options.view.showBailout ? 'opacity-100 i-carbon-view' : 'opacity-75 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />

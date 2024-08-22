@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Fragment } from 'vue'
 import { getHashColorFromString } from '../logic/color'
 
 const props = defineProps<{
@@ -30,7 +29,7 @@ function render() {
     if (props.name.startsWith(s)) {
       if (props.compact)
         return h('span', props.name.slice(s.length))
-      return h(Fragment, [
+      return h('span', [
         h('span', { class: 'op50' }, s),
         h('span', props.name.slice(s.length)),
       ])
@@ -39,7 +38,7 @@ function render() {
 
   const parts = props.name.split(':')
   if (parts.length > 1) {
-    return h(Fragment, [
+    return h('span', [
       h('span', { style: { color: getHashColorFromString(parts[0]) } }, `${parts[0]}:`),
       h('span', parts.slice(1).join(':')),
     ])

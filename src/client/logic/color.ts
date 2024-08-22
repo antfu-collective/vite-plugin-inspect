@@ -18,6 +18,7 @@ import { isDark } from './dark'
 const predefinedColorMap = {
   error: 0,
   client: 60,
+  bailout: -1,
   ssr: 270,
   vite: 250,
   vite1: 240,
@@ -43,8 +44,10 @@ export function getHsla(
   hue: number,
   opacity: number | string = 1,
 ) {
-  const saturation = isDark.value ? 50 : 65
-  const lightness = isDark.value ? 60 : 40
+  const saturation = hue === -1
+    ? 0
+    : isDark.value ? 50 : 100
+  const lightness = isDark.value ? 60 : 20
   return `hsla(${hue}, ${saturation}%, ${lightness}%, ${opacity})`
 }
 
