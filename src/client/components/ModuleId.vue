@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { vTooltip } from 'floating-vue'
+import { relative } from 'pathe'
 import { list, root } from '../logic'
+import { getPluginColor } from '../logic/color'
 
 const props = withDefaults(
   defineProps<{
@@ -14,11 +16,83 @@ const props = withDefaults(
 )
 
 const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id)?.virtual)
-const moduleName = computed(() =>
-  props.id?.startsWith(root.value)
-    ? props.id.slice(root.value.length)
-    : props.id ?? '',
-)
+const relativePath = computed(() => {
+  if (!props.id)
+    return ''
+  let relate = relative(root.value, props.id)
+  if (!relate.startsWith('.'))
+    relate = `./${relate}`
+  if (relate.startsWith('./'))
+    return relate
+  if (relate.match(/^(?:\.\.\/){1,3}[^.]/))
+    return relate
+  return props.id
+})
+
+const HighlightedPath = defineComponent({
+  render() {
+    const parts = relativePath.value.split(/([/?&:])/g)
+    let type: 'start' | 'path' | 'query' = 'start'
+
+    const classes: string[][] = parts.map(() => [])
+    const nodes = parts.map((part) => {
+      return h('span', { class: '' }, part)
+    })
+
+    parts.forEach((part, index) => {
+      const _class = classes[index]
+      if (part === '?')
+        type = 'query'
+
+      if (type === 'start') {
+        if (part.match(/^\.+$/)) {
+          _class.push('op50')
+        }
+        else if (part === '/') {
+          _class.push('op50')
+        }
+        else if (part !== '/') {
+          type = 'path'
+        }
+      }
+
+      if (type === 'path') {
+        if (part === '/' || part === 'node_modules' || part.match(/^\.\w/)) {
+          _class.push('op75')
+        }
+        if (part === '.pnpm') {
+          classes[index + 2]?.push('op50')
+          if (nodes[index + 2])
+            nodes[index + 2].children = '…'
+        }
+        if (part === ':') {
+          if (nodes[index - 1]) {
+            nodes[index - 1].props ||= {}
+            nodes[index - 1].props!.style ||= {}
+            nodes[index - 1].props!.style.color = getPluginColor(parts[index - 1])
+          }
+          _class.push('op50')
+        }
+      }
+
+      if (type === 'query') {
+        if (part === '?' || part === '&') {
+          _class.push('text-rose-5 dark:text-rose-4')
+        }
+        else {
+          _class.push('text-orange-9 dark:text-orange-2')
+        }
+      }
+    })
+
+    nodes.forEach((node, index) => {
+      if (node.props)
+        node.props.class = classes[index].join(' ')
+    })
+
+    return nodes
+  },
+})
 
 const gridStyles = computed(() => {
   if (!props.module)
@@ -51,7 +125,7 @@ const containerClass = computed(() => {
   <div
     v-if="id"
     v-tooltip.bottom-start="{
-      content: moduleName,
+      content: props.id,
       triggers: ['hover', 'focus'],
       disabled: !module,
     }"
@@ -60,11 +134,8 @@ const containerClass = computed(() => {
     :style="gridStyles"
   >
     <FileIcon v-if="icon" :filename="id" mr1.5 />
-    <span :class="{ 'overflow-hidden': module }">
-      <template v-if="id.startsWith(root)">
-        <span class="op50">.</span>
-      </template>
-      <span :class="{ 'text-truncate': module }">{{ moduleName }}</span>
+    <span :class="{ 'overflow-hidden': module, 'text-truncate': module }">
+      <HighlightedPath />
     </span>
     <slot />
 
