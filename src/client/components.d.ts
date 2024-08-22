@@ -22,6 +22,7 @@ declare module 'vue' {
     NumberWithUnit: typeof import('./components/NumberWithUnit.vue')['default']
     PluginChart: typeof import('./components/PluginChart.vue')['default']
     PluginName: typeof import('./components/PluginName.vue')['default']
+    QuerySelector: typeof import('./components/QuerySelector.vue')['default']
     RadioGroup: typeof import('./components/RadioGroup.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

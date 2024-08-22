@@ -3,7 +3,7 @@ import type { Plugin } from 'vite'
 import Debug from 'debug'
 import { parse as parseErrorStacks } from 'error-stack-parser-es'
 import type { ParsedError } from '../types'
-import type { ViteInspectContext } from './context'
+import type { InspectContext } from './context'
 
 const debug = Debug('vite-plugin-inspect')
 
@@ -50,14 +50,19 @@ function hijackHook<K extends keyof Plugin>(plugin: Plugin, name: K, wrapper: Ho
   }
 }
 
+const hijackedPlugins = new WeakSet<Plugin>()
+
 export function hijackPlugin(
   plugin: Plugin,
-  ctx: ViteInspectContext,
+  ctx: InspectContext,
 ) {
+  if (hijackedPlugins.has(plugin))
+    return
+  hijackedPlugins.add(plugin)
+
   hijackHook(plugin, 'transform', async (fn, context, args, order) => {
     const code = args[0]
     const id = args[1]
-    const ssr = args[2]?.ssr
 
     let _result: TransformResult
     let error: any
@@ -74,16 +79,17 @@ export function hijackPlugin(
     const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code)
     if (ctx.filter(id)) {
       const sourcemaps = typeof _result === 'string' ? null : _result?.map
-      const rec = ctx.getRecorder(ssr)
-      rec.recordTransform(id, {
-        name: plugin.name,
-        result,
-        start,
-        end,
-        order,
-        sourcemaps,
-        error: error ? parseError(error) : undefined,
-      }, code)
+      ctx
+        .getEnvContext(context.environment)
+        .recordTransform(id, {
+          name: plugin.name,
+          result,
+          start,
+          end,
+          order,
+          sourcemaps,
+          error: error ? parseError(error) : undefined,
+        }, code)
     }
 
     if (error)
@@ -94,7 +100,6 @@ export function hijackPlugin(
 
   hijackHook(plugin, 'load', async (fn, context, args) => {
     const id = args[0]
-    const ssr = args[1]?.ssr
 
     let _result: TransformResult
     let error: any
@@ -108,12 +113,18 @@ export function hijackPlugin(
     }
     const end = Date.now()
 
-    const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code)
-    const sourcemaps = typeof _result === 'string' ? null : _result?.map
+    const result = error
+      ? '[Error]'
+      : (typeof _result === 'string'
+          ? _result
+          : _result?.code)
+    const sourcemaps = typeof _result === 'string'
+      ? null
+      : _result?.map
 
     if (result) {
       ctx
-        .getRecorder(ssr)
+        .getEnvContext(context.environment)
         .recordLoad(id, {
           name: plugin.name,
           result,
@@ -132,7 +143,6 @@ export function hijackPlugin(
 
   hijackHook(plugin, 'resolveId', async (fn, context, args) => {
     const id = args[0]
-    const ssr = args[2]?.ssr
 
     let _result: ResolveIdResult
     let error: any
@@ -153,11 +163,15 @@ export function hijackPlugin(
       return _result
     }
 
-    const result = error ? stringifyError(error) : (typeof _result === 'object' ? _result?.id : _result)
+    const result = error
+      ? stringifyError(error)
+      : (typeof _result === 'object'
+          ? _result?.id
+          : _result)
 
     if (result && result !== id) {
       ctx
-        .getRecorder(ssr)
+        .getEnvContext(context.environment)
         .recordResolveId(id, {
           name: plugin.name,
           result,
