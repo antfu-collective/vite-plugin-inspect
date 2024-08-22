@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { vTooltip } from 'floating-vue'
 import { list, root } from '../logic'
 
 const props = withDefaults(
@@ -18,6 +19,7 @@ const moduleName = computed(() =>
     ? props.id.slice(root.value.length)
     : props.id ?? '',
 )
+
 const gridStyles = computed(() => {
   if (!props.module)
     return ''
