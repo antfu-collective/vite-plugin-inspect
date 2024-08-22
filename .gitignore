@@ -81,3 +81,5 @@ dist
 .idea
 
 .vite-inspect
+
+public/assets/fonts

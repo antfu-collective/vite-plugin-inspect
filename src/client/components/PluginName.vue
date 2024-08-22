@@ -25,6 +25,7 @@ const startCompact = [
 
 function render() {
   const starts = props.compact ? startCompact : startsGeneric
+
   for (const s of starts) {
     if (props.name.startsWith(s)) {
       if (props.compact)
