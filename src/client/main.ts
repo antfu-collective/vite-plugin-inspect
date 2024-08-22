@@ -10,7 +10,10 @@ import './styles/main.css'
 import './styles/cm.css'
 import 'uno.css'
 
-createApp(App).use(FloatingVue).use(createRouter({
+const app = createApp(App)
+app.use(FloatingVue)
+app.use(createRouter({
   history: createWebHashHistory(),
   routes,
-})).mount('#app')
+}))
+app.mount('#app')
