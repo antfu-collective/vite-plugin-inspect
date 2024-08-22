@@ -94,27 +94,25 @@ getHot().then((hot) => {
     <ModuleId v-if="id" :id="id" module />
     <Badge
       v-if="inspectSSR"
-      class="badge-green"
-    >
-      SSR
-    </Badge>
+      text="SSR"
+    />
     <div flex-auto />
 
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
-      <span i-carbon-cloud-services block :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
-      <span i-carbon-choropleth-map block :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">
-      <span i-carbon-text-wrap block :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Toggle one column" @click="showOneColumn = !showOneColumn">
-      <span v-if="showOneColumn" i-carbon-side-panel-open block />
-      <span v-else i-carbon-side-panel-close block />
+      <span v-if="showOneColumn" i-carbon-side-panel-open />
+      <span v-else i-carbon-side-panel-close />
     </button>
     <button class="text-lg icon-btn" title="Toggle Diff" @click="enableDiff = !enableDiff">
-      <span i-carbon-compare block :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
     </button>
   </NavBar>
   <Container
@@ -130,7 +128,7 @@ getHot().then((hot) => {
         <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
           <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
           <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
-            <span block :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
+            <span :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />
@@ -153,29 +151,24 @@ getHot().then((hot) => {
             </span>
             <Badge
               v-if="!tr.result"
-              class="badge-gray"
-              v-text="'bailout'"
+              text="bailout"
             />
             <Badge
               v-else-if="tr.noChange"
-              class="badge-orange"
-              v-text="'no change'"
+              text="no change"
             />
             <Badge
               v-if="tr.load"
-              class="badge-load"
-              v-text="'load'"
+              text="load"
             />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
-              class="badge-order"
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
-              v-text="tr.order"
+              :text="tr.order"
             />
             <Badge
               v-if="tr.error"
-              class="badge-error"
-              v-text="'error'"
+              text="error"
             />
             <span flex-auto />
             <DurationDisplay :duration="tr.end - tr.start" />

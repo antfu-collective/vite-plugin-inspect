@@ -72,7 +72,7 @@ getHot().then((hot) => {
 <template>
   <NavBar>
     <RouterLink class="my-auto icon-btn !outline-none" to="/">
-      <div i-carbon-arrow-left />
+      <span i-carbon-arrow-left />
     </RouterLink>
     <div my-auto text-sm font-mono>
       Metrics
@@ -118,7 +118,7 @@ getHot().then((hot) => {
           <Badge
             v-if="enforce"
             class="m-auto text-xs"
-            :class="[enforce === 'post' ? 'badge-post' : 'badge-green']"
+            :text="enforce"
           >
             {{ enforce }}
           </Badge>

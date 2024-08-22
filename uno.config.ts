@@ -14,10 +14,13 @@ export default defineConfig({
     'bg-main': 'bg-white dark:bg-[#121212]',
     'text-main': 'text-[#121212] dark:text-white',
     'bg-active': 'bg-gray-400/10',
-    'icon-btn': 'inline-block cursor-pointer select-none !outline-none '
-    + 'opacity-75 transition duration-200 ease-in-out '
-    + 'hover:opacity-100 hover:text-teal-600 '
-    + 'text-0.9em h-1.2em',
+    'icon-btn': [
+      'inline-block cursor-pointer select-none !outline-none',
+      'opacity-75 transition duration-200 ease-in-out',
+      'hover:opacity-100 hover:text-teal-600',
+      'text-0.9em h-1.2em',
+    ].join(' '),
+
     'badge-virtual': 'bg-teal-400:10 text-green-700 dark:text-teal-400',
     'badge-gray': 'bg-gray-400:10 text-gray-700 dark:text-gray-400',
     'badge-green': 'bg-teal-400:10 text-green-700 dark:text-[#34E676]',
@@ -36,6 +39,9 @@ export default defineConfig({
     presetAttributify(),
     presetIcons({
       scale: 1.2,
+      extraProperties: {
+        display: 'block',
+      },
     }),
   ],
   transformers: [
