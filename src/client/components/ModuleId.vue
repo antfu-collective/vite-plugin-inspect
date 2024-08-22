@@ -18,21 +18,51 @@ const moduleName = computed(() =>
     ? props.id.slice(root.value.length)
     : props.id ?? '',
 )
+const gridStyles = computed(() => {
+  if (!props.module)
+    return ''
+
+  const gridColumns: string[] = []
+  if (props.icon)
+    gridColumns.push('min-content')
+
+  if (props.module)
+    gridColumns.push('minmax(0,1fr)')
+  else
+    gridColumns.push('100%')
+
+  // todo: handle slot, not being used
+
+  if (isVirtual.value)
+    gridColumns.push('min-content')
+
+  return `grid-template-columns: ${gridColumns.join(' ')};`
+})
+const containerClass = computed(() => {
+  return props.module
+    ? 'grid grid-rows-1 items-center gap-1'
+    : 'flex items-center'
+})
 </script>
 
 <template>
   <div
     v-if="id"
-    v-tooltip.bottom-start="{ content: id, triggers: ['hover', 'focus'], disabled: !module }"
+    v-tooltip.bottom-start="{
+      content: moduleName,
+      triggers: ['hover', 'focus'],
+      disabled: !module,
+    }"
     my-auto text-sm font-mono
-    flex="~ items-center"
+    :class="containerClass"
+    :style="gridStyles"
   >
     <FileIcon v-if="icon" :filename="id" mr1.5 />
-    <span :class="{ 'module-title': module }">
+    <span :class="{ 'overflow-hidden': module }">
       <template v-if="id.startsWith(root)">
         <span class="op50">.</span>
       </template>
-      <span :class="{ 'overflow-hidden': module }">{{ moduleName }}</span>
+      <span :class="{ 'text-truncate': module }">{{ moduleName }}</span>
     </span>
     <slot />
 
