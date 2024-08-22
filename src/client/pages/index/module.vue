@@ -122,7 +122,7 @@ getHot().then((hot) => {
       <div mx1 h-full w-0 border="r main" />
       <Dropdown v-if="deps?.length">
         <button title="Dependencies" flex="~ gap-2 items-center" text-lg icon-btn>
-          <div i-carbon-downstream />
+          <span i-carbon-downstream />
           <span line-height-1em>{{ deps.length }}</span>
         </button>
         <template #popper>
@@ -133,7 +133,7 @@ getHot().then((hot) => {
       </Dropdown>
       <Dropdown v-if="importers?.length">
         <button title="Importers" flex="~ gap-2 items-center" text-lg icon-btn>
-          <div i-carbon-upstream />
+          <span i-carbon-upstream />
           <span line-height-1em>{{ importers.length }}</span>
         </button>
         <template #popper>
@@ -145,24 +145,24 @@ getHot().then((hot) => {
     </template>
     <div mx1 h-full w-0 border="r main" />
     <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
-      <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-choropleth-map block :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Line Wrapping" @click="options.view.lineWrapping = !options.view.lineWrapping">
-      <div i-carbon-text-wrap :class="options.view.lineWrapping ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-text-wrap :class="options.view.lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Toggle one column" @click="options.view.showOneColumn = !options.view.showOneColumn">
-      <div v-if="options.view.showOneColumn" i-carbon-side-panel-open />
-      <div v-else i-carbon-side-panel-close />
+      <span v-if="options.view.showOneColumn" i-carbon-side-panel-open />
+      <span v-else i-carbon-side-panel-close />
     </button>
     <button class="text-lg icon-btn" title="Toggle Diff" @click="options.view.diff = !options.view.diff">
-      <div i-carbon-compare :class="options.view.diff ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-compare :class="options.view.diff ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button
       v-if="!payload.isStatic"
       class="text-lg icon-btn" title="Refetch"
       @click="refetch(true)"
     >
-      <div i-carbon-renew />
+      <span i-carbon-renew />
     </button>
   </NavBar>
   <div v-if="!info?.transforms.length" flex="~ col gap-2 items-center justify-center" h-full>
@@ -200,12 +200,12 @@ getHot().then((hot) => {
               currentIndex === tr.index
                 ? 'bg-active'
                 : tr.noChange || !tr.result
-                  ? 'op50'
+                  ? 'font-italic'
                   : ''
             "
             @click="index = tr.index.toString()"
           >
-            <span :class="currentIndex === tr.index ? 'font-bold' : ''">
+            <span :class="currentIndex !== tr.index && (tr.noChange || !tr.result) ? '' : 'fw-600'">
               <PluginName :name="tr.name" />
             </span>
             <Badge
@@ -229,9 +229,10 @@ getHot().then((hot) => {
             <Badge
               v-if="tr.error"
               text="error"
-            />
-            <div flex-auto />
-            <DurationDisplay :duration="tr.end - tr.start" />
+            >
+              <span flex-auto />
+              <DurationDisplay :duration="tr.end - tr.start" />
+            </Badge>
           </button>
         </template>
       </Pane>

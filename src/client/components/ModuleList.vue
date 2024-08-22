@@ -18,16 +18,6 @@ const { list, containerProps, wrapperProps } = useVirtualList(
     itemHeight: options.view.listMode === 'detailed' ? 53 : 37,
   },
 )
-
-function byteToHumanReadable(byte: number) {
-  if (byte < 1024)
-    return `${byte}B`
-  if (byte < 1024 * 1024)
-    return `${(byte / 1024).toFixed(2)}KB`
-  if (byte < 1024 * 1024 * 1024)
-    return `${(byte / 1024 / 1024).toFixed(2)}MB`
-  return `${(byte / 1024 / 1024 / 1024).toFixed(2)}GB`
-}
 </script>
 
 <template>
@@ -80,15 +70,18 @@ function byteToHumanReadable(byte: number) {
               </template>
             </div>
             <div flex="~ none gap-1 wrap justify-end">
-              <span op75>
+              <template v-if="m.data.sourceSize && m.data.distSize">
+                <ByteSizeDisplay op75 :bytes="m.data.sourceSize" />
+                <span i-carbon-arrow-right op50 />
+                <ByteSizeDisplay
+                  :class="m.data.distSize > m.data.sourceSize ? 'status-yellow' : 'status-green'"
+                  :bytes="m.data.distSize"
+                />
+                <span op40>|</span>
+              </template>
+              <span>
                 <DurationDisplay :duration="m.data.totalTime" />
               </span>
-              <template v-if="m.data.sourceSize && m.data.distSize">
-                <span op40>·</span>
-                <span op50>{{ byteToHumanReadable(m.data.sourceSize) }}</span>
-                <span i-carbon-arrow-right op40 />
-                <span op50 :class="m.data.distSize > m.data.sourceSize ? 'text-orange' : 'text-green'">{{ byteToHumanReadable(m.data.distSize) }}</span>
-              </template>
             </div>
           </div>
         </RouterLink>

@@ -29,20 +29,20 @@ const isRoot = computed(() => route.path === '/')
         @click="options.toggleSort()"
       >
         <template v-if="options.search.text">
-          <div i-carbon-search />
-          <div i-carbon-arrow-down text-sm op70 />
+          <span i-carbon-search />
+          <span i-carbon-arrow-down text-sm op70 />
         </template>
         <template v-else-if="options.view.sort === 'time-asc'">
-          <div i-carbon-time />
-          <div i-carbon-arrow-down text-sm op70 />
+          <span i-carbon-time />
+          <span i-carbon-arrow-down text-sm op70 />
         </template>
         <template v-else-if="options.view.sort === 'time-desc'">
-          <div i-carbon-time />
-          <div i-carbon-arrow-up text-sm op70 />
+          <span i-carbon-time />
+          <span i-carbon-arrow-up text-sm op70 />
         </template>
         <template v-else>
-          <div i-carbon-menu />
-          <div i-carbon-chevron-sort text-sm op70 />
+          <span i-carbon-menu block />
+          <span i-carbon-chevron-sort block text-sm op70 />
         </template>
       </button>
     </template>

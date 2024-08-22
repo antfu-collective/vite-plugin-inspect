@@ -24,3 +24,13 @@ export function serializePlugin(plugin: Plugin): SerializedPlugin {
     return value
   }))
 }
+
+export function removeVersionQuery(url: string) {
+  if (url.includes('v=')) {
+    return url
+      .replace(/&v=\w+/, '')
+      .replace(/\?v=\w+/, '?')
+      .replace(/\?$/, '')
+  }
+  return url
+}

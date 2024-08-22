@@ -17,7 +17,7 @@ import {
         <div i-carbon-logo-github />
       </a>
       <button class="text-lg icon-btn" title="Toggle Dark Mode" @click="toggleDark()">
-        <div i-carbon-sun dark:i-carbon-moon />
+        <span i-carbon-sun dark:i-carbon-moon block />
       </button>
     </slot>
   </nav>

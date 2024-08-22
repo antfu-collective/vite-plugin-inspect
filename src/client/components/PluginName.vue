@@ -5,6 +5,8 @@ import { getHashColorFromString } from '../logic/color'
 const props = defineProps<{
   name: string
   compact?: boolean
+  colored?: boolean
+  hide?: boolean
 }>()
 
 const startsGeneric = [

@@ -5,7 +5,7 @@ import { createFilter } from '@rollup/pluginutils'
 import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo } from '../types'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 import type { ViteInspectOptions } from './options'
-import { serializePlugin } from './utils'
+import { removeVersionQuery, serializePlugin } from './utils'
 
 let viteCount = 0
 
@@ -117,6 +117,7 @@ export class InspectContextViteEnv {
     }
 
   recordTransform(id: string, info: TransformInfo, preTransformCode: string) {
+    id = this.normalizeId(id)
     // initial transform (load from fs), add a dummy
     if (!this.data.transform[id] || !this.data.transform[id].some(tr => tr.result)) {
       this.data.transform[id] = [{
@@ -133,18 +134,27 @@ export class InspectContextViteEnv {
   }
 
   recordLoad(id: string, info: TransformInfo) {
+    id = this.normalizeId(id)
     this.data.transform[id] = [info]
     this.data.transformCounter[id] = (this.data.transformCounter[id] || 0) + 1
   }
 
   recordResolveId(id: string, info: ResolveIdInfo) {
+    id = this.normalizeId(id)
     if (!this.data.resolveId[id])
       this.data.resolveId[id] = []
     this.data.resolveId[id].push(info)
   }
 
   invalidate(id: string) {
+    id = this.normalizeId(id)
     delete this.data.transform[id]
+  }
+
+  normalizeId(id: string) {
+    if (this.contextMain.options.removeVersionQuery !== false)
+      return removeVersionQuery(id)
+    return id
   }
 
   getModulesList() {

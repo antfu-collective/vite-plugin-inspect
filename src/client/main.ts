@@ -6,7 +6,6 @@ import routes from 'virtual:generated-pages'
 import App from './App.vue'
 
 import '@unocss/reset/tailwind.css'
-import 'floating-vue/dist/style.css'
 import './styles/main.css'
 import './styles/cm.css'
 import 'uno.css'

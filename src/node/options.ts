@@ -57,4 +57,10 @@ export interface ViteInspectOptions {
    * @default false
    */
   open?: boolean
+  /**
+   * Remove version query `?v=xxx` and treat them as the same module
+   *
+   * @default true
+   */
+  removeVersionQuery?: boolean
 }
