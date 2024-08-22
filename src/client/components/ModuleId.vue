@@ -77,7 +77,7 @@ const HighlightedPath = defineComponent({
 
       if (type === 'query') {
         if (part === '?' || part === '&') {
-          _class.push('text-rose-5 dark:text-rose-4')
+          _class.push('text-orange-5 dark:text-orange-4')
         }
         else {
           _class.push('text-orange-9 dark:text-orange-2')

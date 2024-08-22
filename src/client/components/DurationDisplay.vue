@@ -30,7 +30,7 @@ function getDurationColor(duration: number | undefined) {
 
 const units = computed(() => {
   if (!props.duration)
-    return ['-', '']
+    return ['', '-']
   if (props.duration < 1)
     return ['<1', 'ms']
   if (props.duration < 1000)
@@ -42,7 +42,5 @@ const units = computed(() => {
 </script>
 
 <template>
-  <span block>
-    <span :class="getDurationColor(duration)">{{ units[0] }}</span><span ml-0.4 text-xs :class="getDurationColor(duration)" op75>{{ units[1] }}</span>
-  </span>
+  <NumberWithUnit :class="getDurationColor(duration)" :number="units[0]" :unit="units[1]" />
 </template>
