@@ -7,7 +7,7 @@ import { isStaticMode, refetch, toggleDark } from '../logic'
     <slot />
     <slot name="actions">
       <button v-if="!isStaticMode" class="text-lg icon-btn" title="Refetch" @click="refetch()">
-        <div i-carbon-renew />
+        <span i-carbon-renew block />
       </button>
       <div h-full w-1 border="r main" />
       <a
@@ -18,7 +18,7 @@ import { isStaticMode, refetch, toggleDark } from '../logic'
         <div i-carbon-logo-github />
       </a>
       <button class="text-lg icon-btn" title="Toggle Dark Mode" @click="toggleDark()">
-        <div i-carbon-sun dark:i-carbon-moon />
+        <span i-carbon-sun dark:i-carbon-moon block />
       </button>
     </slot>
   </nav>

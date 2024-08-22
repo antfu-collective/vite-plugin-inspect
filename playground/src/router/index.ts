@@ -14,6 +14,11 @@ const router = createRouter({
       path: '/other',
       component: () => import('../views/Other.vue'),
     },
+    {
+      name: 'error',
+      path: '/error',
+      component: () => import('../views/Error.vue'),
+    },
   ],
 })
 

@@ -108,8 +108,8 @@ getHot().then((hot) => {
 
       <template v-for="{ name, totalTime, invokeCount, enforce } in plugins" :key="name">
         <div />
-        <div v-if="totalTime > 0" class="cursor-pointer text-lime-600 dark:text-lime-200 hover:underline" @click="selectPlugin(name)">
-          <PluginName :name="name" />
+        <div v-if="totalTime > 0" class="cursor-pointer status-lime hover:underline" @click="selectPlugin(name)">
+          <PluginName :name="name" colored />
         </div>
         <div v-else>
           <PluginName :name="name" />
@@ -118,7 +118,7 @@ getHot().then((hot) => {
           <Badge
             v-if="enforce"
             class="m-auto text-xs"
-            :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5' : 'bg-green5/10 text-green5']"
+            :class="[enforce === 'post' ? 'badge-post' : 'badge-green']"
           >
             {{ enforce }}
           </Badge>
