@@ -13,9 +13,10 @@ import {
   LegendComponent,
   TitleComponent,
   TooltipComponent,
+  VisualMapComponent,
 } from 'echarts/components'
 import VChart from 'vue-echarts'
-import type { CustomSeriesRenderItemAPI, CustomSeriesRenderItemParams, CustomSeriesRenderItemReturn, TopLevelFormatterParams } from 'echarts/types/dist/shared'
+import type { CustomSeriesRenderItemAPI, CustomSeriesRenderItemParams, CustomSeriesRenderItemReturn, LegendComponentOption, TopLevelFormatterParams } from 'echarts/types/dist/shared'
 import { rpc } from '../../logic/rpc'
 import { getHot } from '../../logic/hot'
 import { inspectSSR, onRefetch, waterfallShowResolveId } from '../../logic'
@@ -43,8 +44,21 @@ const searchFn = computed(() => {
 })
 
 const categories = computed(() => {
-  return Object.keys(data.value)
+  return Object.keys(data.value).filter(searchFn.value)
 })
+
+// const legendData = computed(() => {
+//   const l = categories.value.map((id) => {
+//     return {
+//       name: id,
+//       icon: 'circle',
+//     }
+//   })
+
+//   console.log(l)
+
+//   return l
+// })
 
 function generatorHashColorByString(str: string) {
   let hash = 0
@@ -80,7 +94,7 @@ const waterfallData = computed(() => {
       if (searchFn.value(id) && searchFn.value(s.name)) {
         result.push({
           name: typeItem ? typeItem.name : id,
-          value: [index, s.start, s.end, duration],
+          value: [index, s.start, (s.end - s.start) < 1 ? 1 : s.end, duration],
           itemStyle: {
             normal: {
               color: typeItem ? typeItem.color : '#000',
@@ -90,6 +104,8 @@ const waterfallData = computed(() => {
       }
     })
   })
+
+  // console.log(result)
 
   return result
 })
@@ -108,6 +124,7 @@ getHot().then((hot) => {
 })
 
 use([
+  VisualMapComponent,
   CanvasRenderer,
   BarChart,
   TooltipComponent,
@@ -151,15 +168,34 @@ function renderItem(params: CustomSeriesRenderItemParams | any, api: CustomSerie
 const option = computed(() => ({
   tooltip: {
     formatter(params: TopLevelFormatterParams | any) {
-      return `${params.marker + params.name}: ${params.value[3]} ms`
+      return `${params.marker + params.name}: ${params.value[3] <= 1 ? '<1' : params.value[3]}ms}`
     },
 
   } satisfies TooltipComponentOption,
+  legendData: {
+    top: 'center',
+    data: ['c'],
+  } satisfies LegendComponentOption,
+
   title: {
     text: 'Waterfall',
+    // left: 'center',
+  },
+  visualMap: {
+    type: 'piecewise',
+    // show: false,
+    orient: 'horizontal',
     left: 'center',
+    bottom: 10,
+    pieces: [
+
+    ],
+    seriesIndex: 1,
+    dimension: 1,
   },
   dataZoom: [
+    // 最多支持放大到1ms
+
     {
       type: 'slider',
       filterMode: 'weakFilter',
@@ -178,10 +214,14 @@ const option = computed(() => ({
   xAxis: {
     min: startTime.value,
     max: endTime.value,
+    // type: 'value',
+
     scale: true,
     axisLabel: {
       formatter(val: number) {
-        return `${Math.max(0, val - startTime.value)} ms`
+        // console.log(val, startTime.value, val - startTime.value, Math.max(0, val - startTime.value))
+
+        return `${Math.max(0, val - startTime.value).toFixed(2)} ms`
       },
     },
   } satisfies SingleAxisComponentOption,
@@ -191,6 +231,7 @@ const option = computed(() => ({
   series: [
     {
       type: 'custom',
+      name: 'c',
       renderItem,
       itemStyle: {
         opacity: 0.8,
