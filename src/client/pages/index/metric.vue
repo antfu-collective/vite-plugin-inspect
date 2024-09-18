@@ -72,7 +72,7 @@ getHot().then((hot) => {
 <template>
   <NavBar>
     <RouterLink class="my-auto icon-btn !outline-none" to="/">
-      <div i-carbon-arrow-left />
+      <span i-carbon-arrow-left />
     </RouterLink>
     <div my-auto text-sm font-mono>
       Metrics
@@ -108,17 +108,17 @@ getHot().then((hot) => {
 
       <template v-for="{ name, totalTime, invokeCount, enforce } in plugins" :key="name">
         <div />
-        <div v-if="totalTime > 0" class="cursor-pointer text-lime-600 dark:text-lime-200 hover:underline" @click="selectPlugin(name)">
-          <PluginName :name="name" />
+        <div v-if="totalTime > 0" class="cursor-pointer hover:underline" @click="selectPlugin(name)">
+          <PluginName :name="name" colored />
         </div>
         <div v-else>
-          <PluginName :name="name" />
+          <PluginName :name="name" class="op75 saturate-50" />
         </div>
         <div class="flex items-center text-center p0!">
           <Badge
             v-if="enforce"
             class="m-auto text-xs"
-            :class="[enforce === 'post' ? 'bg-purple5/10 text-purple5' : 'bg-green5/10 text-green5']"
+            :text="enforce"
           >
             {{ enforce }}
           </Badge>

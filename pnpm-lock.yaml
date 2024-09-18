@@ -42,6 +42,9 @@ importers:
       '@antfu/ni':
         specifier: ^0.22.4
         version: 0.22.4
+      '@iconify-json/catppuccin':
+        specifier: ^1.1.4
+        version: 1.1.4
       '@iconify/json':
         specifier: ^2.2.239
         version: 2.2.239
@@ -120,6 +123,9 @@ importers:
       ohash:
         specifier: ^1.1.3
         version: 1.1.3
+      pathe:
+        specifier: ^1.1.2
+        version: 1.1.2
       pinia:
         specifier: ^2.2.2
         version: 2.2.2(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4))
@@ -913,6 +919,9 @@ packages:
     resolution: {integrity: sha512-d2CGZR2o7fS6sWB7DG/3a95bGKQyHMACZ5aW8qGkkqQpUoZV6C0X7Pc7l4ZNMZkfNBf4VWNe9E1jRsf0G146Ew==}
     engines: {node: '>=18.18'}
 
+  '@iconify-json/catppuccin@1.1.4':
+    resolution: {integrity: sha512-s9PFVBEZu65f6mV42HNIe3ffQuWoUrCL8HBtrhtjU7W3ZrLevOL2aDZGW0Kqwirq0rtSULdoOMTVDHjknOIsdw==}
+
   '@iconify/json@2.2.239':
     resolution: {integrity: sha512-NoKhFlWGPQbKCUb0tslIQK00cbRXMH6NPxGvS4bQgkH2hfcK/jA7EuBEkOaIyR3HdtvRNCunCntuR9eJnP8FAQ==}
 
@@ -1206,7 +1215,7 @@ packages:
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       '@typescript-eslint/parser': ^8.0.0 || ^8.0.0-alpha.0
-      eslint: ^9.9.0
+      eslint: ^8.57.0 || ^9.0.0
       typescript: '*'
     peerDependenciesMeta:
       typescript:
@@ -4803,6 +4812,10 @@ snapshots:
   '@humanwhocodes/module-importer@1.0.1': {}
 
   '@humanwhocodes/retry@0.3.0': {}
+
+  '@iconify-json/catppuccin@1.1.4':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify/json@2.2.239':
     dependencies:

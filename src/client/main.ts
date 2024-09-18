@@ -10,9 +10,8 @@ import './styles/cm.css'
 import 'uno.css'
 
 const app = createApp(App)
-const router = createRouter({
+app.use(createRouter({
   history: createWebHashHistory(),
   routes,
-})
-app.use(router)
+}))
 app.mount('#app')

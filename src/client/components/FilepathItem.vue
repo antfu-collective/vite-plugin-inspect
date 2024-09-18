@@ -22,8 +22,8 @@ const display = computed(() => {
 
 <template>
   <button flex="~" hover="underline" @click="openInEditor">
-    <span>{{ display[0] }}</span>
-    <span op60>{{ display[1] }}</span>
-    <span v-if="props.line != null && props.column != null" op50>:{{ props.line }}:{{ props.column }}</span>
+    <span fw-600 dark:fw-unset>{{ display[0] }}</span>
+    <span op72 dark:op50>{{ display[1] }}</span>
+    <span v-if="props.line != null && props.column != null" op72 dark:op50>:{{ props.line }}:{{ props.column }}</span>
   </button>
 </template>

@@ -91,30 +91,28 @@ getHot().then((hot) => {
     <RouterLink my-auto outline-none icon-btn to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
-    <ModuleId v-if="id" :id="id" />
+    <ModuleId v-if="id" :id="id" module />
     <Badge
       v-if="inspectSSR"
-      class="bg-teal-400:10 text-green-700 font-bold dark:text-teal-400"
-    >
-      SSR
-    </Badge>
+      text="SSR"
+    />
     <div flex-auto />
 
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
-      <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
-      <div i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">
-      <div i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Toggle one column" @click="showOneColumn = !showOneColumn">
-      <div v-if="showOneColumn" i-carbon-side-panel-open />
-      <div v-else i-carbon-side-panel-close />
+      <span v-if="showOneColumn" i-carbon-side-panel-open />
+      <span v-else i-carbon-side-panel-close />
     </button>
     <button class="text-lg icon-btn" title="Toggle Diff" @click="enableDiff = !enableDiff">
-      <div i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
     </button>
   </NavBar>
   <Container
@@ -130,7 +128,7 @@ getHot().then((hot) => {
         <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
           <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
           <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
-            <div :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-50 i-carbon-view-off'" />
+            <span :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-75 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />
@@ -143,41 +141,36 @@ getHot().then((hot) => {
               currentIndex === tr.index
                 ? 'bg-active'
                 : tr.noChange || !tr.result
-                  ? 'op50'
+                  ? 'op75 saturate-50'
                   : ''
             "
             @click="index = tr.index.toString()"
           >
-            <span :class="currentIndex === tr.index ? 'font-bold' : ''">
+            <span :class="currentIndex !== tr.index && (tr.noChange || !tr.result) ? '' : 'fw-600'">
               <PluginName :name="tr.name" />
             </span>
             <Badge
               v-if="!tr.result"
-              class="bg-gray-400:10 text-gray-700 dark:text-gray-400"
-              v-text="'bailout'"
+              text="bailout"
             />
             <Badge
               v-else-if="tr.noChange"
-              class="bg-orange-400:10 text-orange-800 dark:text-orange-400"
-              v-text="'no change'"
+              text="no change"
             />
             <Badge
               v-if="tr.load"
-              class="bg-light-blue-400/10 text-blue-700 dark:text-light-blue-400"
-              v-text="'load'"
+              text="load"
             />
             <Badge
               v-if="tr.order && tr.order !== 'normal'"
-              class="bg-violet-400:10 text-violet-700 dark:text-violet-400"
               :title="tr.order.includes('-') ? `Using object hooks ${tr.order}` : tr.order"
-              v-text="tr.order"
+              :text="tr.order"
             />
             <Badge
               v-if="tr.error"
-              class="bg-red-400:10 text-red7 dark:text-red-400"
-              v-text="'error'"
+              text="error"
             />
-            <div flex-auto />
+            <span flex-auto />
             <DurationDisplay :duration="tr.end - tr.start" />
           </button>
         </template>

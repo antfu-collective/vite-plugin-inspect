@@ -8,15 +8,18 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Badge: typeof import('./components/Badge.vue')['default']
+    ByteSizeDisplay: typeof import('./components/ByteSizeDisplay.vue')['default']
     Container: typeof import('./components/Container.vue')['default']
     DiffEditor: typeof import('./components/DiffEditor.vue')['default']
     DurationDisplay: typeof import('./components/DurationDisplay.vue')['default']
     ErrorDisplay: typeof import('./components/ErrorDisplay.vue')['default']
+    FileIcon: typeof import('./components/FileIcon.vue')['default']
     FilepathItem: typeof import('./components/FilepathItem.vue')['default']
     Graph: typeof import('./components/Graph.vue')['default']
     ModuleId: typeof import('./components/ModuleId.vue')['default']
     ModuleList: typeof import('./components/ModuleList.vue')['default']
     NavBar: typeof import('./components/NavBar.vue')['default']
+    NumberWithUnit: typeof import('./components/NumberWithUnit.vue')['default']
     PluginChart: typeof import('./components/PluginChart.vue')['default']
     PluginName: typeof import('./components/PluginName.vue')['default']
     RadioGroup: typeof import('./components/RadioGroup.vue')['default']
