@@ -31,8 +31,8 @@ const { height } = useElementSize(container)
 const data = shallowRef(await rpc.getWaterfallInfo(inspectSSR.value))
 const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity)))
 const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
-const scale = ref(0.3)
 
+// const reversed = ref(false)
 const searchText = ref('')
 const searchFn = computed(() => {
   const text = searchText.value.trim()
@@ -219,9 +219,7 @@ const option = computed(() => ({
     scale: true,
     axisLabel: {
       formatter(val: number) {
-        // console.log(val, startTime.value, val - startTime.value, Math.max(0, val - startTime.value))
-
-        return `${Math.max(0, val - startTime.value).toFixed(2)} ms`
+        return `${(val - startTime.value).toFixed(val % 1 ? 2 : 0)} ms`
       },
     },
   } satisfies SingleAxisComponentOption,
@@ -269,12 +267,10 @@ const chartStyle = computed(() => {
     <button class="text-lg icon-btn" title="Show resolveId" @click="waterfallShowResolveId = !waterfallShowResolveId">
       <div i-carbon-connect-source :class="waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Zoom in" @click="scale += 0.1">
-      <div i-carbon-zoom-in />
-    </button>
-    <button text-lg icon-btn title="Zoom in" :disabled="scale <= 0.11" @click="scale -= 0.1">
-      <div i-carbon-zoom-out />
-    </button>
+
+    <!-- <button class="text-lg icon-btn" title="Show resolveId" @click="reversed = !reversed">
+      <div i-carbon-arrows-vertical :class="reversed ? 'opacity-100' : 'opacity-25'" />
+    </button> -->
     <div flex-auto />
   </NavBar>
 
