@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { listMode, refetch, searchResults, searchText, sortMode, sortedSearchResults, toggleMode, toggleSort } from '../logic'
+import { isDev, listMode, refetch, searchResults, searchText, sortMode, sortedSearchResults, toggleMode, toggleSort } from '../logic'
 
 const route = useRoute()
 const isRoot = computed(() => route.path === '/')
@@ -49,7 +49,7 @@ onMounted(() => {
     <RouterLink text-lg icon-btn to="/metric" title="Metrics">
       <div i-carbon-meter />
     </RouterLink>
-    <RouterLink text-lg icon-btn to="/waterfall" title="Waterfall">
+    <RouterLink v-if="isDev" text-lg icon-btn to="/waterfall" title="Waterfall">
       <div i-carbon-chart-waterfall />
     </RouterLink>
   </NavBar>
