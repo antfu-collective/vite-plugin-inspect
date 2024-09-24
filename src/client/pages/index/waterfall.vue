@@ -33,9 +33,30 @@ const startTime = computed(() => Math.min(...Object.values(data.value).map(i => 
 const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
 
 // const reversed = ref(false)
-const searchText = ref('')
-const searchFn = computed(() => {
-  const text = searchText.value.trim()
+// const searchText = ref('')
+// const searchFn = computed(() => {
+//   const text = searchText.value.trim()
+//   if (text === '') {
+//     return () => true
+//   }
+//   const regex = new RegExp(text, 'i')
+//   return (name: string) => regex.test(name)
+// })
+
+const searchItem = ref('')
+const searchId = ref('')
+
+const searchItemFn = computed(() => {
+  const text = searchItem.value.trim()
+  if (text === '') {
+    return () => true
+  }
+  const regex = new RegExp(text, 'i')
+  return (name: string) => regex.test(name)
+})
+
+const searchIdFn = computed(() => {
+  const text = searchId.value.trim()
   if (text === '') {
     return () => true
   }
@@ -44,7 +65,16 @@ const searchFn = computed(() => {
 })
 
 const categories = computed(() => {
-  return Object.keys(data.value).filter(searchFn.value)
+  const cates = Object.keys(data.value).filter(searchIdFn.value)
+
+  // 按照start时间给key排序
+  cates.sort((a, b) => {
+    const aStart = data.value[a][0]?.start ?? Infinity
+    const bStart = data.value[b][0]?.start ?? Infinity
+    return bStart - aStart
+  })
+
+  return cates
 })
 
 // const legendData = computed(() => {
@@ -85,13 +115,19 @@ const types = computed(() => {
 const waterfallData = computed(() => {
   const result: any = []
 
-  Object.entries(data.value).forEach(([id, steps], index) => {
+  const sorted = Object.entries(data.value).sort(([a], [b]) => {
+    const aStart = data.value[a][0]?.start ?? Infinity
+    const bStart = data.value[b][0]?.start ?? Infinity
+    return bStart - aStart
+  })
+
+  sorted.forEach(([id, steps], index) => {
     steps.forEach((s) => {
       const typeItem = types.value.find(i => i.name === id)
 
       const duration = s.end - s.start
 
-      if (searchFn.value(id) && searchFn.value(s.name)) {
+      if (searchItemFn.value(s.name)) {
         result.push({
           name: typeItem ? typeItem.name : id,
           value: [index, s.start, (s.end - s.start) < 1 ? 1 : s.end, duration],
@@ -105,7 +141,9 @@ const waterfallData = computed(() => {
     })
   })
 
-  // console.log(result)
+  // result.sort((a, b) => {
+  //   return b.value[1] - a.value[1]
+  // })
 
   return result
 })
@@ -259,7 +297,9 @@ const chartStyle = computed(() => {
     <div my-auto text-sm font-mono>
       Waterfall
     </div>
-    <input v-model="searchText" placeholder="Search..." class="w-full px-4 py-2 text-xs">
+    <input v-model="searchItem" placeholder="Item Filter..." class="w-full px-4 py-2 text-xs">
+
+    <input v-model="searchId" placeholder="ID Filter..." class="w-full px-4 py-2 text-xs">
 
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
