@@ -83,3 +83,6 @@ dist
 .vite-inspect
 
 public/assets/fonts
+
+src/client/auto-imports.d.ts
+src/client/components.d.ts

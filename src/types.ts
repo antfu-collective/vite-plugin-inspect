@@ -48,6 +48,13 @@ export interface ModuleTransformInfo {
   transforms: TransformInfo[]
 }
 
+export type WaterfallInfo = Record<string, {
+  name: string
+  start: number
+  end: number
+  isResolveId: boolean
+}[]>
+
 export interface PluginMetricInfo {
   name: string
   enforce?: string
@@ -64,6 +71,7 @@ export interface PluginMetricInfo {
 export interface RPCFunctions {
   list: () => Awaitable<ModulesList>
   getIdInfo: (id: string, ssr: boolean, clear?: boolean) => Awaitable<ModuleTransformInfo>
+  getWaterfallInfo: (ssr: boolean) => Awaitable<WaterfallInfo>
   resolveId: (id: string, ssr: boolean) => Awaitable<string>
   clear: (id: string, ssr: boolean) => Awaitable<void>
   getPluginMetrics: (ssr: boolean) => Awaitable<PluginMetricInfo[]>
