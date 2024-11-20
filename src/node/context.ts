@@ -1,10 +1,10 @@
-import { resolve } from 'node:path'
-import { Buffer } from 'node:buffer'
-import { createFilter } from '@rollup/pluginutils'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { ModuleInfo, PluginMetricInfo, ResolveIdInfo } from '../types'
-import { Recorder } from './recorder'
+import { Buffer } from 'node:buffer'
+import { resolve } from 'node:path'
+import { createFilter } from '@rollup/pluginutils'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
+import { Recorder } from './recorder'
 import { removeVersionQuery } from './utils'
 
 export class ViteInspectContext {
@@ -77,40 +77,39 @@ export class ViteInspectContext {
     const transformedIdMap = transformIdMap(recorder)
     const ids = new Set(Object.keys(recorder.transform).concat(Object.keys(transformedIdMap)))
 
-    return Array.from(ids).sort()
-      .map((id): ModuleInfo => {
-        let totalTime = 0
-        const plugins = (recorder.transform[id] || [])
-          .filter(tr => tr.result)
-          .map((transItem) => {
-            const delta = transItem.end - transItem.start
-            totalTime += delta
-            return { name: transItem.name, transform: delta }
-          })
-          .concat(
-            // @ts-expect-error transform is optional
-            (transformedIdMap[id] || []).map((idItem) => {
-              return { name: idItem.name, resolveId: idItem.end - idItem.start }
-            }),
-          )
+    return Array.from(ids).sort().map((id): ModuleInfo => {
+      let totalTime = 0
+      const plugins = (recorder.transform[id] || [])
+        .filter(tr => tr.result)
+        .map((transItem) => {
+          const delta = transItem.end - transItem.start
+          totalTime += delta
+          return { name: transItem.name, transform: delta }
+        })
+        .concat(
+          // @ts-expect-error transform is optional
+          (transformedIdMap[id] || []).map((idItem) => {
+            return { name: idItem.name, resolveId: idItem.end - idItem.start }
+          }),
+        )
 
-        function getSize(str: string | undefined) {
-          if (!str)
-            return 0
-          return Buffer.byteLength(str, 'utf8')
-        }
+      function getSize(str: string | undefined) {
+        if (!str)
+          return 0
+        return Buffer.byteLength(str, 'utf8')
+      }
 
-        return {
-          id,
-          deps: getDeps ? getDeps(id) : [],
-          plugins,
-          virtual: isVirtual(plugins[0]?.name || '', recorder.transform[id]?.[0].name || ''),
-          totalTime,
-          invokeCount: recorder.transformCounter?.[id] || 0,
-          sourceSize: getSize(recorder.transform[id]?.[0]?.result),
-          distSize: getSize(recorder.transform[id]?.[recorder.transform[id].length - 1]?.result),
-        }
-      })
+      return {
+        id,
+        deps: getDeps ? getDeps(id) : [],
+        plugins,
+        virtual: isVirtual(plugins[0]?.name || '', recorder.transform[id]?.[0].name || ''),
+        totalTime,
+        invokeCount: recorder.transformCounter?.[id] || 0,
+        sourceSize: getSize(recorder.transform[id]?.[0]?.result),
+        distSize: getSize(recorder.transform[id]?.[recorder.transform[id].length - 1]?.result),
+      }
+    })
   }
 
   getPluginMetrics(ssr = false) {
@@ -151,8 +150,7 @@ export class ViteInspectContext {
         })
       })
 
-    const metrics = Object.values(map).filter(Boolean)
-      .sort((a, b) => a.name.localeCompare(b.name))
+    const metrics = Object.values(map).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name))
 
     return metrics
   }

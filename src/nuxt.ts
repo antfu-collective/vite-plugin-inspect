@@ -1,5 +1,5 @@
-import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import type { Options } from './node'
+import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import Inspect from './node'
 
 export { Options as ModuleOptions }

@@ -1,6 +1,6 @@
-import { createEventHook, useStorage } from '@vueuse/core'
-import { computed, ref } from 'vue'
 import type { ModulesList } from '../../types'
+import { createEventHook, useStorage } from '@vueuse/core'
+import { computed } from 'vue'
 import { rpc } from './rpc'
 import { searchResults, searchText } from './search'
 
@@ -14,7 +14,11 @@ export const inspectSSR = useStorage('vite-inspect-ssr', false)
 export const metricDisplayHook = useStorage<'transform' | 'resolveId' | 'server'>('vite-inspect-metric-display-hook', 'transform')
 export const sortMode = useStorage<'default' | 'time-asc' | 'time-desc'>('vite-inspect-sort', 'default')
 
-export const list = ref(await rpc.list()) as Ref<ModulesList>
+export const list = shallowRef<ModulesList>({
+  root: '',
+  modules: [],
+  ssrModules: [],
+})
 
 const modes = [
   'detailed',
@@ -53,4 +57,8 @@ export const sortedSearchResults = computed(() => {
   if (sortMode.value === 'time-desc')
     clonedSearchResults.sort((a, b) => a.totalTime - b.totalTime)
   return clonedSearchResults
+})
+
+nextTick(async () => {
+  list.value = await rpc.list()
 })

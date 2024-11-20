@@ -1,6 +1,6 @@
 import type { ResolveIdInfo, TransformInfo } from '../types'
-import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 import type { ViteInspectContext } from './context'
+import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 
 export class Recorder {
   transform: Record<string, TransformInfo[]> = {}

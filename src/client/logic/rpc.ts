@@ -1,7 +1,7 @@
-import { createRPCClient } from 'vite-dev-rpc'
 import type { BirpcReturn } from 'birpc'
-import { createHotContext } from 'vite-hot-client'
 import type { ModuleTransformInfo, RPCFunctions } from '../../types'
+import { createRPCClient } from 'vite-dev-rpc'
+import { createHotContext } from 'vite-hot-client'
 import { refetch } from './state'
 
 export const isStaticMode = document.body.getAttribute('data-vite-inspect-mode') === 'BUILD'
@@ -38,8 +38,12 @@ function createStaticRpcClient(): RPCFunctions {
 
 export const rpc = isStaticMode
   ? createStaticRpcClient() as BirpcReturn<RPCFunctions>
-  : createRPCClient<RPCFunctions, Pick<RPCFunctions, 'moduleUpdated'>>('vite-plugin-inspect', (await createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/')))!, {
-    moduleUpdated() {
-      refetch()
+  : createRPCClient<RPCFunctions, Pick<RPCFunctions, 'moduleUpdated'>>(
+    'vite-plugin-inspect',
+    (createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/')))!,
+    {
+      moduleUpdated() {
+        refetch()
+      },
     },
-  })
+  )

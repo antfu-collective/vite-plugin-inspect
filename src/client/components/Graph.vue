@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { Data, Options } from 'vis-network'
-import { Network } from 'vis-network'
 import type { ModuleInfo } from '../../types'
-import { getModuleWeight, graphWeightMode, isDark } from '../logic'
+import { Network } from 'vis-network'
 import { colors } from '../../../color'
+import { getModuleWeight, graphWeightMode, isDark } from '../logic'
 
 const props = defineProps<{
   modules?: ModuleInfo[]

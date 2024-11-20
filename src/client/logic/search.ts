@@ -1,6 +1,6 @@
 import { useStorage } from '@vueuse/core'
-import { computed } from 'vue'
 import Fuse from 'fuse.js'
+import { computed } from 'vue'
 import { inspectSSR, list } from './state'
 
 export const searchText = useStorage('vite-inspect-search-text', '')

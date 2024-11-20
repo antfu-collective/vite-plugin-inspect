@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
 import type { BarSeriesOption } from 'echarts/charts'
-import { BarChart } from 'echarts/charts'
 import type {
   SingleAxisComponentOption,
   TooltipComponentOption,
 } from 'echarts/components'
+import { BarChart } from 'echarts/charts'
 import {
   GridComponent,
   LegendComponent,
   TitleComponent,
   TooltipComponent,
 } from 'echarts/components'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 import { isDark, searchResults } from '../logic'
 

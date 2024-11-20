@@ -1,12 +1,12 @@
+import type { ResolvedConfig } from 'vite'
+import type { ModuleTransformInfo } from '../types'
+import type { ViteInspectContext } from './context'
+import type { Recorder } from './recorder'
 import { isAbsolute, join, resolve } from 'node:path'
 import fs from 'fs-extra'
-import type { ResolvedConfig } from 'vite'
 import { hash } from 'ohash'
-import type { ModuleTransformInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
-import type { Recorder } from './recorder'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
-import type { ViteInspectContext } from './context'
 
 export async function generateBuild(ctx: ViteInspectContext, config: ResolvedConfig) {
   const {

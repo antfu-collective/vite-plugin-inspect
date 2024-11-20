@@ -1,7 +1,6 @@
-// register vue composition api globally
+import routes from 'virtual:generated-pages'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import routes from 'virtual:generated-pages'
 import App from './App.vue'
 
 import '@unocss/reset/tailwind.css'

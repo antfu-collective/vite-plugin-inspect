@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import type { HMRData } from '../../../types'
 import { useRouteQuery } from '@vueuse/router'
 import { Pane, Splitpanes } from 'splitpanes'
-import { enableDiff, inspectSSR, inspectSourcemaps, lineWrapping, onRefetch, safeJsonParse, showBailout, showOneColumn } from '../../logic'
-import { rpc } from '../../logic/rpc'
-import type { HMRData } from '../../../types'
+import { enableDiff, inspectSourcemaps, inspectSSR, lineWrapping, onRefetch, safeJsonParse, showBailout, showOneColumn } from '../../logic'
 import { getHot } from '../../logic/hot'
+import { rpc } from '../../logic/rpc'
 
 function getModuleId(fullPath?: string) {
   if (!fullPath)

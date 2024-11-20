@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { listMode, refetch, searchResults, searchText, sortMode, sortedSearchResults, toggleMode, toggleSort } from '../logic'
+import { listMode, refetch, searchResults, searchText, sortedSearchResults, sortMode, toggleMode, toggleSort } from '../logic'
 
 const route = useRoute()
 const isRoot = computed(() => route.path === '/')
