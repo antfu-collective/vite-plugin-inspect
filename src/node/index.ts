@@ -132,7 +132,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       moduleUpdated: () => {},
     }
 
-    const rpcServer = createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
+    const rpcServer = createRPCServer<RPCFunctions, any>('vite-plugin-inspect', server.ws, rpcFunctions)
 
     const debouncedModuleUpdated = debounce(() => {
       rpcServer.moduleUpdated.asEvent()
