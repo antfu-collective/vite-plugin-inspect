@@ -8,10 +8,12 @@ import c from 'picocolors'
 import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
 import { DIR_CLIENT } from '../dir'
+import { generateBuild } from './build'
 import { InspectContext } from './context'
 import { hijackPlugin } from './hijack'
 import { createPreviewServer } from './preview'
 import { createServerRpc } from './rpc'
+import { openBrowser } from './utils'
 
 export * from './options'
 
@@ -123,7 +125,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
     const rpc = createServerRpc(ctx)
 
-    const rpcServer = createRPCServer<RpcFunctions>(
+    const rpcServer = createRPCServer<RpcFunctions, any>(
       'vite-plugin-inspect',
       server.ws,
       rpc,

@@ -2,6 +2,8 @@ import type { ObjectHook, ResolveIdResult, TransformResult } from 'rollup'
 import type { Plugin } from 'vite'
 import type { ParsedError } from '../types'
 import type { InspectContext } from './context'
+import Debug from 'debug'
+import { parse as parseErrorStacks } from 'error-stack-parser-es'
 
 const debug = Debug('vite-plugin-inspect')
 

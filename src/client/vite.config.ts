@@ -82,7 +82,12 @@ export default defineConfig({
   },
 
   future: {
-    deprecationWarnings: true,
+    removePluginHookHandleHotUpdate: 'warn',
+    removePluginHookSsrArgument: 'warn',
+    removeServerModuleGraph: 'warn',
+    removeServerHot: 'warn',
+    removeServerTransformRequest: 'warn',
+    removeSsrLoadModule: 'warn',
   },
 
   build: {

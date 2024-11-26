@@ -8,11 +8,13 @@ export const onModuleUpdated = createEventHook<void>()
 
 export const isStaticMode = document.body.getAttribute('data-vite-inspect-mode') === 'BUILD'
 
+const hot = createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/'))
+
 export const rpc = isStaticMode
   ? createStaticRpcClient() as BirpcReturn<RpcFunctions>
   : createRPCClient<RpcFunctions, Pick<RpcFunctions, 'onModuleUpdated'>>(
     'vite-plugin-inspect',
-    (createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/')))!,
+    hot,
     {
       async onModuleUpdated() {
         onModuleUpdated.trigger()

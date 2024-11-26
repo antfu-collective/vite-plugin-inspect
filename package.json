@@ -72,7 +72,7 @@
     "release": "bumpp && npm publish --tag next"
   },
   "peerDependencies": {
-    "vite": "^6.0.0-alpha.19"
+    "vite": "^6.0.0"
   },
   "peerDependenciesMeta": {
     "@nuxt/kit": {
@@ -126,7 +126,7 @@
     "rimraf": "^6.0.1",
     "simple-git-hooks": "^2.11.1",
     "splitpanes": "^3.1.5",
-    "typescript": "^5.7.2",
+    "typescript": "~5.6.0",
     "unbuild": "^2.0.0",
     "unocss": "^0.64.1",
     "unplugin-auto-import": "^0.18.5",
@@ -141,6 +141,9 @@
     "vue-echarts": "^7.0.3",
     "vue-router": "^4.5.0",
     "vue-tsc": "^2.1.10"
+  },
+  "resolutions": {
+    "vite": "6.0.0"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
