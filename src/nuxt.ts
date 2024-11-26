@@ -1,5 +1,5 @@
-import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import type { ViteInspectOptions } from './node'
+import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import Inspect from './node'
 
 export { ViteInspectOptions as ModuleOptions }

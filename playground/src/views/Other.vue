@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted, ref } from 'vue'
 import message from 'virtual:hi'
+import { onMounted, ref } from 'vue'
 
 const message2 = ref('Loading...')
 

@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
 import Fuse from 'fuse.js'
+import { defineStore } from 'pinia'
 import { useOptionsStore } from './options'
 import { usePayloadStore } from './payload'
 

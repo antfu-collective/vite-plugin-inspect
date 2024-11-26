@@ -1,7 +1,7 @@
-import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import sirv from 'sirv'
+import { createServer } from 'node:http'
 import c from 'picocolors'
+import sirv from 'sirv'
 import { openBrowser } from './utils'
 
 export function createPreviewServer(staticPath: string) {

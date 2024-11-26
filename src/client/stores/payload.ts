@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
 import type { Metadata, ModuleInfo, QueryEnv } from '../../types'
+import { defineStore } from 'pinia'
 import { isStaticMode, onModuleUpdated, rpc } from '../logic/rpc'
 
 export const usePayloadStore = defineStore('payload', () => {

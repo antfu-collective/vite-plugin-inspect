@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
 import { Pane, Splitpanes } from 'splitpanes'
+import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
 import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
-import { calculateDiffWithWorker } from '../worker/diff'
 import { useOptionsStore } from '../stores/options'
+import { calculateDiffWithWorker } from '../worker/diff'
 
 const props = defineProps<{
   from: string

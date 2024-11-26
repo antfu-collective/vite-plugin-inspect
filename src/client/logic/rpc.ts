@@ -1,7 +1,7 @@
-import { createRPCClient } from 'vite-dev-rpc'
 import type { BirpcReturn } from 'birpc'
-import { createHotContext } from 'vite-hot-client'
 import type { RpcFunctions } from '../../types'
+import { createRPCClient } from 'vite-dev-rpc'
+import { createHotContext } from 'vite-hot-client'
 import { createStaticRpcClient } from './rpc-static'
 
 export const onModuleUpdated = createEventHook<void>()
@@ -12,7 +12,7 @@ export const rpc = isStaticMode
   ? createStaticRpcClient() as BirpcReturn<RpcFunctions>
   : createRPCClient<RpcFunctions, Pick<RpcFunctions, 'onModuleUpdated'>>(
     'vite-plugin-inspect',
-    (await createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/')))!,
+    (createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/')))!,
     {
       async onModuleUpdated() {
         onModuleUpdated.trigger()

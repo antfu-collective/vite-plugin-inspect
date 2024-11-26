@@ -1,10 +1,10 @@
+import type { Environment, ResolvedConfig } from 'vite'
+import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo } from '../types'
+import type { ViteInspectOptions } from './options'
 import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
-import type { Environment, ResolvedConfig } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
-import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo } from '../types'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
-import type { ViteInspectOptions } from './options'
 import { removeVersionQuery, serializePlugin } from './utils'
 
 let viteCount = 0
@@ -183,41 +183,40 @@ export class InspectContextViteEnv {
     const ids = new Set(Object.keys(this.data.transform)
       .concat(Object.keys(transformedIdMap)))
 
-    return Array.from(ids).sort()
-      .map((id): ModuleInfo => {
-        let totalTime = 0
-        const plugins = (this.data.transform[id] || [])
-          .filter(tr => tr.result)
-          .map((transItem) => {
-            const delta = transItem.end - transItem.start
-            totalTime += delta
-            return { name: transItem.name, transform: delta }
-          })
-          .concat(
-            // @ts-expect-error transform is optional
-            (transformedIdMap[id] || []).map((idItem) => {
-              return { name: idItem.name, resolveId: idItem.end - idItem.start }
-            }),
-          )
+    return Array.from(ids).sort().map((id): ModuleInfo => {
+      let totalTime = 0
+      const plugins = (this.data.transform[id] || [])
+        .filter(tr => tr.result)
+        .map((transItem) => {
+          const delta = transItem.end - transItem.start
+          totalTime += delta
+          return { name: transItem.name, transform: delta }
+        })
+        .concat(
+          // @ts-expect-error transform is optional
+          (transformedIdMap[id] || []).map((idItem) => {
+            return { name: idItem.name, resolveId: idItem.end - idItem.start }
+          }),
+        )
 
-        function getSize(str: string | undefined) {
-          if (!str)
-            return 0
-          return Buffer.byteLength(str, 'utf8')
-        }
+      function getSize(str: string | undefined) {
+        if (!str)
+          return 0
+        return Buffer.byteLength(str, 'utf8')
+      }
 
-        return {
-          id,
-          deps: getDeps(id),
-          importers: getImporters(id),
-          plugins,
-          virtual: isVirtual(plugins[0]?.name || '', this.data.transform[id]?.[0].name || ''),
-          totalTime,
-          invokeCount: this.data.transformCounter?.[id] || 0,
-          sourceSize: getSize(this.data.transform[id]?.[0]?.result),
-          distSize: getSize(this.data.transform[id]?.[this.data.transform[id].length - 1]?.result),
-        }
-      })
+      return {
+        id,
+        deps: getDeps(id),
+        importers: getImporters(id),
+        plugins,
+        virtual: isVirtual(plugins[0]?.name || '', this.data.transform[id]?.[0].name || ''),
+        totalTime,
+        invokeCount: this.data.transformCounter?.[id] || 0,
+        sourceSize: getSize(this.data.transform[id]?.[0]?.result),
+        distSize: getSize(this.data.transform[id]?.[this.data.transform[id].length - 1]?.result),
+      }
+    })
   }
 
   resolveId(id = '', ssr = false): string {
@@ -242,7 +241,8 @@ export class InspectContextViteEnv {
     })
 
     this.env.getTopLevelConfig()
-      .plugins.forEach((i) => {
+      .plugins
+      .forEach((i) => {
         map[i.name] = {
           ...defaultMetricInfo(),
           name: i.name,
@@ -272,8 +272,7 @@ export class InspectContextViteEnv {
         })
       })
 
-    const metrics = Object.values(map).filter(Boolean)
-      .sort((a, b) => a.name.localeCompare(b.name))
+    const metrics = Object.values(map).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name))
 
     return metrics
   }

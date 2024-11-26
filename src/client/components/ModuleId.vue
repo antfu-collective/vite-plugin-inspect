@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { vTooltip } from 'floating-vue'
 import { relative } from 'pathe'
-import { usePayloadStore } from '../stores/payload'
+import { computed } from 'vue'
 import { getPluginColor } from '../logic/color'
+import { usePayloadStore } from '../stores/payload'
 
 const props = withDefaults(
   defineProps<{

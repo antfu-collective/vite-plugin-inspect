@@ -1,8 +1,8 @@
-// register vue composition api globally
-import { Suspense, createApp, h } from 'vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
 import { createPinia } from 'pinia'
 import routes from 'virtual:generated-pages'
+// register vue composition api globally
+import { createApp, h, Suspense } from 'vue'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import App from './App.vue'
 
 import '@unocss/reset/tailwind.css'

@@ -1,10 +1,10 @@
+import type { ModuleTransformInfo } from '../types'
+import type { InspectContext } from './context'
 import { isAbsolute, join, resolve } from 'node:path'
 import process from 'node:process'
 import fs from 'fs-extra'
 import { hash } from 'ohash'
-import type { ModuleTransformInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
-import type { InspectContext } from './context'
 
 export async function generateBuild(
   ctx: InspectContext,

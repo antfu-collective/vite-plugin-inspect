@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import type { HMRData, ModuleInfo } from '../../../types'
 import { useRouteQuery } from '@vueuse/router'
-import { Pane, Splitpanes } from 'splitpanes'
 import { Dropdown } from 'floating-vue'
+import { Pane, Splitpanes } from 'splitpanes'
 import {
   inspectSourcemaps,
   safeJsonParse,
 } from '../../logic'
-import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
-import type { HMRData, ModuleInfo } from '../../../types'
 import { getHot } from '../../logic/hot'
+import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
 import { useOptionsStore } from '../../stores/options'
 import { usePayloadStore } from '../../stores/payload'
 

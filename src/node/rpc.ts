@@ -22,7 +22,8 @@ export function createServerRpc(
     },
     async getServerMetrics(query) {
       return ctx.getViteContext(query.vite)
-        .data.serverMetrics || {}
+        .data
+        .serverMetrics || {}
     },
     async onModuleUpdated() {},
   }

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { getHot } from '../../logic/hot'
 import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
-import { usePayloadStore } from '../../stores/payload'
 import { useOptionsStore } from '../../stores/options'
+import { usePayloadStore } from '../../stores/payload'
 
 const options = useOptionsStore()
 const payload = usePayloadStore()

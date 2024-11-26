@@ -1,6 +1,7 @@
 import type { Ref, WritableComputedRef } from 'vue'
-import { watch } from 'vue'
 import CodeMirror from 'codemirror'
+import { watch } from 'vue'
+
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/mode/css/css'
 import 'codemirror/mode/markdown/markdown'

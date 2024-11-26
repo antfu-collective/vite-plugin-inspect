@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Data, Options } from 'vis-network'
-import { Network } from 'vis-network'
-import { DataSet } from 'vis-data'
 import type { ModuleInfo } from '../../types'
+import { DataSet } from 'vis-data'
+import { Network } from 'vis-network'
 import { useOptionsStore } from '../stores/options'
 import { useSearchResults } from '../stores/search'
 
