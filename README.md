@@ -2,9 +2,6 @@
 
 [![NPM version](https://img.shields.io/npm/v/vite-plugin-inspect?color=a1b858&label=)](https://www.npmjs.com/package/vite-plugin-inspect)
 
-> [!IMPORTANT]
-> This branch requires Vite v6, current supported version: `6.0.0-alpha.19`
-
 Inspect the intermediate state of Vite plugins. Useful for debugging and authoring plugins.
 
 <img width="1304" src="https://user-images.githubusercontent.com/46585162/134683677-487e3e03-fa6b-49ad-bde0-520ebb641a96.png">
@@ -17,7 +14,9 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 npm i -D vite-plugin-inspect
 ```
 
-> Since `vite-plugin-inspect@v0.10.0`, Vite v6 or above is required.
+> [!NOTE]
+> v0.10.0 Requires Vite v6.0.1 or above.
+> For Vite v2 to v5, use v0.8.x of `vite-plugin-inspect`.
 
 Add plugin to your `vite.config.ts`:
 
