@@ -69,7 +69,7 @@
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "npm run build",
-    "release": "bumpp && npm publish --tag next"
+    "release": "bumpp && npm publish"
   },
   "peerDependencies": {
     "vite": "^6.0.0"
