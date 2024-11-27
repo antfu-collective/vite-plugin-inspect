@@ -18,7 +18,7 @@ export default defineConfig({
 
   plugins: [
     {
-      name: 'local:object-transform',
+      name: 'local:object-hook-transform',
       transform: {
         order: 'post',
         async handler(code) {
@@ -79,6 +79,15 @@ export default defineConfig({
       'vite-hot-client',
       'diff-match-patch-es',
     ],
+  },
+
+  future: {
+    removePluginHookHandleHotUpdate: 'warn',
+    removePluginHookSsrArgument: 'warn',
+    removeServerModuleGraph: 'warn',
+    removeServerHot: 'warn',
+    removeServerTransformRequest: 'warn',
+    removeSsrLoadModule: 'warn',
   },
 
   build: {

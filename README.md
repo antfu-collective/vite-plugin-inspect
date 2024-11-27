@@ -6,15 +6,15 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 
 <img width="1304" src="https://user-images.githubusercontent.com/46585162/134683677-487e3e03-fa6b-49ad-bde0-520ebb641a96.png">
 
-![](https://s9.gifyu.com/images/Kapture-2021-09-11-at-07.33.36.gif)
-
 ## Install
 
 ```bash
 npm i -D vite-plugin-inspect
 ```
 
-> Since `vite-plugin-inspect@v0.7.0`, Vite v3.1 or above is required.
+> [!NOTE]
+> v0.10.0 Requires Vite v6.0.1 or above.
+> For Vite v2 to v5, use v0.8.x of `vite-plugin-inspect`.
 
 Add plugin to your `vite.config.ts`:
 

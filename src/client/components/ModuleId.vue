@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { vTooltip } from 'floating-vue'
 import { relative } from 'pathe'
-import { list, root } from '../logic'
+import { computed } from 'vue'
 import { getPluginColor } from '../logic/color'
+import { usePayloadStore } from '../stores/payload'
 
 const props = withDefaults(
   defineProps<{
     id?: string
+    badges?: boolean
     icon?: boolean
     module?: boolean
   }>(),
@@ -15,11 +17,14 @@ const props = withDefaults(
   },
 )
 
-const isVirtual = computed(() => list.value?.modules.find(i => i.id === props.id)?.virtual)
+const payload = usePayloadStore()
+const mod = computed(() => payload.modules.find(i => i.id === props.id))
+
+const isVirtual = computed(() => mod.value?.virtual)
 const relativePath = computed(() => {
   if (!props.id)
     return ''
-  let relate = relative(root.value, props.id)
+  let relate = relative(payload.root, props.id)
   if (!relate.startsWith('.'))
     relate = `./${relate}`
   if (relate.startsWith('./'))

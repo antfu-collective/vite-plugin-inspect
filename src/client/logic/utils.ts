@@ -1,5 +1,3 @@
-import { root } from './state'
-
 export function msToTime(ms: number) {
   if (ms <= 0.5)
     return '<1ms'
@@ -16,12 +14,6 @@ export function msToTime(ms: number) {
     return `${hours}h`
   const days = +(ms / (1000 * 60 * 60 * 24)).toFixed(1)
   return `${days}d`
-}
-
-export function clearRoot(path: string) {
-  if (path.startsWith(root.value))
-    return path.slice(root.value.length)
-  return path
 }
 
 export function guessMode(code: string) {

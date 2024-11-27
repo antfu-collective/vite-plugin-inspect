@@ -1,28 +1,47 @@
 <script setup lang="ts">
-import type { HMRData } from '../../../types'
+import type { HMRData, ModuleInfo } from '../../../types'
 import { useRouteQuery } from '@vueuse/router'
+import { Dropdown } from 'floating-vue'
 import { Pane, Splitpanes } from 'splitpanes'
-import { enableDiff, inspectSourcemaps, inspectSSR, lineWrapping, onRefetch, safeJsonParse, showBailout, showOneColumn } from '../../logic'
+import {
+  inspectSourcemaps,
+  safeJsonParse,
+} from '../../logic'
 import { getHot } from '../../logic/hot'
-import { rpc } from '../../logic/rpc'
+import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
+import { useOptionsStore } from '../../stores/options'
+import { usePayloadStore } from '../../stores/payload'
 
 function getModuleId(fullPath?: string) {
   if (!fullPath)
     return undefined
-
   return new URL(fullPath, 'http://localhost').searchParams.get('id') || undefined
 }
 
+const options = useOptionsStore()
+const payload = usePayloadStore()
+
 const route = useRoute()
-const module = getModuleId(route.fullPath)
 const id = computed(() => getModuleId(route.fullPath))
-const data = ref(module ? await rpc.getIdInfo(module, inspectSSR.value) : undefined)
+const info = ref(id.value ? await rpc.getModuleTransformInfo(payload.query, id.value) : undefined)
+const mod = computed(() => payload.modules.find(m => m.id === id.value))
 const index = useRouteQuery<string | undefined>('index')
-const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (data.value?.transforms.length || 1) - 1)
-const panelSize = useLocalStorage('vite-inspect-module-panel-size', '10')
+const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (info.value?.transforms.length || 1) - 1)
+
+const deps = computed(() => {
+  return mod.value?.deps
+    .map(dep => payload.modules.find(m => m.id === dep) as ModuleInfo)
+    .filter(Boolean)
+})
+
+const importers = computed(() => {
+  return mod.value?.importers
+    .map(dep => payload.modules.find(m => m.id === dep) as ModuleInfo)
+    .filter(Boolean)
+})
 
 const transforms = computed(() => {
-  const trs = data.value?.transforms
+  const trs = info.value?.transforms
   if (!trs)
     return undefined
 
@@ -37,19 +56,23 @@ const transforms = computed(() => {
     }))
 })
 const filteredTransforms = computed(() =>
-  transforms.value?.filter(tr => showBailout.value || tr.result),
+  transforms.value?.filter(tr => options.view.showBailout || tr.result),
 )
 
-async function refetch() {
+async function refetch(clear = false) {
   if (id.value)
-    data.value = await rpc.getIdInfo(id.value, inspectSSR.value, true)
+    info.value = await rpc.getModuleTransformInfo(payload.query, id.value, clear)
 }
 
-onRefetch.on(async () => {
-  await refetch()
+onModuleUpdated.on(async () => {
+  await refetch(false)
 })
 
-watch([id, inspectSSR], refetch)
+watch(
+  () => [id.value, payload.query],
+  () => refetch(false),
+  { deep: true },
+)
 
 const lastTransform = computed(() =>
   transforms.value?.slice(0, currentIndex.value).reverse().find(tr => tr.result),
@@ -91,44 +114,80 @@ getHot().then((hot) => {
     <RouterLink my-auto outline-none icon-btn to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
-    <ModuleId v-if="id" :id="id" module />
-    <Badge
-      v-if="inspectSSR"
-      text="SSR"
-    />
+    <ModuleId v-if="id" :id="id" />
     <div flex-auto />
 
-    <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
-      <span i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
-    </button>
+    <QuerySelector />
+    <template v-if="deps?.length || importers?.length">
+      <div mx1 h-full w-0 border="r main" />
+      <Dropdown v-if="deps?.length">
+        <button title="Dependencies" flex="~ gap-2 items-center" text-lg icon-btn>
+          <span i-carbon-downstream />
+          <span line-height-1em>{{ deps.length }}</span>
+        </button>
+        <template #popper>
+          <div max-h-400 max-w-200 of-auto>
+            <ModuleList :modules="deps" />
+          </div>
+        </template>
+      </Dropdown>
+      <Dropdown v-if="importers?.length">
+        <button title="Importers" flex="~ gap-2 items-center" text-lg icon-btn>
+          <span i-carbon-upstream />
+          <span line-height-1em>{{ importers.length }}</span>
+        </button>
+        <template #popper>
+          <div max-h-400 max-w-200 of-auto>
+            <ModuleList :modules="importers" />
+          </div>
+        </template>
+      </Dropdown>
+    </template>
+    <div mx1 h-full w-0 border="r main" />
     <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
-      <span i-carbon-choropleth-map :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
+      <span i-carbon-choropleth-map block :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Line Wrapping" @click="lineWrapping = !lineWrapping">
-      <span i-carbon-text-wrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+    <button text-lg icon-btn title="Line Wrapping" @click="options.view.lineWrapping = !options.view.lineWrapping">
+      <span i-carbon-text-wrap :class="options.view.lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Toggle one column" @click="showOneColumn = !showOneColumn">
-      <span v-if="showOneColumn" i-carbon-side-panel-open />
+    <button text-lg icon-btn title="Toggle one column" @click="options.view.showOneColumn = !options.view.showOneColumn">
+      <span v-if="options.view.showOneColumn" i-carbon-side-panel-open />
       <span v-else i-carbon-side-panel-close />
     </button>
-    <button class="text-lg icon-btn" title="Toggle Diff" @click="enableDiff = !enableDiff">
-      <span i-carbon-compare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+    <button class="text-lg icon-btn" title="Toggle Diff" @click="options.view.diff = !options.view.diff">
+      <span i-carbon-compare :class="options.view.diff ? 'opacity-100' : 'opacity-25'" />
+    </button>
+    <button
+      v-if="!payload.isStatic"
+      class="text-lg icon-btn" title="Refetch"
+      @click="refetch(true)"
+    >
+      <span i-carbon-renew />
     </button>
   </NavBar>
+  <div v-if="!info?.transforms.length" flex="~ col gap-2 items-center justify-center" h-full>
+    <div>No transform data for this module in the <Badge :text="payload.query.env" size="none" px1 py0.5 line-height-1em /> env</div>
+    <button v-if="!isStaticMode" rounded bg-teal5 px2 py1 text-white @click="refetch(true)">
+      Request the module
+    </button>
+  </div>
   <Container
-    v-if="data && filteredTransforms"
+    v-else-if="info && filteredTransforms"
     flex overflow-hidden
   >
-    <Splitpanes h-full of-hidden @resize="panelSize = $event[0].size">
+    <Splitpanes h-full of-hidden @resize="options.view.panelSizeModule = $event[0].size">
       <Pane
-        :size="panelSize" min-size="10"
+        :size="options.view.panelSizeModule" min-size="10"
         flex="~ col" border="r main"
         overflow-y-auto
       >
         <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
-          <span flex-auto text-center text-sm>{{ inspectSSR ? 'SSR ' : '' }}TRANSFORM STACK</span>
-          <button class="icon-btn" title="Toggle bailout plugins" @click="showBailout = !showBailout">
-            <span :class="showBailout ? 'opacity-100 i-carbon-view' : 'opacity-75 i-carbon-view-off'" />
+          <span flex-auto text-center text-sm uppercase>{{ payload.query.env }} TRANSFORM STACK</span>
+          <button
+            class="icon-btn" title="Toggle bailout plugins"
+            @click="options.view.showBailout = !options.view.showBailout"
+          >
+            <div :class="options.view.showBailout ? 'opacity-100 i-carbon-view' : 'opacity-75 i-carbon-view-off'" />
           </button>
         </div>
         <div border="b main" />
@@ -151,11 +210,12 @@ getHot().then((hot) => {
             </span>
             <Badge
               v-if="!tr.result"
-              text="bailout"
+              text="bailout" saturate-0
             />
             <Badge
               v-else-if="tr.noChange"
               text="no change"
+              :color="20"
             />
             <Badge
               v-if="tr.load"
@@ -169,9 +229,10 @@ getHot().then((hot) => {
             <Badge
               v-if="tr.error"
               text="error"
-            />
-            <span flex-auto />
-            <DurationDisplay :duration="tr.end - tr.start" />
+            >
+              <span flex-auto />
+              <DurationDisplay :duration="tr.end - tr.start" />
+            </Badge>
           </button>
         </template>
       </Pane>
@@ -185,8 +246,8 @@ getHot().then((hot) => {
           <DiffEditor
             v-else
             :key="id"
-            :one-column="showOneColumn || !!currentTransform?.error"
-            :diff="enableDiff && !currentTransform?.error"
+            :one-column="options.view.showOneColumn || !!currentTransform?.error"
+            :diff="options.view.diff && !currentTransform?.error"
             :from="from" :to="to"
             h-unset
           />

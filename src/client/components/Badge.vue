@@ -15,6 +15,7 @@ const props = withDefaults(
     color: true,
   },
 )
+
 const style = computed(() => {
   if (!props.text || props.color === false)
     return {}
@@ -27,6 +28,7 @@ const style = computed(() => {
       : getHashColorFromString(props.text, 0.1),
   }
 })
+
 const sizeClasses = computed(() => {
   switch (props.size || 'sm') {
     case 'sm':

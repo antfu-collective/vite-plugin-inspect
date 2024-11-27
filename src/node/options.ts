@@ -1,6 +1,6 @@
 import type { FilterPattern } from '@rollup/pluginutils'
 
-export interface Options {
+export interface ViteInspectOptions {
   /**
    * Enable the inspect plugin in dev mode (could be some performance overhead)
    *
