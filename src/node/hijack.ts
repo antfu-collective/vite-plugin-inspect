@@ -80,8 +80,8 @@ export function hijackPlugin(
     if (ctx.filter(id)) {
       const sourcemaps = typeof _result === 'string' ? null : _result?.map
       ctx
-        .getEnvContext(context.environment)
-        .recordTransform(id, {
+        .getEnvContext(context?.environment)
+        ?.recordTransform(id, {
           name: plugin.name,
           result,
           start,
@@ -124,8 +124,8 @@ export function hijackPlugin(
 
     if (result) {
       ctx
-        .getEnvContext(context.environment)
-        .recordLoad(id, {
+        .getEnvContext(context?.environment)
+        ?.recordLoad(id, {
           name: plugin.name,
           result,
           start,
@@ -171,8 +171,8 @@ export function hijackPlugin(
 
     if (result && result !== id) {
       ctx
-        .getEnvContext(context.environment)
-        .recordResolveId(id, {
+        .getEnvContext(context?.environment)
+        ?.recordResolveId(id, {
           name: plugin.name,
           result,
           start,

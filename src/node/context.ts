@@ -57,7 +57,7 @@ export class InspectContext {
 
   getEnvContext(env?: Environment) {
     if (!env)
-      throw new Error('Environment is required')
+      return undefined
     const vite = this.getViteContext(env.getTopLevelConfig())
     return vite.getEnvContext(env)
   }

@@ -106,7 +106,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
     const config = server.config
     Object.values(server.environments)
       .forEach((env) => {
-        const envCtx = ctx.getEnvContext(env)
+        const envCtx = ctx.getEnvContext(env)!
         const _invalidateModule = env.moduleGraph.invalidateModule
         env.moduleGraph.invalidateModule = function (...args) {
           const mod = args[0]
@@ -229,7 +229,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       order: 'pre',
       handler(id) {
         ctx.getEnvContext(this.environment)
-          .invalidate(id)
+          ?.invalidate(id)
         return null
       },
     },
