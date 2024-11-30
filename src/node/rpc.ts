@@ -26,6 +26,11 @@ export function createServerRpc(
         .serverMetrics || {}
     },
     async onModuleUpdated() {},
+
+    async list() {
+      const query = ctx.queryEnv({ vite: 'vite1', env: 'client' })
+      return query.getModulesList()
+    },
   }
 
   return rpc

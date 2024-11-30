@@ -108,6 +108,11 @@ export interface RpcFunctions {
   getServerMetrics: (query: QueryEnv) => Promise<ServerMetrics>
   resolveId: (query: QueryEnv, id: string) => Promise<string>
   onModuleUpdated: () => Promise<void>
+
+  /**
+   * @deprecated Query for the default Vite instance with the default env. Deprecated. Use `getModulesList` instead.
+   */
+  list: () => Promise<ModulesList>
 }
 
 export interface QueryEnv {
