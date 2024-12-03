@@ -112,7 +112,11 @@ export interface RpcFunctions {
   /**
    * @deprecated Query for the default Vite instance with the default env. Deprecated. Use `getModulesList` instead.
    */
-  list: () => Promise<ModulesList>
+  list: () => Promise<{
+    root: string
+    modules: ModulesList
+    ssrModules: ModulesList
+  }>
 }
 
 export interface QueryEnv {
