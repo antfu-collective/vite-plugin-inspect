@@ -2,6 +2,8 @@
 import {
   toggleDark,
 } from '../logic'
+
+const hiddenBtn = window.location.href.includes('__inspect_no_toggle')
 </script>
 
 <template>
@@ -16,7 +18,7 @@ import {
       >
         <div i-carbon-logo-github />
       </a>
-      <button class="text-lg icon-btn" title="Toggle Dark Mode" @click="toggleDark()">
+      <button v-if="!hiddenBtn" class="text-lg icon-btn" title="Toggle Dark Mode" @click="toggleDark()">
         <span i-carbon-sun dark:i-carbon-moon />
       </button>
     </slot>

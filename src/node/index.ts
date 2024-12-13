@@ -30,6 +30,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
     build = false,
     silent = false,
     open: _open = false,
+    hideDarkMode = false,
   } = options
 
   if (!dev && !build) {
@@ -118,7 +119,9 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
     const base = (options.base ?? server.config.base) || '/'
 
-    server.middlewares.use(`${base}__inspect`, sirv(DIR_CLIENT, {
+    const inspectPath = hideDarkMode ? `__inspect_no_toggle` : `__inspect`
+
+    server.middlewares.use(`${base}${inspectPath}`, sirv(DIR_CLIENT, {
       single: true,
       dev: true,
     }))
@@ -161,13 +164,13 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       if (!silent) {
         const colorUrl = (url: string) => c.green(url.replace(/:(\d+)\//, (_, port) => `:${c.bold(port)}/`))
 
-        config.logger.info(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
+        config.logger.info(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}${inspectPath}/`)}`)
       }
 
       if (_open && !isCI) {
         // a delay is added to ensure the app page is opened first
         setTimeout(() => {
-          openBrowser(`${host}${base}__inspect/`)
+          openBrowser(`${host}${base}${inspectPath}/`)
         }, 500)
       }
     }
