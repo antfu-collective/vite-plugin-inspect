@@ -43,6 +43,7 @@ export default defineConfig({
     Inspect({
       build: true,
       open: true,
+      hideDarkMode: false,
     }),
   ],
 })

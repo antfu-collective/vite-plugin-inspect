@@ -8,7 +8,7 @@ export const onModuleUpdated = createEventHook<void>()
 
 export const isStaticMode = document.body.getAttribute('data-vite-inspect-mode') === 'BUILD'
 
-const hot = createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/'))
+const hot = createHotContext('/___', `${location.pathname.split(/\/__inspect(?:__no_toggle)?/)[0] || ''}/`.replace(/\/\//g, '/'))
 
 export const rpc = isStaticMode
   ? createStaticRpcClient() as BirpcReturn<RpcFunctions>

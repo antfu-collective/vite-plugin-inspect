@@ -63,4 +63,10 @@ export interface ViteInspectOptions {
    * @default true
    */
   removeVersionQuery?: boolean
+  /**
+   * hide the dark mode toggle button
+   *
+   * @default false
+   */
+  hideDarkMode?: boolean
 }
