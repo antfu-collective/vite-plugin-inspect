@@ -293,6 +293,10 @@ export class InspectContextViteEnv {
     }
   }
 
+  async getWaterfallInfo() {
+    return {}
+  }
+
   clearId(_id: string) {
     const id = this.resolveId(_id)
     if (id) {

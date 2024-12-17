@@ -17,10 +17,13 @@ import {
 import { graphic, use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
-import { inspectSSR, onRefetch } from '../../logic'
 import { getHot } from '../../logic/hot'
-import { rpc } from '../../logic/rpc'
+import { onModuleUpdated, rpc } from '../../logic/rpc'
 import { useOptionsStore } from '../../stores/options'
+import { usePayloadStore } from '../../stores/payload'
+
+const options = useOptionsStore()
+const payload = usePayloadStore()
 
 const container = ref<HTMLDivElement | null>()
 
@@ -29,8 +32,7 @@ const zoomBarOffset = 100
 
 const { height } = useElementSize(container)
 
-const options = useOptionsStore()
-const data = shallowRef(await rpc.getWaterfallInfo(inspectSSR.value))
+const data = shallowRef(await rpc.getWaterfallInfo(payload.query))
 const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity)))
 const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
 
@@ -151,15 +153,24 @@ const waterfallData = computed(() => {
 })
 
 async function refetch() {
-  data.value = await rpc.getWaterfallInfo(inspectSSR.value)
+  data.value = await rpc.getWaterfallInfo(payload.query)
 }
 
-onRefetch.on(refetch)
-watch(inspectSSR, refetch)
+onModuleUpdated.on(async () => {
+  await refetch()
+})
+
+watch(
+  () => payload.query,
+  () => refetch(),
+  { deep: true },
+)
 
 getHot().then((hot) => {
   if (hot) {
-    hot.on('vite-plugin-inspect:update', refetch)
+    hot.on('vite-plugin-inspect:update', () => {
+      refetch()
+    })
   }
 })
 
@@ -303,10 +314,9 @@ const chartStyle = computed(() => {
 
     <input v-model="searchId" placeholder="ID Filter..." class="w-full px-4 py-2 text-xs">
 
-    <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
-      <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
-    </button>
-    <button class="text-lg icon-btn" title="Show resolveId" @click="waterfallShowResolveId = !waterfallShowResolveId">
+    <QuerySelector />
+
+    <button class="text-lg icon-btn" title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
       <div i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
 

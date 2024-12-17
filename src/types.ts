@@ -113,7 +113,7 @@ export interface RpcFunctions {
   getModuleTransformInfo: (query: QueryEnv, id: string, clear?: boolean) => Promise<ModuleTransformInfo>
   getPluginMetrics: (query: QueryEnv) => Promise<PluginMetricInfo[]>
   getServerMetrics: (query: QueryEnv) => Promise<ServerMetrics>
-  getWaterfallInfo: (ssr: boolean) => Promise<WaterfallInfo>
+  getWaterfallInfo: (query: QueryEnv) => Promise<WaterfallInfo>
   resolveId: (query: QueryEnv, id: string) => Promise<string>
   onModuleUpdated: () => Promise<void>
 

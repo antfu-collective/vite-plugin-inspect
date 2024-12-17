@@ -25,8 +25,8 @@ export function createServerRpc(
         .data
         .serverMetrics || {}
     },
-    async getWaterfallInfo() {
-      return ctx.getWaterfallInfo()
+    async getWaterfallInfo(query) {
+      return ctx.queryEnv(query).getWaterfallInfo()
     },
     async onModuleUpdated() {},
 
