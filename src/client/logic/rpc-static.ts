@@ -23,5 +23,6 @@ export function createStaticRpcClient(): RpcFunctions {
     onModuleUpdated: async () => undefined,
     getServerMetrics: async () => ({}),
     getWaterfallInfo: async () => ({}),
+    list: () => null!,
   }
 }

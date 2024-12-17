@@ -1,8 +1,9 @@
 import type { Environment, ResolvedConfig } from 'vite'
-import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo } from '../types'
+import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo, WaterfallInfo } from '../types'
 import type { ViteInspectOptions } from './options'
 import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
+import { objectMap } from '@antfu/utils'
 import { createFilter } from '@rollup/pluginutils'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 import { removeVersionQuery, serializePlugin } from './utils'
@@ -294,7 +295,46 @@ export class InspectContextViteEnv {
   }
 
   async getWaterfallInfo() {
-    return {}
+    const resolveIdByResult: Record<string, ResolveIdInfo> = {}
+    for (const id in this.data.resolveId) {
+      const info = this.data.resolveId[id][0]
+      resolveIdByResult[info.result] = {
+        ...info,
+        result: id,
+      }
+    }
+    return objectMap(this.data.transform, (id, transforms) => {
+      const result: WaterfallInfo[string] = []
+      let currentId = id
+      while (resolveIdByResult[currentId]) {
+        const info = resolveIdByResult[currentId]
+        result.push({
+          name: info.name,
+          start: info.start,
+          end: info.end,
+          isResolveId: true,
+        })
+        if (currentId === info.result)
+          break
+        currentId = info.result
+      }
+      for (const transform of transforms) {
+        result.push({
+          name: transform.name,
+          start: transform.start,
+          end: transform.end,
+          isResolveId: false,
+        })
+      }
+      result.sort((a, b) => a.start - b.start)
+      const filtered = result.filter(({ start, end }, i) => i === 0 || i === result.length - 1 || start < end)
+      return filtered.length
+        ? [
+            id,
+            filtered,
+          ]
+        : undefined
+    })
   }
 
   clearId(_id: string) {

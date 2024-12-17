@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import type { CustomSeriesOption } from 'echarts/charts'
-import type {
-  SingleAxisComponentOption,
-  TooltipComponentOption,
-} from 'echarts/components'
-import type { CustomSeriesRenderItemAPI, CustomSeriesRenderItemParams, CustomSeriesRenderItemReturn, LegendComponentOption, TopLevelFormatterParams } from 'echarts/types/dist/shared'
+import type { init } from 'echarts/core'
+import type { CustomSeriesRenderItemAPI, CustomSeriesRenderItemParams, CustomSeriesRenderItemReturn, TopLevelFormatterParams } from 'echarts/types/dist/shared'
 import { BarChart, CustomChart } from 'echarts/charts'
 import {
   DataZoomComponent,
@@ -17,10 +13,23 @@ import {
 import { graphic, use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
+import { createFilter, generatorHashColorByString } from '../../../node/utils'
 import { getHot } from '../../logic/hot'
 import { onModuleUpdated, rpc } from '../../logic/rpc'
 import { useOptionsStore } from '../../stores/options'
 import { usePayloadStore } from '../../stores/payload'
+
+use([
+  VisualMapComponent,
+  CanvasRenderer,
+  BarChart,
+  TooltipComponent,
+  TitleComponent,
+  LegendComponent,
+  GridComponent,
+  DataZoomComponent,
+  CustomChart,
+])
 
 const options = useOptionsStore()
 const payload = usePayloadStore()
@@ -36,129 +45,11 @@ const data = shallowRef(await rpc.getWaterfallInfo(payload.query))
 const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity)))
 const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
 
-// const reversed = ref(false)
-// const searchText = ref('')
-// const searchFn = computed(() => {
-//   const text = searchText.value.trim()
-//   if (text === '') {
-//     return () => true
-//   }
-//   const regex = new RegExp(text, 'i')
-//   return (name: string) => regex.test(name)
-// })
-
-const searchItem = ref('')
-const searchId = ref('')
-
-const searchItemFn = computed(() => {
-  const text = searchItem.value.trim()
-  if (text === '') {
-    return () => true
-  }
-  const regex = new RegExp(text, 'i')
-  return (name: string) => regex.test(name)
-})
-
-const searchIdFn = computed(() => {
-  const text = searchId.value.trim()
-  if (text === '') {
-    return () => true
-  }
-  const regex = new RegExp(text, 'i')
-  return (name: string) => regex.test(name)
-})
-
-const categories = computed(() => {
-  const cates = Object.keys(data.value).filter(searchIdFn.value)
-
-  // 按照start时间给key排序
-  cates.sort((a, b) => {
-    const aStart = data.value[a][0]?.start ?? Infinity
-    const bStart = data.value[b][0]?.start ?? Infinity
-    return bStart - aStart
-  })
-
-  return cates
-})
-
-// const legendData = computed(() => {
-//   const l = categories.value.map((id) => {
-//     return {
-//       name: id,
-//       icon: 'circle',
-//     }
-//   })
-
-//   console.log(l)
-
-//   return l
-// })
-
-function generatorHashColorByString(str: string) {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  let color = '#'
-  for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xFF
-    color += (`00${value.toString(16)}`).substr(-2)
-  }
-  return color
-}
-
-const types = computed(() => {
-  return Object.keys(data.value).map((id) => {
-    return {
-      name: id,
-      color: generatorHashColorByString(id),
-    }
-  })
-})
-
-const waterfallData = computed(() => {
-  const result: any = []
-
-  const sorted = Object.entries(data.value).sort(([a], [b]) => {
-    const aStart = data.value[a][0]?.start ?? Infinity
-    const bStart = data.value[b][0]?.start ?? Infinity
-    return bStart - aStart
-  })
-
-  sorted.forEach(([id, steps], index) => {
-    steps.forEach((s) => {
-      const typeItem = types.value.find(i => i.name === id)
-
-      const duration = s.end - s.start
-
-      if (searchItemFn.value(s.name)) {
-        result.push({
-          name: typeItem ? typeItem.name : id,
-          value: [index, s.start, (s.end - s.start) < 1 ? 1 : s.end, duration],
-          itemStyle: {
-            normal: {
-              color: typeItem ? typeItem.color : '#000',
-            },
-          },
-        })
-      }
-    })
-  })
-
-  // result.sort((a, b) => {
-  //   return b.value[1] - a.value[1]
-  // })
-
-  return result
-})
-
 async function refetch() {
   data.value = await rpc.getWaterfallInfo(payload.query)
 }
 
-onModuleUpdated.on(async () => {
-  await refetch()
-})
+onModuleUpdated.on(refetch)
 
 watch(
   () => payload.query,
@@ -174,17 +65,40 @@ getHot().then((hot) => {
   }
 })
 
-use([
-  VisualMapComponent,
-  CanvasRenderer,
-  BarChart,
-  TooltipComponent,
-  TitleComponent,
-  LegendComponent,
-  GridComponent,
-  DataZoomComponent,
-  CustomChart,
-])
+const itemFilter = ref('')
+const idFilter = ref('')
+const itemFilterFn = computed(() => createFilter(itemFilter.value))
+const idFilterFn = computed(() => createFilter(idFilter.value))
+
+const categories = computed(() => {
+  return Object.entries(data.value)
+    .filter(([k]) => idFilterFn.value(k))
+    .sort(([_, a], [__, b]) => {
+      const aStart = a[0]?.start ?? 0
+      const bStart = b[0]?.start ?? 0
+      return bStart - aStart
+    })
+})
+
+const chartData = computed(() => {
+  const result: any[] = []
+  for (const [index, [id, steps]] of categories.value.entries()) {
+    for (const s of steps) {
+      if (itemFilterFn.value(s.name)) {
+        result.push({
+          name: id,
+          value: [index, s.start, (s.end - s.start) < 1 ? 1 : s.end, s.end - s.start],
+          itemStyle: {
+            normal: {
+              color: generatorHashColorByString(id),
+            },
+          },
+        })
+      }
+    }
+  }
+  return result
+})
 
 function renderItem(params: CustomSeriesRenderItemParams | any, api: CustomSeriesRenderItemAPI): CustomSeriesRenderItemReturn {
   const categoryIndex = api.value(0)
@@ -216,18 +130,17 @@ function renderItem(params: CustomSeriesRenderItemParams | any, api: CustomSerie
   )
 }
 
-const option = computed(() => ({
+type ChartOption = ReturnType<ReturnType<typeof init>['getOption']>
+const chartOption = computed<ChartOption>(() => ({
   tooltip: {
     formatter(params: TopLevelFormatterParams | any) {
       return `${params.marker + params.name}: ${params.value[3] <= 1 ? '<1' : params.value[3]}ms}`
     },
-
-  } satisfies TooltipComponentOption,
+  },
   legendData: {
     top: 'center',
     data: ['c'],
-  } satisfies LegendComponentOption,
-
+  },
   title: {
     text: 'Waterfall',
     // left: 'center',
@@ -245,8 +158,6 @@ const option = computed(() => ({
     dimension: 1,
   },
   dataZoom: [
-    // 最多支持放大到1ms
-
     {
       type: 'slider',
       filterMode: 'weakFilter',
@@ -265,18 +176,16 @@ const option = computed(() => ({
   xAxis: {
     min: startTime.value,
     max: endTime.value,
-    // type: 'value',
-
     scale: true,
     axisLabel: {
       formatter(val: number) {
         return `${(val - startTime.value).toFixed(val % 1 ? 2 : 0)} ms`
       },
     },
-  } satisfies SingleAxisComponentOption,
+  },
   yAxis: {
-    data: categories.value,
-  } satisfies SingleAxisComponentOption,
+    data: categories.value.map(([id]) => id),
+  },
   series: [
     {
       type: 'custom',
@@ -289,10 +198,9 @@ const option = computed(() => ({
         x: [1, 2],
         y: 0,
       },
-      data: waterfallData.value,
+      data: chartData.value,
     },
-  ] satisfies CustomSeriesOption[],
-
+  ],
 }))
 
 const chartStyle = computed(() => {
@@ -310,28 +218,25 @@ const chartStyle = computed(() => {
     <div my-auto text-sm font-mono>
       Waterfall
     </div>
-    <input v-model="searchItem" placeholder="Item Filter..." class="w-full px-4 py-2 text-xs">
+    <input v-model="itemFilter" placeholder="Item Filter..." class="w-full px-4 py-2 text-xs">
 
-    <input v-model="searchId" placeholder="ID Filter..." class="w-full px-4 py-2 text-xs">
+    <input v-model="idFilter" placeholder="ID Filter..." class="w-full px-4 py-2 text-xs">
 
     <QuerySelector />
 
-    <button class="text-lg icon-btn" title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
-      <div i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
+    <button text-lg icon-btn title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
+      <span i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
 
-    <!-- <button class="text-lg icon-btn" title="Show resolveId" @click="reversed = !reversed">
-      <div i-carbon-arrows-vertical :class="reversed ? 'opacity-100' : 'opacity-25'" />
-    </button> -->
     <div flex-auto />
   </NavBar>
 
   <div ref="container" h-full p4>
-    <div v-if="!waterfallData.length" flex="~" h-40 w-full>
+    <div v-if="!chartData.length" flex="~" h-40 w-full>
       <div ma italic op50>
         No data
       </div>
     </div>
-    <VChart class="w-100%" :style="chartStyle" :option="option" autoresize />
+    <VChart class="w-100%" :style="chartStyle" :option="chartOption" autoresize />
   </div>
 </template>
