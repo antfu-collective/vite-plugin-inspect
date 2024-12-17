@@ -42,17 +42,27 @@ const zoomBarOffset = 100
 const { height } = useElementSize(container)
 
 const data = shallowRef(await rpc.getWaterfallInfo(payload.query))
+const hmrEvents = shallowRef(await rpc.getHmrEvents(payload.query))
 const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity)))
 const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
 
+const paused = ref(false)
+const pluginFilter = ref('')
+const idFilter = ref('')
+const pluginFilterFn = computed(() => createFilter(pluginFilter.value))
+const idFilterFn = computed(() => createFilter(idFilter.value))
+
 async function refetch() {
-  data.value = await rpc.getWaterfallInfo(payload.query)
+  if (!paused.value) {
+    data.value = await rpc.getWaterfallInfo(payload.query)
+    hmrEvents.value = await rpc.getHmrEvents(payload.query)
+  }
 }
 
 onModuleUpdated.on(refetch)
 
 watch(
-  () => payload.query,
+  () => [paused.value, payload.query],
   () => refetch(),
   { deep: true },
 )
@@ -64,11 +74,6 @@ getHot().then((hot) => {
     })
   }
 })
-
-const pluginFilter = ref('')
-const idFilter = ref('')
-const pluginFilterFn = computed(() => createFilter(pluginFilter.value))
-const idFilterFn = computed(() => createFilter(idFilter.value))
 
 const sortedData = computed(() => {
   return Object.entries(data.value)
@@ -203,7 +208,6 @@ const chartOption = computed<ChartOption>(() => ({
   },
   title: {
     text: 'Waterfall',
-    // left: 'center',
   },
   visualMap: {
     type: 'piecewise',
@@ -259,6 +263,16 @@ const chartOption = computed<ChartOption>(() => ({
         y: 0,
       },
       data: options.view.waterfallStacking ? chartDataStacked.value.flat() : chartDataById.value,
+      markLine: {
+        data: hmrEvents.value.map(({ type, file, timestamp }) => ({
+          name: `${type} ${file}`,
+          xAxis: timestamp,
+        })),
+        lineStyle: {
+          color: '#f00',
+        },
+        symbol: ['none', 'none'],
+      },
     },
   ],
 }))
@@ -284,6 +298,9 @@ const chartStyle = computed(() => {
 
     <QuerySelector />
 
+    <button text-lg icon-btn title="Pause" @click="paused = !paused">
+      <span i-carbon-pause opacity-90 :class="paused ? 'text-red' : ''" />
+    </button>
     <button text-lg icon-btn title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
       <span i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
