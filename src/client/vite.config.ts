@@ -1,10 +1,10 @@
 import { join, resolve } from 'node:path'
-import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
-import Pages from 'vite-plugin-pages'
-import Components from 'unplugin-vue-components/vite'
-import AutoImport from 'unplugin-auto-import/vite'
 import Unocss from 'unocss/vite'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { defineConfig } from 'vite'
+import Pages from 'vite-plugin-pages'
 import Inspect from '../node'
 
 export default defineConfig({
@@ -18,7 +18,7 @@ export default defineConfig({
 
   plugins: [
     {
-      name: 'local-object-transform',
+      name: 'local:object-hook-transform',
       transform: {
         order: 'post',
         async handler(code) {
@@ -27,7 +27,7 @@ export default defineConfig({
       },
     },
     {
-      name: 'generate-error',
+      name: 'local:generate-error',
       load(id) {
         if (id === '/__LOAD_ERROR')
           throw new Error('Load error')
@@ -41,7 +41,7 @@ export default defineConfig({
     },
 
     {
-      name: 'no-change',
+      name: 'local:no-change',
       transform: {
         order: 'post',
         async handler(code) {
@@ -77,7 +77,17 @@ export default defineConfig({
   optimizeDeps: {
     exclude: [
       'vite-hot-client',
+      'diff-match-patch-es',
     ],
+  },
+
+  future: {
+    removePluginHookHandleHotUpdate: 'warn',
+    removePluginHookSsrArgument: 'warn',
+    removeServerModuleGraph: 'warn',
+    removeServerHot: 'warn',
+    removeServerTransformRequest: 'warn',
+    removeSsrLoadModule: 'warn',
   },
 
   build: {

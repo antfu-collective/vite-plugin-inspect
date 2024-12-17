@@ -1,18 +1,19 @@
+import type { Connect, Plugin, ViteDevServer } from 'vite'
+import type { HMRData, RpcFunctions } from '../types'
+import type { InspectContextVite } from './context'
+import type { ViteInspectOptions } from './options'
 import process from 'node:process'
-import type { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
+import { debounce } from 'perfect-debounce'
+import c from 'picocolors'
 import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
-import c from 'picocolors'
-import { debounce } from 'perfect-debounce'
-import { objectMap } from '@antfu/utils'
-import type { HMRData, RPCFunctions, ResolveIdInfo, WaterfallInfo } from '../types'
 import { DIR_CLIENT } from '../dir'
-import type { Options } from './options'
-import { ViteInspectContext } from './context'
-import { hijackPlugin } from './hijack'
 import { generateBuild } from './build'
-import { openBrowser } from './utils'
+import { InspectContext } from './context'
+import { hijackPlugin } from './hijack'
 import { createPreviewServer } from './preview'
+import { createServerRpc } from './rpc'
+import { openBrowser } from './utils'
 
 export * from './options'
 
@@ -20,10 +21,10 @@ const NAME = 'vite-plugin-inspect'
 const isCI = !!process.env.CI
 
 export interface ViteInspectAPI {
-  rpc: RPCFunctions
+  rpc: RpcFunctions
 }
 
-export default function PluginInspect(options: Options = {}): Plugin {
+export default function PluginInspect(options: ViteInspectOptions = {}): Plugin {
   const {
     dev = true,
     build = false,
@@ -37,28 +38,24 @@ export default function PluginInspect(options: Options = {}): Plugin {
     }
   }
 
-  const ctx = new ViteInspectContext(options)
+  const ctx = new InspectContext(options)
 
   const timestampRE = /\bt=\d{13}&?\b/
   const trailingSeparatorRE = /[?&]$/
 
-  let config: ResolvedConfig
-  const serverPerf: {
-    middleware?: Record<string, { name: string, total: number, self: number }[]>
-  } = {
-    middleware: {},
-  }
-
   // a hack for wrapping connect server stack
   // see https://github.com/senchalabs/connect/blob/0a71c6b139b4c0b7d34c0f3fca32490595ecfd60/index.js#L50-L55
-  function setupMiddlewarePerf(middlewares: Connect.Server['stack']) {
+  function setupMiddlewarePerf(
+    ctx: InspectContextVite,
+    middlewares: Connect.Server['stack'],
+  ) {
     let firstMiddlewareIndex = -1
     middlewares.forEach((middleware, index) => {
       const { handle: originalHandle } = middleware
       if (typeof originalHandle !== 'function' || !originalHandle.name)
         return middleware
 
-      middleware.handle = (...middlewareArgs: any[]) => {
+      middleware.handle = function (...middlewareArgs: any[]) {
         let req: any
         if (middlewareArgs.length === 4)
           [, req] = middlewareArgs
@@ -67,25 +64,25 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
         const start = Date.now()
         const url = req.url?.replace(timestampRE, '').replace(trailingSeparatorRE, '')
-        serverPerf.middleware![url] ??= []
+        ctx.data.serverMetrics.middleware![url] ??= []
 
         if (firstMiddlewareIndex < 0)
           firstMiddlewareIndex = index
 
         // clear middleware timing
         if (index === firstMiddlewareIndex)
-          serverPerf.middleware![url] = []
+          ctx.data.serverMetrics.middleware![url] = []
 
         // @ts-expect-error handle needs 3 or 4 arguments
-        const result = originalHandle(...middlewareArgs)
+        const result = originalHandle.apply(this, middlewareArgs)
 
         Promise.resolve(result)
           .then(() => {
             const total = Date.now() - start
-            const metrics = serverPerf.middleware![url]
+            const metrics = ctx.data.serverMetrics.middleware![url]
 
             // middleware selfTime = totalTime - next.totalTime
-            serverPerf.middleware![url].push({
+            ctx.data.serverMetrics.middleware![url].push({
               self: metrics.length ? Math.max(total - metrics[metrics.length - 1].total, 0) : total,
               total,
               name: originalHandle.name,
@@ -105,16 +102,19 @@ export default function PluginInspect(options: Options = {}): Plugin {
     })
   }
 
-  function configureServer(server: ViteDevServer): RPCFunctions {
-    const _invalidateModule = server.moduleGraph.invalidateModule
-    server.moduleGraph.invalidateModule = function (...args) {
-      const mod = args[0]
-      if (mod?.id) {
-        ctx.recorderClient.invalidate(mod.id)
-        ctx.recorderServer.invalidate(mod.id)
-      }
-      return _invalidateModule.apply(this, args)
-    }
+  function configureServer(server: ViteDevServer): RpcFunctions {
+    const config = server.config
+    Object.values(server.environments)
+      .forEach((env) => {
+        const envCtx = ctx.getEnvContext(env)!
+        const _invalidateModule = env.moduleGraph.invalidateModule
+        env.moduleGraph.invalidateModule = function (...args) {
+          const mod = args[0]
+          if (mod?.id)
+            envCtx.invalidate(mod.id)
+          return _invalidateModule.apply(this, args)
+        }
+      })
 
     const base = (options.base ?? server.config.base) || '/'
 
@@ -123,101 +123,22 @@ export default function PluginInspect(options: Options = {}): Plugin {
       dev: true,
     }))
 
-    const rpcFunctions: RPCFunctions = {
-      list: () => ctx.getList(server),
-      getIdInfo,
-      getWaterfallInfo,
-      getPluginMetrics: (ssr = false) => ctx.getPluginMetrics(ssr),
-      getServerMetrics,
-      resolveId: (id: string, ssr = false) => ctx.resolveId(id, ssr),
-      clear: clearId,
-      moduleUpdated: () => {},
-    }
+    const rpc = createServerRpc(ctx)
 
-    const rpcServer = createRPCServer<RPCFunctions>('vite-plugin-inspect', server.ws, rpcFunctions)
+    const rpcServer = createRPCServer<RpcFunctions, any>(
+      'vite-plugin-inspect',
+      server.ws,
+      rpc,
+    )
 
     const debouncedModuleUpdated = debounce(() => {
-      rpcServer.moduleUpdated.asEvent()
+      rpcServer.onModuleUpdated.asEvent()
     }, 100)
 
     server.middlewares.use((req, res, next) => {
       debouncedModuleUpdated()
       next()
     })
-
-    function getServerMetrics() {
-      return serverPerf || {}
-    }
-
-    async function getIdInfo(id: string, ssr = false, clear = false) {
-      if (clear) {
-        clearId(id, ssr)
-        try {
-          await server.transformRequest(id, { ssr })
-        }
-        catch {}
-      }
-      const resolvedId = ctx.resolveId(id, ssr)
-      const recorder = ctx.getRecorder(ssr)
-      return {
-        resolvedId,
-        transforms: recorder.transform[resolvedId] || [],
-      }
-    }
-
-    function getWaterfallInfo(ssr = false) {
-      const recorder = ctx.getRecorder(ssr)
-      const resolveIdByResult: Record<string, ResolveIdInfo> = {}
-      for (const id in recorder.resolveId) {
-        const info = recorder.resolveId[id][0]
-        resolveIdByResult[info.result] = {
-          ...info,
-          result: id,
-        }
-      }
-      return objectMap(recorder.transform, (id, transforms) => {
-        const result: WaterfallInfo[string] = []
-        let currentId = id
-        while (resolveIdByResult[currentId]) {
-          const info = resolveIdByResult[currentId]
-          result.push({
-            name: info.name,
-            start: info.start,
-            end: info.end,
-            isResolveId: true,
-          })
-          if (currentId === info.result)
-            break
-          currentId = info.result
-        }
-        for (const transform of transforms) {
-          result.push({
-            name: transform.name,
-            start: transform.start,
-            end: transform.end,
-            isResolveId: false,
-          })
-        }
-        result.sort((a, b) => a.start - b.start)
-        const filtered = result.filter(({ start, end }, i) => i === 0 || i === result.length - 1 || start < end)
-        return filtered.length
-          ? [
-              id,
-              filtered,
-            ]
-          : undefined
-      })
-    }
-
-    function clearId(_id: string, ssr = false) {
-      const id = ctx.resolveId(_id)
-      if (id) {
-        const mod = server.moduleGraph.getModuleById(id)
-        if (mod)
-          server.moduleGraph.invalidateModule(mod)
-        ctx.getRecorder(ssr).invalidate(id)
-      }
-    }
 
     const _print = server.printUrls
     server.printUrls = () => {
@@ -251,7 +172,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
     }
 
-    return rpcFunctions
+    return rpc
   }
 
   const plugin = <Plugin>{
@@ -264,8 +185,7 @@ export default function PluginInspect(options: Options = {}): Plugin {
         return true
       return false
     },
-    configResolved(_config) {
-      config = ctx.config = _config
+    configResolved(config) {
       config.plugins.forEach(plugin => hijackPlugin(plugin, ctx))
       const _createResolver = config.createResolver
       // @ts-expect-error mutate readonly
@@ -283,9 +203,9 @@ export default function PluginInspect(options: Options = {}): Plugin {
 
           if (result && result !== id) {
             const pluginName = aliasOnly ? 'alias' : 'vite:resolve (+alias)'
-            ctx
-              .getRecorder(ssr)
-              .recordResolveId(id, { name: pluginName, result, start, end })
+            const vite = ctx.getViteContext(config)
+            const env = vite.getEnvContext(ssr ? 'ssr' : 'client')
+            env.recordResolveId(id, { name: pluginName, result, start, end })
           }
 
           return result
@@ -299,19 +219,23 @@ export default function PluginInspect(options: Options = {}): Plugin {
       }
 
       return () => {
-        setupMiddlewarePerf(server.middlewares.stack)
+        setupMiddlewarePerf(
+          ctx.getViteContext(server.config),
+          server.middlewares.stack,
+        )
       }
     },
     load: {
       order: 'pre',
-      handler(id, { ssr } = {}) {
-        ctx.getRecorder(ssr).invalidate(id)
+      handler(id) {
+        ctx.getEnvContext(this.environment)
+          ?.invalidate(id)
         return null
       },
     },
-    handleHotUpdate({ modules, server }) {
+    hotUpdate({ modules, environment }) {
       const ids = modules.map(module => module.id)
-      server.ws.send({
+      environment.hot.send({
         type: 'custom',
         event: 'vite-plugin-inspect:update',
         data: { ids } as HMRData,
@@ -320,16 +244,12 @@ export default function PluginInspect(options: Options = {}): Plugin {
     async buildEnd() {
       if (!build)
         return
-      const dir = await generateBuild(ctx, config)
+      const dir = await generateBuild(ctx)
 
-      config.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(`${dir}`)}`)
+      this.environment!.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(`${dir}`)}`)
       if (_open && !isCI)
         createPreviewServer(dir)
     },
   }
   return plugin
-}
-
-PluginInspect.getViteInspectAPI = function (plugins: Plugin[]): ViteInspectAPI | undefined {
-  return plugins.find(p => p.name === NAME)?.api
 }

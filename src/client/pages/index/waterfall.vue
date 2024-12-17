@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { range } from '@antfu/utils'
-import { inspectSSR, onRefetch, root, waterfallShowResolveId } from '../../logic'
+import { inspectSSR, onRefetch, root } from '../../logic'
 import { getHot } from '../../logic/hot'
 import { rpc } from '../../logic/rpc'
+import { useOptionsStore } from '../../stores/options'
 
+const options = useOptionsStore()
 const data = shallowRef(await rpc.getWaterfallInfo(inspectSSR.value))
 const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity)))
 const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
@@ -42,7 +44,7 @@ const waterfallData = computed(() => {
   const result: WaterfallSpan[][] = []
   const rowsEnd: number[] = []
   for (let [id, steps] of Object.entries(data.value)) {
-    if (!waterfallShowResolveId.value) {
+    if (!options.view.waterfallShowResolveId) {
       steps = steps.filter(i => !i.isResolveId)
     }
     if (steps.length === 0) {
@@ -128,7 +130,7 @@ watch(scale, (newScale, oldScale) => {
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button class="text-lg icon-btn" title="Show resolveId" @click="waterfallShowResolveId = !waterfallShowResolveId">
-      <div i-carbon-connect-source :class="waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
+      <div i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button text-lg icon-btn title="Zoom in" @click="scale += 0.1">
       <div i-carbon-zoom-in />

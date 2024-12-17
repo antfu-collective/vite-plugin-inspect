@@ -8,8 +8,13 @@ import { RouterLink, RouterView } from 'vue-router'
       <RouterLink to="/">
         Home
       </RouterLink>
+      <span px-1rem>|</span>
       <RouterLink to="/other">
         Other
+      </RouterLink>
+      <span px-1rem>|</span>
+      <RouterLink to="/error">
+        Error
       </RouterLink>
     </nav>
 

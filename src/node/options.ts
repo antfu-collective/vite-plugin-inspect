@@ -1,6 +1,6 @@
 import type { FilterPattern } from '@rollup/pluginutils'
 
-export interface Options {
+export interface ViteInspectOptions {
   /**
    * Enable the inspect plugin in dev mode (could be some performance overhead)
    *
@@ -57,4 +57,10 @@ export interface Options {
    * @default false
    */
   open?: boolean
+  /**
+   * Remove version query `?v=xxx` and treat them as the same module
+   *
+   * @default true
+   */
+  removeVersionQuery?: boolean
 }

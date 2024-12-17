@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
 import type { BarSeriesOption } from 'echarts/charts'
-import { BarChart } from 'echarts/charts'
 import type {
   SingleAxisComponentOption,
   TooltipComponentOption,
 } from 'echarts/components'
+import { BarChart } from 'echarts/charts'
 import {
   GridComponent,
   LegendComponent,
   TitleComponent,
   TooltipComponent,
 } from 'echarts/components'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
-import { isDark, searchResults } from '../logic'
+import { isDark } from '../logic'
+import { useSearchResults } from '../stores/search'
 
 const props = defineProps<{
   plugin: string
@@ -31,8 +32,10 @@ use([
   GridComponent,
 ])
 
+const search = useSearchResults()
+
 const sortedSearchResults = computed(() => {
-  return searchResults.value
+  return search.results
     .filter(({ plugins }) => {
       const plugin = plugins.find(({ name, ...hooks }) => name === props.plugin && hooks[props.hook])
       return plugin ? plugin[props.hook] : false

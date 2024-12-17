@@ -1,6 +1,6 @@
 import type { Remote } from 'comlink'
-import { wrap } from 'comlink'
 import type { Exports } from './diff.worker'
+import { wrap } from 'comlink'
 
 let diffWorker: Remote<Exports> | undefined
 

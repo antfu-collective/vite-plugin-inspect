@@ -4,9 +4,7 @@
 
 Inspect the intermediate state of Vite plugins. Useful for debugging and authoring plugins.
 
-<img width="1304" src="https://user-images.githubusercontent.com/46585162/134683677-487e3e03-fa6b-49ad-bde0-520ebb641a96.png">
-
-![](https://s9.gifyu.com/images/Kapture-2021-09-11-at-07.33.36.gif)
+<img width="1488" alt="Screenshot 2024-11-27 at 19 01 26" src="https://github.com/user-attachments/assets/ab6b86ac-d7ce-4424-a23f-02f265f547ea">
 
 ## Install
 
@@ -14,7 +12,11 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 npm i -D vite-plugin-inspect
 ```
 
-> Since `vite-plugin-inspect@v0.7.0`, Vite v3.1 or above is required.
+> [!NOTE]
+>
+> v0.10.0 requires **Vite v6.0.1** or above.
+>
+> For Vite v2 to v5, use v0.8.x of `vite-plugin-inspect`. If you want to use it with both Vite 6 and below, you can still use v0.8.x, it's forwards compatible.
 
 Add plugin to your `vite.config.ts`:
 
