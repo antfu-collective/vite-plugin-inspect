@@ -65,29 +65,31 @@ getHot().then((hot) => {
   }
 })
 
-const itemFilter = ref('')
+const pluginFilter = ref('')
 const idFilter = ref('')
-const itemFilterFn = computed(() => createFilter(itemFilter.value))
+const pluginFilterFn = computed(() => createFilter(pluginFilter.value))
 const idFilterFn = computed(() => createFilter(idFilter.value))
 
-const categories = computed(() => {
+const sortedData = computed(() => {
   return Object.entries(data.value)
-    .filter(([k]) => idFilterFn.value(k))
     .sort(([_, a], [__, b]) => {
       const aStart = a[0]?.start ?? 0
       const bStart = b[0]?.start ?? 0
-      return bStart - aStart
+      return aStart - bStart
     })
 })
 
-const chartData = computed(() => {
+const moduleIds = computed(() => sortedData.value.filter(([k]) => idFilterFn.value(k)).reverse())
+
+const chartDataById = computed(() => {
   const result: any[] = []
-  for (const [index, [id, steps]] of categories.value.entries()) {
+  for (const [index, [id, steps]] of moduleIds.value.entries()) {
     for (const s of steps) {
-      if (itemFilterFn.value(s.name)) {
+      if (pluginFilterFn.value(s.name)) {
+        const duration = s.end - s.start
         result.push({
           name: id,
-          value: [index, s.start, (s.end - s.start) < 1 ? 1 : s.end, s.end - s.start],
+          value: [index, s.start, duration < 1 ? s.start + 1 : s.end, duration],
           itemStyle: {
             normal: {
               color: generatorHashColorByString(id),
@@ -100,11 +102,77 @@ const chartData = computed(() => {
   return result
 })
 
+interface WaterfallSpan {
+  kind: 'resolve' | 'transform' | 'group'
+  fade: boolean
+  start: number
+  end: number
+  id: string
+  name: string
+}
+
+const chartDataStacked = computed(() => {
+  const rows: WaterfallSpan[][] = []
+  const rowsEnd: number[] = []
+  for (let [id, steps] of sortedData.value) {
+    if (!options.view.waterfallShowResolveId) {
+      steps = steps.filter(i => !i.isResolveId)
+    }
+    if (steps.length === 0) {
+      continue
+    }
+    const start = steps[0].start
+    const end = steps[steps.length - 1].end
+    const spans: WaterfallSpan[] = steps.map(v => ({
+      kind: v.isResolveId ? 'resolve' : 'transform',
+      start: v.start,
+      end: v.end,
+      name: v.name,
+      id,
+      fade: !pluginFilterFn.value(v.name) && !idFilterFn.value(id),
+    }))
+    spans.push({
+      kind: 'group',
+      fade: spans.every(i => i.fade),
+      start,
+      end,
+      id,
+      name: 'group',
+    })
+    const row = rowsEnd.findIndex((rowEnd, i) => {
+      if (rowEnd <= start) {
+        rowsEnd[i] = end
+        rows[i].push(...spans)
+        return true
+      }
+      return false
+    })
+    if (row === -1) {
+      rows.push(spans)
+      rowsEnd.push(end)
+    }
+  }
+  return rows.reverse().map((spans, index) => spans.map((s) => {
+    const duration = s.end - s.start
+    return {
+      name: s.id,
+      value: [index, s.start, duration < 1 ? s.start + 1 : s.end, duration],
+      itemStyle: {
+        normal: {
+          color: generatorHashColorByString(s.id),
+          opacity: s.fade ? 0.2 : 1,
+        },
+      },
+    }
+  }))
+})
+
 function renderItem(params: CustomSeriesRenderItemParams | any, api: CustomSeriesRenderItemAPI): CustomSeriesRenderItemReturn {
-  const categoryIndex = api.value(0)
-  const start = api.coord([api.value(1), categoryIndex])
-  const end = api.coord([api.value(2), categoryIndex])
-  const height = (api.size?.([0, 1]) as number[])[1] * 0.6
+  const index = api.value(0)
+  const start = api.coord([api.value(1), index])
+  const end = api.coord([api.value(2), index])
+  const height = (api.size?.([0, 1]) as number[])[1]
+
   const rectShape = graphic.clipRectByRect(
     {
       x: start[0],
@@ -134,7 +202,7 @@ type ChartOption = ReturnType<ReturnType<typeof init>['getOption']>
 const chartOption = computed<ChartOption>(() => ({
   tooltip: {
     formatter(params: TopLevelFormatterParams | any) {
-      return `${params.marker + params.name}: ${params.value[3] <= 1 ? '<1' : params.value[3]}ms}`
+      return `${params.marker}${params.name}: ${params.value[3] <= 1 ? '<1' : params.value[3]}ms}`
     },
   },
   legendData: {
@@ -184,7 +252,7 @@ const chartOption = computed<ChartOption>(() => ({
     },
   },
   yAxis: {
-    data: categories.value.map(([id]) => id),
+    data: options.view.waterfallStacking ? [...chartDataStacked.value.keys()].reverse() : moduleIds.value.map(([id]) => id),
   },
   series: [
     {
@@ -198,7 +266,7 @@ const chartOption = computed<ChartOption>(() => ({
         x: [1, 2],
         y: 0,
       },
-      data: chartData.value,
+      data: options.view.waterfallStacking ? chartDataStacked.value.flat() : chartDataById.value,
     },
   ],
 }))
@@ -218,8 +286,8 @@ const chartStyle = computed(() => {
     <div my-auto text-sm font-mono>
       Waterfall
     </div>
-    <input v-model="itemFilter" placeholder="Item Filter..." class="w-full px-4 py-2 text-xs">
 
+    <input v-model="pluginFilter" placeholder="Plugin Filter..." class="w-full px-4 py-2 text-xs">
     <input v-model="idFilter" placeholder="ID Filter..." class="w-full px-4 py-2 text-xs">
 
     <QuerySelector />
@@ -227,16 +295,19 @@ const chartStyle = computed(() => {
     <button text-lg icon-btn title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
       <span i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
+    <button text-lg icon-btn title="Stacked" @click="options.view.waterfallStacking = !options.view.waterfallStacking">
+      <span i-carbon-stacked-scrolling-1 :class="options.view.waterfallStacking ? 'opacity-100' : 'opacity-25'" />
+    </button>
 
     <div flex-auto />
   </NavBar>
 
   <div ref="container" h-full p4>
-    <div v-if="!chartData.length" flex="~" h-40 w-full>
+    <div v-if="!Object.keys(data).length" flex="~" h-40 w-full>
       <div ma italic op50>
         No data
       </div>
     </div>
-    <VChart class="w-100%" :style="chartStyle" :option="chartOption" autoresize />
+    <VChart v-else class="w-100%" :style="chartStyle" :option="chartOption" autoresize />
   </div>
 </template>

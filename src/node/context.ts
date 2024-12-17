@@ -1,5 +1,5 @@
 import type { Environment, ResolvedConfig } from 'vite'
-import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo, WaterfallInfo } from '../types'
+import type { HmrEventInfo, Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo, WaterfallInfo } from '../types'
 import type { ViteInspectOptions } from './options'
 import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
@@ -111,10 +111,12 @@ export class InspectContextViteEnv {
     transform: Record<string, TransformInfo[]>
     resolveId: Record<string, ResolveIdInfo[]>
     transformCounter: Record<string, number>
+    hmrEvents: HmrEventInfo[]
   } = {
       transform: {},
       resolveId: {},
       transformCounter: {},
+      hmrEvents: [],
     }
 
   recordTransform(id: string, info: TransformInfo, preTransformCode: string) {
@@ -145,6 +147,10 @@ export class InspectContextViteEnv {
     if (!this.data.resolveId[id])
       this.data.resolveId[id] = []
     this.data.resolveId[id].push(info)
+  }
+
+  recordHmrEvent(info: HmrEventInfo) {
+    this.data.hmrEvents.push(info)
   }
 
   invalidate(id: string) {
@@ -335,6 +341,10 @@ export class InspectContextViteEnv {
           ]
         : undefined
     })
+  }
+
+  async getHmrEvents() {
+    return this.data.hmrEvents.sort((a, b) => a.timestamp - b.timestamp)
   }
 
   clearId(_id: string) {

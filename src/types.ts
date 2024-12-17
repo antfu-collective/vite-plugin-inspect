@@ -19,6 +19,12 @@ export interface ResolveIdInfo {
   error?: ParsedError
 }
 
+export interface HmrEventInfo {
+  type: 'create' | 'update' | 'delete'
+  file: string
+  timestamp: number
+}
+
 export interface ParsedError {
   message: string
   stack: StackFrame[]
@@ -114,6 +120,7 @@ export interface RpcFunctions {
   getPluginMetrics: (query: QueryEnv) => Promise<PluginMetricInfo[]>
   getServerMetrics: (query: QueryEnv) => Promise<ServerMetrics>
   getWaterfallInfo: (query: QueryEnv) => Promise<WaterfallInfo>
+  getHmrEvents: (query: QueryEnv) => Promise<HmrEventInfo[]>
   resolveId: (query: QueryEnv, id: string) => Promise<string>
   onModuleUpdated: () => Promise<void>
 
