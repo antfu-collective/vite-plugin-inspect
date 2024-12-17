@@ -131,14 +131,6 @@ const chartDataStacked = computed(() => {
       id,
       fade: !pluginFilterFn.value(v.name) && !idFilterFn.value(id),
     }))
-    spans.push({
-      kind: 'group',
-      fade: spans.every(i => i.fade),
-      start,
-      end,
-      id,
-      name: 'group',
-    })
     const row = rowsEnd.findIndex((rowEnd, i) => {
       if (rowEnd <= start) {
         rowsEnd[i] = end
