@@ -1,19 +1,55 @@
 <script setup lang="ts">
-import { range } from '@antfu/utils'
-import { inspectSSR, onRefetch, root } from '../../logic'
+import type { CustomSeriesOption } from 'echarts/charts'
+import type {
+  SingleAxisComponentOption,
+  TooltipComponentOption,
+} from 'echarts/components'
+import type { CustomSeriesRenderItemAPI, CustomSeriesRenderItemParams, CustomSeriesRenderItemReturn, LegendComponentOption, TopLevelFormatterParams } from 'echarts/types/dist/shared'
+import { BarChart, CustomChart } from 'echarts/charts'
+import {
+  DataZoomComponent,
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent,
+  VisualMapComponent,
+} from 'echarts/components'
+import { graphic, use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import VChart from 'vue-echarts'
+import { inspectSSR, onRefetch } from '../../logic'
 import { getHot } from '../../logic/hot'
 import { rpc } from '../../logic/rpc'
 import { useOptionsStore } from '../../stores/options'
+
+const container = ref<HTMLDivElement | null>()
+
+const dataZoomBar = 100
+const zoomBarOffset = 100
+
+const { height } = useElementSize(container)
 
 const options = useOptionsStore()
 const data = shallowRef(await rpc.getWaterfallInfo(inspectSSR.value))
 const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity)))
 const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
-const scale = ref(0.3)
 
-const searchText = ref('')
-const searchFn = computed(() => {
-  const text = searchText.value.trim()
+// const reversed = ref(false)
+// const searchText = ref('')
+// const searchFn = computed(() => {
+//   const text = searchText.value.trim()
+//   if (text === '') {
+//     return () => true
+//   }
+//   const regex = new RegExp(text, 'i')
+//   return (name: string) => regex.test(name)
+// })
+
+const searchItem = ref('')
+const searchId = ref('')
+
+const searchItemFn = computed(() => {
+  const text = searchItem.value.trim()
   if (text === '') {
     return () => true
   }
@@ -21,67 +57,96 @@ const searchFn = computed(() => {
   return (name: string) => regex.test(name)
 })
 
-const container = ref<HTMLElement>()
-const { x: containerScrollX } = useScroll(container)
-const { width: containerWidth } = useElementSize(container)
-const visibleMin = computed(() => (containerScrollX.value - 500) / scale.value)
-const visibleMax = computed(() => (containerScrollX.value + containerWidth.value + 500) / scale.value)
-const tickNum = computed(() => range(
-  Math.floor(Math.max(0, visibleMin.value) / 1000),
-  Math.ceil(Math.min(endTime.value - startTime.value, visibleMax.value) / 1000),
-))
+const searchIdFn = computed(() => {
+  const text = searchId.value.trim()
+  if (text === '') {
+    return () => true
+  }
+  const regex = new RegExp(text, 'i')
+  return (name: string) => regex.test(name)
+})
 
-interface WaterfallSpan {
-  kind: keyof typeof classNames
-  fade: boolean
-  start: number
-  end: number
-  id: string
-  name: string
+const categories = computed(() => {
+  const cates = Object.keys(data.value).filter(searchIdFn.value)
+
+  // 按照start时间给key排序
+  cates.sort((a, b) => {
+    const aStart = data.value[a][0]?.start ?? Infinity
+    const bStart = data.value[b][0]?.start ?? Infinity
+    return bStart - aStart
+  })
+
+  return cates
+})
+
+// const legendData = computed(() => {
+//   const l = categories.value.map((id) => {
+//     return {
+//       name: id,
+//       icon: 'circle',
+//     }
+//   })
+
+//   console.log(l)
+
+//   return l
+// })
+
+function generatorHashColorByString(str: string) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  let color = '#'
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xFF
+    color += (`00${value.toString(16)}`).substr(-2)
+  }
+  return color
 }
 
+const types = computed(() => {
+  return Object.keys(data.value).map((id) => {
+    return {
+      name: id,
+      color: generatorHashColorByString(id),
+    }
+  })
+})
+
 const waterfallData = computed(() => {
-  const result: WaterfallSpan[][] = []
-  const rowsEnd: number[] = []
-  for (let [id, steps] of Object.entries(data.value)) {
-    if (!options.view.waterfallShowResolveId) {
-      steps = steps.filter(i => !i.isResolveId)
-    }
-    if (steps.length === 0) {
-      continue
-    }
-    const start = steps[0].start - startTime.value
-    const end = steps[steps.length - 1].end - startTime.value
-    const spans: WaterfallSpan[] = steps.map(v => ({
-      kind: v.isResolveId ? 'resolve' : 'transform',
-      start: v.start - startTime.value,
-      end: v.end - startTime.value,
-      name: v.name,
-      id,
-      fade: !searchFn.value(v.name) && !searchFn.value(id),
-    }))
-    const groupSpan: WaterfallSpan = {
-      kind: 'group',
-      fade: spans.every(i => i.fade),
-      start,
-      end,
-      id,
-      name: 'group',
-    }
-    spans.push(groupSpan)
-    const row = rowsEnd.findIndex((rowEnd, i) => {
-      if (rowEnd <= start) {
-        rowsEnd[i] = end
-        result[i].push(...spans)
-        return true
+  const result: any = []
+
+  const sorted = Object.entries(data.value).sort(([a], [b]) => {
+    const aStart = data.value[a][0]?.start ?? Infinity
+    const bStart = data.value[b][0]?.start ?? Infinity
+    return bStart - aStart
+  })
+
+  sorted.forEach(([id, steps], index) => {
+    steps.forEach((s) => {
+      const typeItem = types.value.find(i => i.name === id)
+
+      const duration = s.end - s.start
+
+      if (searchItemFn.value(s.name)) {
+        result.push({
+          name: typeItem ? typeItem.name : id,
+          value: [index, s.start, (s.end - s.start) < 1 ? 1 : s.end, duration],
+          itemStyle: {
+            normal: {
+              color: typeItem ? typeItem.color : '#000',
+            },
+          },
+        })
       }
-      return false
     })
-    if (row === -1) {
-      result.push(spans)
-      rowsEnd.push(end)
-    }
-  }
+  })
+
+  // result.sort((a, b) => {
+  //   return b.value[1] - a.value[1]
+  // })
+
   return result
 })
 
@@ -98,21 +163,131 @@ getHot().then((hot) => {
   }
 })
 
-function getPositionStyle(start: number, end: number) {
+use([
+  VisualMapComponent,
+  CanvasRenderer,
+  BarChart,
+  TooltipComponent,
+  TitleComponent,
+  LegendComponent,
+  GridComponent,
+  DataZoomComponent,
+  CustomChart,
+])
+
+function renderItem(params: CustomSeriesRenderItemParams | any, api: CustomSeriesRenderItemAPI): CustomSeriesRenderItemReturn {
+  const categoryIndex = api.value(0)
+  const start = api.coord([api.value(1), categoryIndex])
+  const end = api.coord([api.value(2), categoryIndex])
+  const height = (api.size?.([0, 1]) as number[])[1] * 0.6
+  const rectShape = graphic.clipRectByRect(
+    {
+      x: start[0],
+      y: start[1] - height / 2,
+      width: end[0] - start[0],
+      height,
+    },
+    {
+      x: params.coordSys.x,
+      y: params.coordSys.y,
+      width: params.coordSys.width,
+      height: params.coordSys.height,
+    },
+  )
+
+  return (
+    rectShape && {
+      type: 'rect',
+      transition: ['shape'],
+      shape: rectShape,
+      style: api.style(),
+    }
+  )
+}
+
+const option = computed(() => ({
+  tooltip: {
+    formatter(params: TopLevelFormatterParams | any) {
+      return `${params.marker + params.name}: ${params.value[3] <= 1 ? '<1' : params.value[3]}ms}`
+    },
+
+  } satisfies TooltipComponentOption,
+  legendData: {
+    top: 'center',
+    data: ['c'],
+  } satisfies LegendComponentOption,
+
+  title: {
+    text: 'Waterfall',
+    // left: 'center',
+  },
+  visualMap: {
+    type: 'piecewise',
+    // show: false,
+    orient: 'horizontal',
+    left: 'center',
+    bottom: 10,
+    pieces: [
+
+    ],
+    seriesIndex: 1,
+    dimension: 1,
+  },
+  dataZoom: [
+    // 最多支持放大到1ms
+
+    {
+      type: 'slider',
+      filterMode: 'weakFilter',
+      showDataShadow: false,
+      top: height.value - dataZoomBar,
+      labelFormatter: '',
+    },
+    {
+      type: 'inside',
+      filterMode: 'weakFilter',
+    },
+  ],
+  grid: {
+    height: height.value - dataZoomBar - zoomBarOffset,
+  },
+  xAxis: {
+    min: startTime.value,
+    max: endTime.value,
+    // type: 'value',
+
+    scale: true,
+    axisLabel: {
+      formatter(val: number) {
+        return `${(val - startTime.value).toFixed(val % 1 ? 2 : 0)} ms`
+      },
+    },
+  } satisfies SingleAxisComponentOption,
+  yAxis: {
+    data: categories.value,
+  } satisfies SingleAxisComponentOption,
+  series: [
+    {
+      type: 'custom',
+      name: 'c',
+      renderItem,
+      itemStyle: {
+        opacity: 0.8,
+      },
+      encode: {
+        x: [1, 2],
+        y: 0,
+      },
+      data: waterfallData.value,
+    },
+  ] satisfies CustomSeriesOption[],
+
+}))
+
+const chartStyle = computed(() => {
   return {
-    left: `${start * scale.value}px`,
-    width: `${Math.max((end - start) * scale.value, 1)}px`,
+    height: `${height.value}px`,
   }
-}
-
-const classNames = {
-  resolve: 'outline-red-200 outline-offset--1 bg-gray-300 dark:bg-gray-500 bg-op-80 z-1',
-  transform: 'outline-blue-200 outline-offset--1 bg-gray-300 dark:bg-gray-500 bg-op-80 z-1',
-  group: 'outline-orange-700 dark:outline-orange-200',
-}
-
-watch(scale, (newScale, oldScale) => {
-  containerScrollX.value = (containerScrollX.value - 40) * newScale / oldScale + 40
 })
 </script>
 
@@ -124,7 +299,9 @@ watch(scale, (newScale, oldScale) => {
     <div my-auto text-sm font-mono>
       Waterfall
     </div>
-    <input v-model="searchText" placeholder="Search..." class="w-full px-4 py-2 text-xs">
+    <input v-model="searchItem" placeholder="Item Filter..." class="w-full px-4 py-2 text-xs">
+
+    <input v-model="searchId" placeholder="ID Filter..." class="w-full px-4 py-2 text-xs">
 
     <button text-lg icon-btn title="Inspect SSR" @click="inspectSSR = !inspectSSR">
       <div i-carbon-cloud-services :class="inspectSSR ? 'opacity-100' : 'opacity-25'" />
@@ -132,51 +309,19 @@ watch(scale, (newScale, oldScale) => {
     <button class="text-lg icon-btn" title="Show resolveId" @click="waterfallShowResolveId = !waterfallShowResolveId">
       <div i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Zoom in" @click="scale += 0.1">
-      <div i-carbon-zoom-in />
-    </button>
-    <button text-lg icon-btn title="Zoom in" :disabled="scale <= 0.11" @click="scale -= 0.1">
-      <div i-carbon-zoom-out />
-    </button>
+
+    <!-- <button class="text-lg icon-btn" title="Show resolveId" @click="reversed = !reversed">
+      <div i-carbon-arrows-vertical :class="reversed ? 'opacity-100' : 'opacity-25'" />
+    </button> -->
     <div flex-auto />
   </NavBar>
-  <Container of-auto @element="el => container = el">
-    <div relative m-4 w-full flex flex-col gap-1 pb-2 pt-8>
-      <div absolute left-8 top-0 h-full w-0 of-x-visible>
-        <div v-for="i in tickNum" :key="i" absolute h-full bg-gray-400 bg-op-30 :style="{ left: `${1000 * i * scale - 2}px`, width: '2px' }">
-          <span absolute left-1 top--1 w-max op-80>
-            {{ i }}
-            <span op-70>s</span>
-          </span>
-        </div>
-      </div>
-      <div v-for="spans, i in waterfallData" :key="i" h-5 flex>
-        <div w-8 overflow-hidden pr-4 text-right text-nowrap text-xs tabular-nums>
-          {{ i }}
-        </div>
-        <div absolute h-full :style="getPositionStyle(0, endTime - startTime)" />
-        <div relative flex-grow>
-          <template v-for="{ kind, fade, start, end, id, name }, j in spans" :key="j">
-            <div
-              v-if="visibleMin <= end && start <= visibleMax"
-              :title="`${kind === 'group' ? '' : `${kind === 'resolve' ? '(resolve)' : ''} ${name} - `}${id} (${start}+${end - start}ms)`"
-              :class="(classNames[kind]) + (fade ? ' op-20 bg-op-20' : '')"
-              :style="getPositionStyle(start, end)"
-              absolute h-full flex items-center overflow-hidden pl-1 text-nowrap font-mono outline-1 outline-solid
-            >
-              <template v-if="kind !== 'group'">
-                <PluginName :name />
-                <span mx-.5 op-50>-</span>
-                <template v-if="id.startsWith(root)">
-                  <span class="op50">.</span>
-                  <span>{{ id.slice(root.length) }}</span>
-                </template>
-                <span v-else>{{ id }}</span>
-              </template>
-            </div>
-          </template>
-        </div>
+
+  <div ref="container" h-full p4>
+    <div v-if="!waterfallData.length" flex="~" h-40 w-full>
+      <div ma italic op50>
+        No data
       </div>
     </div>
-  </Container>
+    <VChart class="w-100%" :style="chartStyle" :option="option" autoresize />
+  </div>
 </template>

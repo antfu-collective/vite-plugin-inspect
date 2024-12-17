@@ -78,3 +78,6 @@ function serializeForSourcemapsVisualizer(code: string, map: string) {
   // Convert the binary string to a base64 string and return it
   return btoa(binary)
 }
+
+export const isDev = import.meta.env.DEV
+export const isBuild = import.meta.env.PROD
