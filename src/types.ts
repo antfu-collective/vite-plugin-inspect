@@ -98,6 +98,17 @@ export interface InstanceInfo {
 
 export interface Metadata {
   instances: InstanceInfo[]
+  /**
+   * Support embedding in other projects
+   */
+  embedded: {
+    /**
+     * hide dark mode toggle button in inspector UI
+     */
+    hideDarkMode?: boolean
+
+    [key: string]: any
+  }
 }
 
 export interface RpcFunctions {

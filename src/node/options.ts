@@ -51,16 +51,32 @@ export interface ViteInspectOptions {
    * @default false
    */
   silent?: boolean
+
   /**
    * Automatically open inspect page
    *
    * @default false
    */
   open?: boolean
+
   /**
    * Remove version query `?v=xxx` and treat them as the same module
    *
    * @default true
    */
   removeVersionQuery?: boolean
+
+  /**
+   * Support embedding in other projects
+   *
+   * @default {}
+   */
+  embedded?: {
+    /**
+     * hide dark mode toggle button in inspector UI
+     */
+    hideDarkMode?: boolean
+
+    [key: string]: any
+  }
 }

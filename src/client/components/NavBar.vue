@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import {
+  rpc,
   toggleDark,
 } from '../logic'
+
+const metadata = ref(await rpc.getMetadata())
+const hideDarkMode = metadata.value.embedded?.hideDarkMode === true
 </script>
 
 <template>
@@ -16,7 +20,7 @@ import {
       >
         <div i-carbon-logo-github />
       </a>
-      <button class="text-lg icon-btn" title="Toggle Dark Mode" @click="toggleDark()">
+      <button v-if="!hideDarkMode" class="text-lg icon-btn" title="Toggle Dark Mode" @click="toggleDark()">
         <span i-carbon-sun dark:i-carbon-moon />
       </button>
     </slot>
