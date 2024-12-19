@@ -101,7 +101,14 @@ export interface Metadata {
   /**
    * Support embedding in other projects
    */
-  embedded?: Record<string, string | boolean>
+  embedded: {
+    /**
+     * hide dark mode toggle button in inspector UI
+     */
+    hideDarkMode?: boolean
+
+    [key: string]: any
+  }
 }
 
 export interface RpcFunctions {
