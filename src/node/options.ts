@@ -63,4 +63,14 @@ export interface ViteInspectOptions {
    * @default true
    */
   removeVersionQuery?: boolean
+  /**
+   * Support embedding in other projects
+   *
+   * @default {}
+   * @example {
+   *   // hide "Toggle Dark Mode" in the inspector UI
+   *   hideDarkMode: true,
+   * }
+   */
+  embedded?: Record<string, string | boolean>
 }

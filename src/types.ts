@@ -98,6 +98,10 @@ export interface InstanceInfo {
 
 export interface Metadata {
   instances: InstanceInfo[]
+  /**
+   * Support embedding in other projects
+   */
+  embedded?: Record<string, string | boolean>
 }
 
 export interface RpcFunctions {
