@@ -60,7 +60,7 @@
     "node": ">=14"
   },
   "scripts": {
-    "build": "rimraf dist && run-s build:* && esno ./scripts/postbuild.ts",
+    "build": "rimraf dist && run-s build:* && esno ./scripts/postbuild.ts && pnpm run test:attw",
     "build:client": "vite build src/client",
     "build:js": "unbuild",
     "dev": "nr stub && cross-env INSPECT_DEV=true vite src/client",
@@ -68,6 +68,7 @@
     "stub": "unbuild --stub",
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit",
+    "test:attw": "attw --pack",
     "prepublishOnly": "npm run build",
     "release": "bumpp && npm publish"
   },
@@ -93,6 +94,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^3.12.0",
     "@antfu/ni": "^0.23.1",
+    "@arethetypeswrong/cli": "^0.17.2",
     "@iconify-json/catppuccin": "^1.2.8",
     "@iconify/json": "^2.2.286",
     "@nuxt/kit": "^3.14.1592",
