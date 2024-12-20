@@ -63,7 +63,9 @@ export default defineConfig({
       dts: join(__dirname, 'components.d.ts'),
     }),
     Unocss(),
-    Inspect(),
+    Inspect({
+      // embedded: true,
+    }),
     AutoImport({
       dts: join(__dirname, 'auto-imports.d.ts'),
       imports: [

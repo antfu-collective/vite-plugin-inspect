@@ -36,6 +36,7 @@ export class InspectContext {
               }),
           ),
         })),
+      embedded: this.options.embedded,
     }
   }
 

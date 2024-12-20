@@ -98,6 +98,7 @@ export interface InstanceInfo {
 
 export interface Metadata {
   instances: InstanceInfo[]
+  embedded?: boolean
 }
 
 export interface RpcFunctions {
