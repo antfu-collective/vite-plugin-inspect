@@ -17,6 +17,8 @@ import { openBrowser } from './utils'
 
 export * from './options'
 
+export { DIR_CLIENT }
+
 const NAME = 'vite-plugin-inspect'
 const isCI = !!process.env.CI
 
