@@ -36,7 +36,7 @@ export class InspectContext {
               }),
           ),
         })),
-      embedded: this.options.embedded ?? {},
+      embedded: this.options.embedded,
     }
   }
 
