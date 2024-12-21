@@ -7,7 +7,7 @@ import { debounce } from 'perfect-debounce'
 import c from 'picocolors'
 import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
-import { DIR_CLIENT } from '../dir'
+import { DIR_CLIENT } from '../dirs'
 import { generateBuild } from './build'
 import { InspectContext } from './context'
 import { hijackPlugin } from './hijack'
@@ -16,8 +16,6 @@ import { createServerRpc } from './rpc'
 import { openBrowser } from './utils'
 
 export * from './options'
-
-export { DIR_CLIENT }
 
 const NAME = 'vite-plugin-inspect'
 const isCI = !!process.env.CI

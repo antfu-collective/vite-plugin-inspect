@@ -4,7 +4,7 @@ import { isAbsolute, join, resolve } from 'node:path'
 import process from 'node:process'
 import fs from 'fs-extra'
 import { hash } from 'ohash'
-import { DIR_CLIENT } from '../dir'
+import { DIR_CLIENT } from '../dirs'
 
 export async function generateBuild(
   ctx: InspectContext,

@@ -4,6 +4,7 @@ export default defineBuildConfig({
   entries: [
     'src/index',
     'src/nuxt',
+    'src/dirs',
   ],
   clean: false,
   declaration: true,
@@ -29,13 +30,13 @@ export default defineBuildConfig({
       ] = await Promise.all([
         import('node:module').then(m => m.default || m),
         import ('node:fs/promises').then(m => m.lstat),
-        import('./dist/index.mjs').then(m => m.DIR_CLIENT),
+        import('./dist/dirs.mjs').then(m => m.DIR_CLIENT),
       ])
       let stats = await lstat(esmDirClient)
       if (!stats.isDirectory()) {
         throw new Error('ESM: Client directory does not exist, review src/dirs.ts module!')
       }
-      const cjsDirClient = createRequire(import.meta.url)('./dist/index.cjs').DIR_CLIENT
+      const cjsDirClient = createRequire(import.meta.url)('./dist/dirs.cjs').DIR_CLIENT
       stats = await lstat(cjsDirClient)
       if (!stats.isDirectory()) {
         throw new Error('CJS: Client directory does not exist, review src/dirs.ts module!')

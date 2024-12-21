@@ -12,3 +12,4 @@ function patchCjs(cjsModulePath: string, name: string) {
 }
 
 patchCjs(resolve('./dist/nuxt.cjs'), 'nuxt')
+patchCjs(resolve('./dist/index.cjs'), 'index.PluginInspect')
