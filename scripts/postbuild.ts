@@ -6,11 +6,9 @@ function patchCjs(cjsModulePath: string, name: string) {
   writeFileSync(
     cjsModulePath,
     cjsModule
-      .replace(`'use strict';`, `'use strict';Object.defineProperty(exports, '__esModule', {value: true});`)
-      .replace(`module.exports = ${name};`, `exports.default = ${name};`),
+      .replace(`module.exports = ${name};`, `exports = ${name};`),
     { encoding: 'utf-8' },
   )
 }
 
-patchCjs(resolve('./dist/index.cjs'), 'PluginInspect')
 patchCjs(resolve('./dist/nuxt.cjs'), 'nuxt')
