@@ -12,13 +12,12 @@ import {
 } from 'echarts/components'
 import { graphic, use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { Pane, Splitpanes } from 'splitpanes'
 import VChart from 'vue-echarts'
-import { createFilter, generatorHashColorByString } from '../../../node/utils'
-import { getHot } from '../../logic/hot'
-import { onModuleUpdated, rpc } from '../../logic/rpc'
-import { useOptionsStore } from '../../stores/options'
-import { usePayloadStore } from '../../stores/payload'
+import { createFilter, generatorHashColorByString } from '../../node/utils'
+import { getHot } from '../logic/hot'
+import { onModuleUpdated, rpc } from '../logic/rpc'
+import { useOptionsStore } from '../stores/options'
+import { usePayloadStore } from '../stores/payload'
 
 use([
   VisualMapComponent,
@@ -40,10 +39,7 @@ const container = ref<HTMLDivElement | null>()
 const dataZoomBar = 100
 const zoomBarOffset = 100
 
-// const { height } = useElementSize(container)
-const height = ref(300)
-
-// const currentIndex = ref('')
+const { height } = useElementSize(container)
 
 const data = shallowRef(await rpc.getWaterfallInfo(payload.query))
 const hmrEvents = shallowRef(await rpc.getHmrEvents(payload.query))
@@ -62,113 +58,6 @@ async function refetch() {
     hmrEvents.value = await rpc.getHmrEvents(payload.query)
   }
 }
-
-const dataGroupByTimeRange = computed(() => {
-  const dataGroup = [] as {
-    type: string
-    file: string
-    timestamp: number
-    nextTimestamp: number
-    relativeTimestamp: number
-    relativeNextTimestamp: number
-    data: {
-      name: string
-      start: number
-      end: number
-      isResolveId: boolean
-      filePath: string
-    }[]
-  }[]
-
-  // const dataPool = Object.entries(data.value).map(([filePath, steps]) => {
-  //   return steps.map((step) => {
-  //     return {
-  //       filePath,
-  //       ...step,
-  //     }
-  //   })
-  // })
-
-  const dataPool = Object.entries(data.value).reduce((acc, [filePath, steps]) => {
-    const data = steps.map((step) => {
-      return {
-        filePath,
-        relativeStart: step.start - startTime.value,
-        relativeEnd: step.end - startTime.value,
-        ...step,
-      }
-    })
-
-    acc.push(...data)
-
-    return acc
-  }, [] as { name: string, start: number, end: number, isResolveId: boolean, filePath: string }[])
-
-  hmrEvents.value.forEach((event) => {
-    const { type, file, timestamp } = event
-
-    const nextTimestamp = hmrEvents.value[hmrEvents.value.indexOf(event) + 1]?.timestamp ?? endTime.value
-
-    const dataGroupItem = {
-      type,
-      file,
-      timestamp,
-      relativeTimestamp: timestamp - startTime.value,
-      nextTimestamp,
-      relativeNextTimestamp: nextTimestamp - startTime.value,
-      data: [] as {
-        name: string
-        start: number
-        end: number
-        isResolveId: boolean
-
-        filePath: string
-      }[],
-    }
-
-    /**
-     *
-     * 每次保留变更值？
-     *  1. 每次hmr 时间时，计算一份增量数据
-     *
-     * 还是按照时间去计算？
-     *  1. 根据每次hmr的时间，来计算此次hmr 时间范围内的数据
-     *
-     * 最终采取方式二
-     *
-     *  方案：
-     *  根据每次hmr的时间 即 timestamp 字段，计算从此次hmr时间到下次hmr时间之间的数据
-     */
-
-    dataPool.forEach((step) => {
-      // 根据每次hmr的时间 即 timestamp 字段，计算从此次hmr时间到下次hmr时间之间的数据
-
-      const hmrRange = [timestamp, hmrEvents.value[hmrEvents.value.indexOf(event) + 1]?.timestamp ?? endTime.value]
-
-      // 如果当前数据的开始时间在 hmr 时间范围内
-      if (step.start >= hmrRange[0] && step.start <= hmrRange[1]) {
-        dataGroupItem.data.push(step)
-      }
-    })
-
-    dataGroup.push(dataGroupItem)
-  })
-
-  // console.log('dataPool', dataPool)
-  // console.log('dataGroup', dataGroup)
-
-  dataGroup.unshift({
-    type: 'init',
-    file: 'init',
-    timestamp: startTime.value,
-    relativeTimestamp: 0,
-    nextTimestamp: hmrEvents.value[0]?.timestamp ?? endTime.value,
-    relativeNextTimestamp: hmrEvents.value[0]?.timestamp ?? endTime.value,
-    data: dataPool.filter(step => step.start < hmrEvents.value[0]?.timestamp),
-  })
-
-  return dataGroup
-})
 
 onModuleUpdated.on(refetch)
 
@@ -397,33 +286,22 @@ const chartStyle = computed(() => {
 
 <template>
   <NavBar>
-    <RouterLink class="my-auto icon-btn !outline-none" to="/">
-      <div i-carbon-arrow-left />
-    </RouterLink>
     <div my-auto text-sm font-mono>
       Waterfall
     </div>
 
-    <input v-model="pluginFilter" placeholder="Plugin Filter..." class="w-full px-4 py-2 text-xs">
-    <input v-model="idFilter" placeholder="ID Filter..." class="w-full px-4 py-2 text-xs">
-
-    <QuerySelector />
-
-    <button text-lg icon-btn title="Pause" @click="paused = !paused">
-      <span v-if="!paused" i-carbon-pause opacity-90 :class="paused ? 'text-red' : ''" />
-      <span v-else i-carbon-stop opacity-90 :class="paused ? 'text-red' : ''" />
-    </button>
-    <button text-lg icon-btn title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
-      <span i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
-    </button>
-    <button text-lg icon-btn title="Stacked" @click="options.view.waterfallStacking = !options.view.waterfallStacking">
-      <span i-carbon-stacked-scrolling-1 :class="options.view.waterfallStacking ? 'opacity-100' : 'opacity-25'" />
-    </button>
+    <input v-model="pluginFilter" placeholder="Filter..." class="w-full px-4 py-2 text-xs">
 
     <div flex-auto />
+
+    <template #actions>
+      <span class="my-auto icon-btn !outline-none">
+        <div i-carbon-close />
+      </span>
+    </template>
   </NavBar>
 
-  <div ref="container" p4>
+  <div ref="container" h-full p4>
     <div v-if="!Object.keys(data).length" flex="~" h-40 w-full>
       <div ma italic op50>
         No data
@@ -431,76 +309,4 @@ const chartStyle = computed(() => {
     </div>
     <VChart v-else class="w-100%" :style="chartStyle" :option="chartOption" autoresize />
   </div>
-
-  <!-- 暂时先写死 -->
-  <Splitpanes class="h-[calc(100vh-300px-84px)]" of-hidden border="t main" @resize="options.view.panelSizeModule = $event[0].size">
-    <Pane
-      :size="options.view.panelSizeModule" min-size="10"
-      flex="~ col" border="r main"
-      overflow-y-auto
-    >
-      <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
-        <span flex-auto text-center text-sm uppercase>{{ payload.query.env }} WATERFALL STACK</span>
-        <button
-          class="icon-btn" title="Toggle bailout plugins"
-          @click="options.view.showBailout = !options.view.showBailout"
-        >
-          <div :class="options.view.showBailout ? 'opacity-100 i-carbon-view' : 'opacity-75 i-carbon-view-off'" />
-        </button>
-      </div>
-      <div border="b main" />
-      <template v-for="(group) of dataGroupByTimeRange" :key="group.relativeTimestamp">
-        <button
-          border="b main"
-          flex="~ gap-1 wrap"
-          items-center px-2 py-2 text-left text-xs font-mono
-          class="bg-active"
-          @click="group.file.toString()"
-        >
-          <span class="fw-600">
-            <!-- <PluginName :name="group.name" /> -->
-            {{ group.type }}
-          </span>
-
-          <Badge
-            v-if="group.nextTimestamp"
-            text="error"
-          >
-            <span flex-auto />
-            <DurationDisplay :duration="group.nextTimestamp - group.timestamp" />
-          </Badge>
-
-          <!-- <Badge
-            v-if="!group.result"
-            text="bailout" saturate-0
-          />
-          <Badge
-            v-else-if="group.noChange"
-            text="no change"
-            :color="20"
-          />
-          <Badge
-            v-if="group.load"
-            text="load"
-          />
-          <Badge
-            v-if="group.order && group.order !== 'normal'"
-            :title="group.order.includes('-') ? `Using object hooks ${group.order}` : group.order"
-            :text="group.order"
-          />
-          <Badge
-            v-if="group.error"
-            text="error"
-          >
-            <span flex-auto />
-            <DurationDisplay :duration="group.end - group.start" />
-          </Badge> -->
-        </button>
-      </template>
-    </Pane>
-
-    <Pane min-size="5">
-      <WaterfallChart />
-    </Pane>
-  </Splitpanes>
 </template>

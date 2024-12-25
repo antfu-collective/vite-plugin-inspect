@@ -286,29 +286,19 @@ const chartStyle = computed(() => {
 
 <template>
   <NavBar>
-    <RouterLink class="my-auto icon-btn !outline-none" to="/">
-      <div i-carbon-arrow-left />
-    </RouterLink>
     <div my-auto text-sm font-mono>
       Waterfall
     </div>
 
-    <input v-model="pluginFilter" placeholder="Plugin Filter..." class="w-full px-4 py-2 text-xs">
-    <input v-model="idFilter" placeholder="ID Filter..." class="w-full px-4 py-2 text-xs">
-
-    <QuerySelector />
-
-    <button text-lg icon-btn title="Pause" @click="paused = !paused">
-      <span i-carbon-pause opacity-90 :class="paused ? 'text-red' : ''" />
-    </button>
-    <button text-lg icon-btn title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
-      <span i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
-    </button>
-    <button text-lg icon-btn title="Stacked" @click="options.view.waterfallStacking = !options.view.waterfallStacking">
-      <span i-carbon-stacked-scrolling-1 :class="options.view.waterfallStacking ? 'opacity-100' : 'opacity-25'" />
-    </button>
+    <input v-model="pluginFilter" placeholder="Filter..." class="w-full px-4 py-2 text-xs">
 
     <div flex-auto />
+
+    <template #actions>
+      <span class="my-auto icon-btn !outline-none">
+        <div i-carbon-close />
+      </span>
+    </template>
   </NavBar>
 
   <div ref="container" h-full p4>
