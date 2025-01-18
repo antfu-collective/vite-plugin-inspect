@@ -11,27 +11,15 @@ importers:
 
   .:
     dependencies:
-      '@antfu/utils':
-        specifier: ^8.0.0
-        version: 8.0.0
-      '@rollup/pluginutils':
-        specifier: ^5.1.4
-        version: 5.1.4(rollup@4.30.1)
       debug:
         specifier: ^4.4.0
         version: 4.4.0
       error-stack-parser-es:
         specifier: ^1.0.5
         version: 1.0.5
-      fs-extra:
-        specifier: ^11.2.0
-        version: 11.2.0
       open:
         specifier: ^10.1.0
         version: 10.1.0
-      perfect-debounce:
-        specifier: ^1.0.0
-        version: 1.0.0
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
@@ -45,6 +33,9 @@ importers:
       '@antfu/ni':
         specifier: ^23.2.0
         version: 23.2.0
+      '@antfu/utils':
+        specifier: ^8.0.0
+        version: 8.0.0
       '@arethetypeswrong/cli':
         specifier: ^0.17.2
         version: 0.17.2
@@ -57,6 +48,9 @@ importers:
       '@nuxt/kit':
         specifier: ^3.15.1
         version: 3.15.1(rollup@4.30.1)
+      '@rollup/pluginutils':
+        specifier: ^5.1.4
+        version: 5.1.4(rollup@4.30.1)
       '@types/codemirror':
         specifier: ^5.60.15
         version: 5.60.15
@@ -117,6 +111,9 @@ importers:
       floating-vue:
         specifier: ^5.2.2
         version: 5.2.2(@nuxt/kit@3.15.1(rollup@4.30.1))(vue@3.5.13(typescript@5.7.3))
+      fs-extra:
+        specifier: ^11.2.0
+        version: 11.2.0
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
@@ -132,6 +129,9 @@ importers:
       pathe:
         specifier: ^2.0.0
         version: 2.0.0
+      perfect-debounce:
+        specifier: ^1.0.0
+        version: 1.0.0
       pinia:
         specifier: ^2.3.0
         version: 2.3.0(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))

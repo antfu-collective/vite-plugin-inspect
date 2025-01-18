@@ -1,4 +1,4 @@
-import type { FilterPattern } from '@rollup/pluginutils'
+export type FilterPattern = ReadonlyArray<string | RegExp> | string | RegExp | null
 
 export interface ViteInspectOptions {
   /**
