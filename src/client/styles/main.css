@@ -15,16 +15,14 @@ html.dark {
 }
 
 .CodeMirror {
-  height: max-content !important;
+  height: inherit !important;
   font-family: var(--cm-font-family) !important;
   font-size: 13px !important;
 }
 
-.CodeMirror-scroll {
-  overflow-y: hidden !important;
-  overflow-x: auto !important;
+.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+  background-color: var(--cm-background) !important;
 }
-
 
 /* Splitpanes */
 .splitpanes__pane {

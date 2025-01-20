@@ -249,7 +249,6 @@ getHot().then((hot) => {
             :one-column="options.view.showOneColumn || !!currentTransform?.error"
             :diff="options.view.diff && !currentTransform?.error"
             :from="from" :to="to"
-            h-unset
           />
         </div>
       </Pane>

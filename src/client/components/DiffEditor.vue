@@ -17,8 +17,8 @@ const options = useOptionsStore()
 
 const { from, to } = toRefs(props)
 
-const fromEl = ref<HTMLTextAreaElement>()
-const toEl = ref<HTMLTextAreaElement>()
+const fromEl = useTemplateRef('fromEl')
+const toEl = useTemplateRef('toEl')
 
 onMounted(() => {
   const cm1 = useCodeMirror(
@@ -28,7 +28,6 @@ onMounted(() => {
       mode: 'javascript',
       readOnly: true,
       lineNumbers: true,
-      scrollbarStyle: 'null',
     },
   )
 
@@ -39,7 +38,6 @@ onMounted(() => {
       mode: 'javascript',
       readOnly: true,
       lineNumbers: true,
-      scrollbarStyle: 'null',
     },
   )
 
@@ -58,6 +56,7 @@ onMounted(() => {
   watchEffect(async () => {
     const l = from.value
     const r = to.value
+    const diffEnabled = props.diff
 
     cm1.setOption('mode', guessMode(l))
     cm2.setOption('mode', guessMode(r))
@@ -75,7 +74,7 @@ onMounted(() => {
     for (let i = 0; i < cm2.lineCount() + 2; i++)
       cm2.removeLineClass(i, 'background', 'diff-added')
 
-    if (props.diff && from.value) {
+    if (diffEnabled && from.value) {
       const changes = await calculateDiffWithWorker(l, r)
 
       const addedLines = new Set()
@@ -132,11 +131,11 @@ function onUpdate(size: number) {
 
 <template>
   <Splitpanes @resize="onUpdate($event[0].size)">
-    <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize" class="h-max min-h-screen" border="main r">
-      <textarea ref="fromEl" v-text="from" />
+    <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize" border="main r">
+      <div ref="fromEl" class="h-inherit" />
     </Pane>
-    <Pane min-size="10" :size="100 - leftPanelSize" class="h-max min-h-screen">
-      <textarea ref="toEl" v-text="to" />
+    <Pane min-size="10" :size="100 - leftPanelSize">
+      <div ref="toEl" class="h-inherit" />
     </Pane>
   </Splitpanes>
 </template>
