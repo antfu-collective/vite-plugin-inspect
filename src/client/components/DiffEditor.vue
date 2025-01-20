@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type CodeMirror from 'codemirror'
 import { Pane, Splitpanes } from 'splitpanes'
 import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
-import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
+import { syncEditorScrolls, syncScrollListeners, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 import { useOptionsStore } from '../stores/options'
 import { calculateDiffWithWorker } from '../worker/diff'
@@ -20,8 +21,11 @@ const { from, to } = toRefs(props)
 const fromEl = useTemplateRef('fromEl')
 const toEl = useTemplateRef('toEl')
 
+let cm1: CodeMirror.Editor
+let cm2: CodeMirror.Editor
+
 onMounted(() => {
-  const cm1 = useCodeMirror(
+  cm1 = useCodeMirror(
     fromEl,
     from,
     {
@@ -31,7 +35,7 @@ onMounted(() => {
     },
   )
 
-  const cm2 = useCodeMirror(
+  cm2 = useCodeMirror(
     toEl,
     to,
     {
@@ -41,16 +45,21 @@ onMounted(() => {
     },
   )
 
-  syncCmHorizontalScrolling(cm1, cm2)
+  syncScrollListeners(cm1, cm2)
 
   watchEffect(() => {
     cm1.setOption('lineWrapping', options.view.lineWrapping)
     cm2.setOption('lineWrapping', options.view.lineWrapping)
   })
 
-  watchEffect(() => {
-    // @ts-expect-error untyped
-    cm1.display.wrapper.style.display = props.oneColumn ? 'none' : ''
+  watchEffect(async () => {
+    cm1.getWrapperElement().style.display = props.oneColumn ? 'none' : ''
+    if (!props.oneColumn) {
+      await nextTick()
+      // Force sync to current scroll
+      cm1.refresh()
+      syncEditorScrolls(cm2, cm1)
+    }
   })
 
   watchEffect(async () => {
@@ -123,6 +132,9 @@ const leftPanelSize = computed(() => {
 })
 
 function onUpdate(size: number) {
+  // Refresh sizes
+  cm1?.refresh()
+  cm2?.refresh()
   if (props.oneColumn)
     return
   options.view.panelSizeDiff = size

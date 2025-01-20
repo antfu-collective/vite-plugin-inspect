@@ -51,7 +51,16 @@ export function useCodeMirror(
   return cm
 }
 
-export function syncCmHorizontalScrolling(
+export function syncEditorScrolls(primary: CodeMirror.Editor, target: CodeMirror.Editor) {
+  const pInfo = primary.getScrollInfo()
+  const tInfo = target.getScrollInfo()
+  // Map scroll range
+  const x = ((tInfo.width - tInfo.clientWidth) / (pInfo.width - pInfo.clientWidth)) * pInfo.left
+  const y = ((tInfo.height - tInfo.clientHeight) / (pInfo.height - pInfo.clientHeight)) * pInfo.top
+  target.scrollTo(x, y)
+}
+
+export function syncScrollListeners(
   cm1: CodeMirror.Editor,
   cm2: CodeMirror.Editor,
 ) {
@@ -64,20 +73,11 @@ export function syncCmHorizontalScrolling(
     activeCm = 2
   })
 
-  const syncEditorScrolls = (primary: CodeMirror.Editor, target: CodeMirror.Editor) => {
-    const pInfo = primary.getScrollInfo()
-    const tInfo = target.getScrollInfo()
-    // Map scroll range
-    const x = ((tInfo.width - tInfo.clientWidth) / (pInfo.width - pInfo.clientWidth)) * pInfo.left
-    const y = ((tInfo.height - tInfo.clientHeight) / (pInfo.height - pInfo.clientHeight)) * pInfo.top
-    target.scrollTo(x, y)
-  }
-
   cm1.on('scroll', (editor) => {
     if (activeCm === 1)
       syncEditorScrolls(editor, cm2)
   })
-  // Scroll cursor into view no matter which one is active
+  // Scroll cursor into view no matter which view is active
   cm1.on('scrollCursorIntoView', editor => syncEditorScrolls(editor, cm2))
 
   cm2.on('scroll', (editor) => {
