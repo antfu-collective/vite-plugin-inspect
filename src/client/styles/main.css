@@ -24,6 +24,14 @@ html.dark {
   background-color: var(--cm-background) !important;
 }
 
+.CodeMirror-dialog {
+  @apply !border-main !py-1;
+}
+
+#CodeMirror-search-field {
+  @apply !border-main !border !rounded !outline-none !border-solid !px-1.5 !py-0.25;
+}
+
 /* Splitpanes */
 .splitpanes__pane {
   transition: none !important;
