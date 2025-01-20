@@ -47,6 +47,7 @@ export function useCodeMirror(
         const selections = cm.listSelections()
         cm.replaceRange(v, cm.posFromIndex(0), cm.posFromIndex(Number.POSITIVE_INFINITY))
         cm.setSelections(selections)
+        cm.scrollTo(0, 0)
       }
     },
     { immediate: true },
@@ -58,9 +59,12 @@ export function useCodeMirror(
 export function syncEditorScrolls(primary: CodeMirror.Editor, target: CodeMirror.Editor) {
   const pInfo = primary.getScrollInfo()
   const tInfo = target.getScrollInfo()
+
   // Map scroll range
-  const x = ((tInfo.width - tInfo.clientWidth) / (pInfo.width - pInfo.clientWidth)) * pInfo.left
-  const y = ((tInfo.height - tInfo.clientHeight) / (pInfo.height - pInfo.clientHeight)) * pInfo.top
+  let x = ((tInfo.width - tInfo.clientWidth) / (pInfo.width - pInfo.clientWidth)) * pInfo.left
+  let y = ((tInfo.height - tInfo.clientHeight) / (pInfo.height - pInfo.clientHeight)) * pInfo.top
+  x = Number.isNaN(x) ? 0 : x
+  y = Number.isNaN(y) ? 0 : y
   target.scrollTo(x, y)
 }
 
