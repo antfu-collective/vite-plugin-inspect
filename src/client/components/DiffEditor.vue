@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type CodeMirror from 'codemirror'
 import { Pane, Splitpanes } from 'splitpanes'
-import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
+import { nextTick, onMounted, toRefs, watchEffect } from 'vue'
 import { syncEditorScrolls, syncScrollListeners, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 import { useOptionsStore } from '../stores/options'
