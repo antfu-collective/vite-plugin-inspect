@@ -55,6 +55,9 @@ const isRoot = computed(() => route.path === '/')
     <RouterLink text-lg icon-btn :to="{ path: '/metric', query: route.query }" title="Metrics">
       <span i-carbon-meter />
     </RouterLink>
+    <RouterLink text-lg icon-btn to="/waterfall" title="Waterfall">
+      <div i-carbon-chart-waterfall />
+    </RouterLink>
     <RouterLink text-lg icon-btn :to="{ path: '/plugins', query: route.query }" title="Plugins">
       <span i-carbon-microservices-1 />
     </RouterLink>
