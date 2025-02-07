@@ -1,8 +1,8 @@
 import type { ModuleTransformInfo } from '../types'
 import type { InspectContext } from './context'
+import fs from 'node:fs/promises'
 import { isAbsolute, join, resolve } from 'node:path'
 import process from 'node:process'
-import fs from 'fs-extra'
 import { hash } from 'ohash'
 import { DIR_CLIENT } from '../dirs'
 
@@ -19,9 +19,9 @@ export async function generateBuild(
     : resolve(process.cwd(), outputDir)
   const reportsDir = join(targetDir, 'reports')
 
-  await fs.emptyDir(targetDir)
-  await fs.ensureDir(reportsDir)
-  await fs.copy(DIR_CLIENT, targetDir)
+  await fs.rm(targetDir, { recursive: true })
+  await fs.mkdir(reportsDir, { recursive: true })
+  await fs.cp(DIR_CLIENT, targetDir, { recursive: true })
 
   await Promise.all([
     fs.writeFile(
@@ -32,10 +32,9 @@ export async function generateBuild(
           'data-vite-inspect-mode="BUILD"',
         ),
     ),
-    fs.writeJSON(
+    writeJSON(
       join(reportsDir, 'metadata.json'),
       ctx.getMetadata(),
-      { spaces: 2 },
     ),
     ...[...ctx._idToInstances.values()]
       .flatMap(v => [...v.environments.values()]
@@ -45,32 +44,33 @@ export async function generateBuild(
         }),
       )
       .map(async ([key, env]) => {
-        await fs.ensureDir(join(reportsDir, key))
-        await fs.ensureDir(join(reportsDir, key, 'transforms'))
+        await fs.mkdir(join(reportsDir, key), { recursive: true })
+        await fs.mkdir(join(reportsDir, key, 'transforms'), { recursive: true })
 
         return await Promise.all([
-          fs.writeJSON(
+          writeJSON(
             join(reportsDir, key, 'modules.json'),
             env.getModulesList(),
-            { spaces: 2 },
           ),
-          fs.writeJSON(
+          writeJSON(
             join(reportsDir, key, 'metric-plugins.json'),
             env.getPluginMetrics(),
-            { spaces: 2 },
           ),
           ...Object.entries(env.data.transform)
-            .map(([id, info]) => fs.writeJSON(
+            .map(([id, info]) => writeJSON(
               join(reportsDir, key, 'transforms', `${hash(id)}.json`),
               <ModuleTransformInfo>{
                 resolvedId: id,
                 transforms: info,
               },
-              { spaces: 2 },
             )),
         ])
       }),
   ])
 
   return targetDir
+}
+
+function writeJSON(filename: string, data: any) {
+  return fs.writeFile(filename, JSON.stringify(data, null, 2))
 }
