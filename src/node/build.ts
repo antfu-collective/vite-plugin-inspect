@@ -71,5 +71,5 @@ export async function generateBuild(
 }
 
 function writeJSON(filename: string, data: any) {
-  return fs.writeFile(filename, JSON.stringify(data, null, 2))
+  return fs.writeFile(filename, JSON.stringify(data, null, 2) + '\n')
 }
