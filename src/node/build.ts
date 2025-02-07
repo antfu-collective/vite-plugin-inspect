@@ -44,7 +44,6 @@ export async function generateBuild(
         }),
       )
       .map(async ([key, env]) => {
-        await fs.mkdir(join(reportsDir, key), { recursive: true })
         await fs.mkdir(join(reportsDir, key, 'transforms'), { recursive: true })
 
         return await Promise.all([
