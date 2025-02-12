@@ -81,10 +81,10 @@
     }
   },
   "dependencies": {
+    "ansis": "^3.12.0",
     "debug": "^4.4.0",
     "error-stack-parser-es": "^1.0.5",
     "open": "^10.1.0",
-    "picocolors": "^1.1.1",
     "sirv": "^3.0.0"
   },
   "devDependencies": {

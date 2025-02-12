@@ -3,8 +3,8 @@ import type { HMRData, RpcFunctions } from '../types'
 import type { InspectContextVite } from './context'
 import type { ViteInspectOptions } from './options'
 import process from 'node:process'
+import c from 'ansis'
 import { debounce } from 'perfect-debounce'
-import c from 'picocolors'
 import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
 import { DIR_CLIENT } from '../dirs'
@@ -246,7 +246,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
         return
       const dir = await generateBuild(ctx)
 
-      this.environment!.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(`${dir}`)}`)
+      this.environment!.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(dir)}`)
       if (_open && !isCI)
         createPreviewServer(dir)
     },

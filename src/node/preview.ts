@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'node:net'
 import { createServer } from 'node:http'
-import c from 'picocolors'
+import c from 'ansis'
 import sirv from 'sirv'
 import { openBrowser } from './utils'
 
