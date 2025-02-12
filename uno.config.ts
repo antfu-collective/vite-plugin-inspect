@@ -45,7 +45,9 @@ export default defineConfig({
         mono: 'DM Mono',
         sans: 'DM Sans',
       },
-      processors: createLocalFontProcessor(),
+      processors: createLocalFontProcessor({
+        fontAssetsDir: 'src/client/public/assets/fonts',
+      }),
     }),
   ],
   transformers: [
