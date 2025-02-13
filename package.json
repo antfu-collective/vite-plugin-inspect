@@ -60,7 +60,7 @@
     "node": ">=14"
   },
   "scripts": {
-    "build": "rimraf dist && run-s build:* && esno ./scripts/postbuild.ts && pnpm run test:attw",
+    "build": "rimraf dist && pnpm run --sequential /^build:/ && esno ./scripts/postbuild.ts && pnpm run test:attw",
     "build:client": "vite build src/client",
     "build:js": "unbuild",
     "dev": "nr stub && cross-env INSPECT_DEV=true vite src/client",
@@ -117,7 +117,6 @@
     "floating-vue": "^5.2.2",
     "fuse.js": "^7.1.0",
     "lint-staged": "^15.4.3",
-    "npm-run-all": "^4.1.5",
     "ohash": "^1.1.4",
     "pathe": "^2.0.3",
     "perfect-debounce": "^1.0.0",
