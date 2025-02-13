@@ -120,7 +120,7 @@
     "ohash": "^1.1.4",
     "pathe": "^2.0.3",
     "perfect-debounce": "^1.0.0",
-    "pinia": "^2.3.1",
+    "pinia": "^3.0.1",
     "prism-theme-vars": "^0.2.5",
     "rimraf": "^6.0.1",
     "simple-git-hooks": "^2.11.1",
