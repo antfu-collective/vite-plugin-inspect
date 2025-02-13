@@ -19,7 +19,7 @@ export async function generateBuild(
     : resolve(process.cwd(), outputDir)
   const reportsDir = join(targetDir, 'reports')
 
-  await fs.rm(targetDir, { recursive: true })
+  await fs.rm(targetDir, { recursive: true, force: true })
   await fs.mkdir(reportsDir, { recursive: true })
   await fs.cp(DIR_CLIENT, targetDir, { recursive: true })
 
@@ -71,5 +71,5 @@ export async function generateBuild(
 }
 
 function writeJSON(filename: string, data: any) {
-  return fs.writeFile(filename, JSON.stringify(data, null, 2) + '\n')
+  return fs.writeFile(filename, `${JSON.stringify(data, null, 2)}\n`)
 }

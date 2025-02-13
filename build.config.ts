@@ -29,7 +29,7 @@ export default defineBuildConfig({
         esmDirClient,
       ] = await Promise.all([
         import('node:module').then(m => m.default || m),
-        import ('node:fs/promises').then(m => m.lstat),
+        import('node:fs/promises').then(m => m.lstat),
         import('./dist/dirs.mjs').then(m => m.DIR_CLIENT),
       ])
       let stats = await lstat(esmDirClient)
