@@ -34,3 +34,25 @@ export function removeVersionQuery(url: string) {
   }
   return url
 }
+
+export function createFilter(pattern: string) {
+  pattern = pattern.trim()
+  if (!pattern) {
+    return () => true
+  }
+  const regex = new RegExp(pattern, 'i')
+  return (name: string) => regex.test(name)
+}
+
+export function generatorHashColorByString(str: string) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  let color = '#'
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xFF
+    color += (`00${value.toString(16)}`).slice(-2)
+  }
+  return color
+}
