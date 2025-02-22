@@ -18,6 +18,10 @@ npm i -D vite-plugin-inspect
 >
 > For Vite v2 to v5, use v0.8.x of `vite-plugin-inspect`. If you want to use it with both Vite 6 and below, you can still use v0.8.x, it's forwards compatible.
 
+> [!WARNING]
+>
+> If you're using [vite-plugin-vue-devtools](https://devtools.vuejs.org/guide/vite-plugin), don't install/register this plugin, use the `Vite Inspect` entry in the `vite-plugin-vue-devtools` UI (it uses this plugin internally).
+
 Add plugin to your `vite.config.ts`:
 
 ```ts
