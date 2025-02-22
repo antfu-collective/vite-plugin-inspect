@@ -11,7 +11,6 @@ const typeExportRegexp = /\s*type\s+/
 // This script will not fix export { default } from '<some-specifier>'.
 async function fixDefaultCJSExports(path: string) {
   const code = await readFile(path, 'utf-8')
-  console.log(code)
 
   const defaultExport = findExports(code).find(e =>
     e.names.includes('default'),
