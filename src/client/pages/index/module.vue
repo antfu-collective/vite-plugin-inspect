@@ -178,7 +178,7 @@ getHot().then((hot) => {
     <Splitpanes h-full of-hidden @resize="options.view.panelSizeModule = $event[0].size">
       <Pane
         :size="options.view.panelSizeModule" min-size="10"
-        flex="~ col" border="r main"
+        flex="~ col"
         overflow-y-auto
       >
         <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">

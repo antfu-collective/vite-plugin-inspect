@@ -20,7 +20,8 @@ html.dark {
   font-size: 13px !important;
 }
 
-.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
   background-color: var(--cm-background) !important;
 }
 
@@ -37,8 +38,14 @@ html.dark {
   transition: none !important;
 }
 
+.splitpanes__pane[style*="display: none"]+.splitpanes__splitter,
+.splitpanes__pane[hidden]+.splitpanes__splitter {
+  display: none;
+}
+
 .splitpanes__splitter {
   position: relative;
+  @apply bg-gray:30
 }
 
 .splitpanes__splitter:before {
@@ -57,22 +64,22 @@ html.dark {
 }
 
 .splitpanes--vertical>.splitpanes__splitter {
-  width: 0 !important;
+  width: 1px !important;
 }
 
 .splitpanes--horizontal>.splitpanes__splitter {
-  height: 0 !important;
+  height: 1px !important;
 }
 
 .splitpanes--vertical>.splitpanes__splitter:before {
   left: -5px;
-  right: -4px;
+  right: -5px;
   height: 100%;
 }
 
 .splitpanes--horizontal>.splitpanes__splitter:before {
   top: -5px;
-  bottom: -4px;
+  bottom: -5px;
   width: 100%;
 }
 
