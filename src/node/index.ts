@@ -220,7 +220,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
             await buildGenerator.setupOutputDir()
           },
           async onEach(pluginCtx) {
-            await buildGenerator.generateForEnv(pluginCtx.environment)
+            await buildGenerator.generateForEnv(pluginCtx)
           },
           async onLast(pluginCtx) {
             const dir = buildGenerator.getOutputDir()

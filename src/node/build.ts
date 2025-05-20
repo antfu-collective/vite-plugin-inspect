@@ -1,4 +1,4 @@
-import type { Environment } from 'vite'
+import type { Rollup } from 'vite'
 import type { ModuleTransformInfo } from '../types'
 import type { InspectContext } from './context'
 import fs from 'node:fs/promises'
@@ -70,7 +70,8 @@ export function createBuildGenerator(ctx: InspectContext) {
         ),
       ])
     },
-    async generateForEnv(env: Environment) {
+    async generateForEnv(pluginCtx: Rollup.PluginContext) {
+      const env = pluginCtx.environment
       await Promise.all([...ctx._idToInstances.values()]
         .filter(v => v.environments.has(env.name))
         .map((v) => {
@@ -84,7 +85,7 @@ export function createBuildGenerator(ctx: InspectContext) {
           return await Promise.all([
             writeJSON(
               join(reportsDir, key, 'modules.json'),
-              env.getModulesList(),
+              env.getModulesList(pluginCtx),
             ),
             writeJSON(
               join(reportsDir, key, 'metric-plugins.json'),
