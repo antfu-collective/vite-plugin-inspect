@@ -252,13 +252,16 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
         return null
       },
     },
-    hotUpdate({ modules, environment }) {
+    hotUpdate({ modules, type, file, timestamp }) {
       const ids = modules.map(module => module.id)
-      environment.hot.send({
+      this.environment.hot.send({
         type: 'custom',
         event: 'vite-plugin-inspect:update',
         data: { ids } as HMRData,
       })
+
+      const env = ctx.getEnvContext(this.environment)
+      env?.recordHmrEvent({ type, file, timestamp })
     },
     async buildEnd() {
       onBuildEnd?.(this.environment.name, this)
