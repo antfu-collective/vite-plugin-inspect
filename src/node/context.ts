@@ -1,4 +1,4 @@
-import type { Environment, ResolvedConfig } from 'vite'
+import type { Environment, ResolvedConfig, Rollup } from 'vite'
 import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo } from '../types'
 import type { ViteInspectOptions } from './options'
 import { Buffer } from 'node:buffer'
@@ -158,16 +158,24 @@ export class InspectContextViteEnv {
     return id
   }
 
-  getModulesList() {
+  getModulesList(pluginCtx: Rollup.PluginContext) {
     const moduleGraph = this.env.mode === 'dev' ? this.env.moduleGraph : undefined
 
-    const getDeps = (id: string) => Array.from(moduleGraph?.getModuleById(id)?.importedModules || [])
-      .map(i => i.id || '')
-      .filter(Boolean)
+    const getDeps = moduleGraph
+      ? (id: string) => Array.from(moduleGraph.getModuleById(id)?.importedModules || [])
+          .map(i => i.id || '')
+          .filter(Boolean)
+      : pluginCtx
+        ? (id: string) => pluginCtx.getModuleInfo(id)?.importedIds || []
+        : () => []
 
-    const getImporters = (id: string) => Array.from(moduleGraph?.getModuleById(id)?.importers || [])
-      .map(i => i.id || '')
-      .filter(Boolean)
+    const getImporters = moduleGraph
+      ? (id: string) => Array.from(moduleGraph?.getModuleById(id)?.importers || [])
+          .map(i => i.id || '')
+          .filter(Boolean)
+      : pluginCtx
+        ? (id: string) => pluginCtx.getModuleInfo(id)?.importers || []
+        : () => []
 
     function isVirtual(pluginName: string, transformName: string) {
       return pluginName !== DUMMY_LOAD_PLUGIN_NAME && transformName !== 'vite:load-fallback' && transformName !== 'vite:build-load-fallback'
