@@ -252,9 +252,9 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
         return null
       },
     },
-    hotUpdate({ modules, environment }) {
+    hotUpdate({ modules }) {
       const ids = modules.map(module => module.id)
-      environment.hot.send({
+      this.environment.hot.send({
         type: 'custom',
         event: 'vite-plugin-inspect:update',
         data: { ids } as HMRData,
