@@ -112,10 +112,10 @@ export class InspectContextViteEnv {
     resolveId: Record<string, ResolveIdInfo[]>
     transformCounter: Record<string, number>
   } = {
-      transform: {},
-      resolveId: {},
-      transformCounter: {},
-    }
+    transform: {},
+    resolveId: {},
+    transformCounter: {},
+  }
 
   recordTransform(id: string, info: TransformInfo, preTransformCode: string) {
     id = this.normalizeId(id)
@@ -158,7 +158,7 @@ export class InspectContextViteEnv {
     return id
   }
 
-  getModulesList(pluginCtx: Rollup.PluginContext) {
+  getModulesList(pluginCtx?: Rollup.PluginContext) {
     const moduleGraph = this.env.mode === 'dev' ? this.env.moduleGraph : undefined
 
     const getDeps = moduleGraph

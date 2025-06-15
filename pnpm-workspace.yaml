@@ -2,34 +2,34 @@ packages:
   - playground
 catalogs:
   dev:
-    '@antfu/eslint-config': ^4.13.1
-    '@antfu/ni': ^24.4.0
+    '@antfu/eslint-config': ^4.14.1
+    '@antfu/ni': ^25.0.0
     '@antfu/utils': ^9.2.0
-    '@iconify/json': ^2.2.339
-    '@types/codemirror': ^5.60.15
+    '@iconify/json': ^2.2.348
+    '@types/codemirror': ^5.60.16
     '@types/debug': ^4.1.12
-    '@types/node': ^22.15.19
-    '@unocss/eslint-config': ^66.1.2
-    '@unocss/eslint-plugin': ^66.0.0
+    '@types/node': ^22.15.31
+    '@unocss/eslint-config': ^66.2.0
+    '@unocss/eslint-plugin': ^66.2.0
     '@vitejs/plugin-vue': ^5.2.4
-    '@vue/compiler-sfc': ^3.5.14
+    '@vue/compiler-sfc': ^3.5.16
     bumpp: ^10.1.1
-    eslint: ^9.27.0
-    lint-staged: ^15.5.2
+    eslint: ^9.29.0
+    lint-staged: ^16.1.1
     rimraf: ^6.0.1
     serve: ^14.2.4
     simple-git-hooks: ^2.13.0
     typescript: ^5.8.3
     unbuild: ^3.5.0
-    unocss: ^66.1.2
-    unplugin-auto-import: ^19.2.0
-    unplugin-vue-components: ^28.5.0
+    unocss: ^66.2.0
+    unplugin-auto-import: ^19.3.0
+    unplugin-vue-components: ^28.7.0
     unplugin-vue-router: ^0.12.0
     vite: npm:rolldown-vite@6.3.0-beta.5
     vue-tsc: ^2.2.10
   frontend:
-    '@vueuse/core': ^13.2.0
-    '@vueuse/router': ^13.2.0
+    '@vueuse/core': ^13.3.0
+    '@vueuse/router': ^13.3.0
     codemirror: ^5.65.16
     codemirror-theme-vars: ^0.1.2
     comlink: ^4.4.2
@@ -40,17 +40,17 @@ catalogs:
     ohash: ^2.0.11
     pathe: ^2.0.3
     perfect-debounce: ^1.0.0
-    pinia: ^3.0.2
-    splitpanes: ^4.0.3
+    pinia: ^3.0.3
+    splitpanes: ^4.0.4
     vis-data: ^7.1.9
-    vis-network: ^9.1.10
+    vis-network: ^9.1.12
     vite-dev-rpc: ^1.0.7
     vite-hot-client: ^2.0.4
-    vue: ^3.5.14
+    vue: ^3.5.16
     vue-echarts: ^7.0.3
     vue-router: ^4.5.1
   prod:
-    '@nuxt/kit': ^3.17.3
+    '@nuxt/kit': ^3.17.5
     ansis: ^3.17.0
     debug: ^4.4.1
     error-stack-parser-es: ^1.0.5
