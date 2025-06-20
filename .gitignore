@@ -82,4 +82,4 @@ dist
 
 .vite-inspect
 
-public/assets/fonts
+src/client/public/assets/fonts

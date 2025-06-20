@@ -1,8 +1,7 @@
 import { createPinia } from 'pinia'
-import routes from 'virtual:generated-pages'
-// register vue composition api globally
 import { createApp, h, Suspense } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { routes } from 'vue-router/auto-routes'
 import App from './App.vue'
 
 import '@unocss/reset/tailwind.css'
@@ -15,8 +14,8 @@ const app = createApp(() => h(Suspense, {}, {
   fallback: 'Loading...',
 }))
 const router = createRouter({
-  history: createWebHashHistory(),
   routes,
+  history: createWebHashHistory(),
 })
 const pinia = createPinia()
 app.use(pinia)
