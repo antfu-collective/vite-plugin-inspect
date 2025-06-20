@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { init } from 'echarts/core'
-import type { CustomSeriesRenderItemAPI, CustomSeriesRenderItemParams, CustomSeriesRenderItemReturn, TopLevelFormatterParams } from 'echarts/types/dist/shared'
+import type { TopLevelFormatterParams } from 'echarts/types/dist/shared'
 import { BarChart, CustomChart } from 'echarts/charts'
 import {
   DataZoomComponent,
@@ -10,10 +10,9 @@ import {
   TooltipComponent,
   VisualMapComponent,
 } from 'echarts/components'
-import { graphic, use } from 'echarts/core'
+import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { Pane, Splitpanes } from 'splitpanes'
-import VChart from 'vue-echarts'
 import { createFilter, generatorHashColorByString } from '../../../node/utils'
 import { getHot } from '../../logic/hot'
 import { onModuleUpdated, rpc } from '../../logic/rpc'
@@ -37,7 +36,7 @@ const payload = usePayloadStore()
 
 const container = ref<HTMLDivElement | null>()
 
-const dataZoomBar = 100
+const dataZoomBar = 40
 const zoomBarOffset = 100
 
 // const { height } = useElementSize(container)
@@ -55,6 +54,18 @@ const pluginFilter = ref('')
 const idFilter = ref('')
 const pluginFilterFn = computed(() => createFilter(pluginFilter.value))
 const idFilterFn = computed(() => createFilter(idFilter.value))
+
+// 选中的时间范围状态
+const selectedTimeRange = ref<{
+  type: string
+  file: string
+  timestamp: number
+  nextTimestamp: number
+  relativeTimestamp: number
+  relativeNextTimestamp: number
+  data: any[]
+  active?: boolean
+} | null>(null)
 
 async function refetch() {
   if (!paused.value) {
@@ -78,6 +89,7 @@ const dataGroupByTimeRange = computed(() => {
       isResolveId: boolean
       filePath: string
     }[]
+    active?: boolean
   }[]
 
   // const dataPool = Object.entries(data.value).map(([filePath, steps]) => {
@@ -126,36 +138,36 @@ const dataGroupByTimeRange = computed(() => {
       }[],
     }
 
-    /**
-     *
-     * 每次保留变更值？
-     *  1. 每次hmr 时间时，计算一份增量数据
-     *
-     * 还是按照时间去计算？
-     *  1. 根据每次hmr的时间，来计算此次hmr 时间范围内的数据
-     *
-     * 最终采取方式二
-     *
-     *  方案：
-     *  根据每次hmr的时间 即 timestamp 字段，计算从此次hmr时间到下次hmr时间之间的数据
-     */
-
     dataPool.forEach((step) => {
-      // 根据每次hmr的时间 即 timestamp 字段，计算从此次hmr时间到下次hmr时间之间的数据
+      // Calculate data between each HMR time (timestamp field) and the next HMR time
 
       const hmrRange = [timestamp, hmrEvents.value[hmrEvents.value.indexOf(event) + 1]?.timestamp ?? endTime.value]
 
-      // 如果当前数据的开始时间在 hmr 时间范围内
+      // If the start time of current data is within the HMR time range
       if (step.start >= hmrRange[0] && step.start <= hmrRange[1]) {
         dataGroupItem.data.push(step)
       }
     })
 
+    const stepTimestamp = dataGroupItem.data.reduce((acc, step) => {
+      if (step.start < acc) {
+        return step.start
+      }
+      return acc
+    }, Infinity)
+
+    const stepNextTimestamp = dataGroupItem.data.reduce((acc, step) => {
+      if (step.end > acc) {
+        return step.end
+      }
+      return acc
+    }, -Infinity)
+
+    dataGroupItem.timestamp = stepTimestamp
+    dataGroupItem.nextTimestamp = stepNextTimestamp
+
     dataGroup.push(dataGroupItem)
   })
-
-  // console.log('dataPool', dataPool)
-  // console.log('dataGroup', dataGroup)
 
   dataGroup.unshift({
     type: 'init',
@@ -196,27 +208,6 @@ const sortedData = computed(() => {
 })
 
 const moduleIds = computed(() => sortedData.value.filter(([k]) => idFilterFn.value(k)).reverse())
-
-const chartDataById = computed(() => {
-  const result: any[] = []
-  for (const [index, [id, steps]] of moduleIds.value.entries()) {
-    for (const s of steps) {
-      if (pluginFilterFn.value(s.name)) {
-        const duration = s.end - s.start
-        result.push({
-          name: id,
-          value: [index, s.start, duration < 1 ? s.start + 1 : s.end, duration],
-          itemStyle: {
-            normal: {
-              color: generatorHashColorByString(id),
-            },
-          },
-        })
-      }
-    }
-  }
-  return result
-})
 
 interface WaterfallSpan {
   kind: 'resolve' | 'transform' | 'group'
@@ -275,37 +266,6 @@ const chartDataStacked = computed(() => {
   }))
 })
 
-function renderItem(params: CustomSeriesRenderItemParams | any, api: CustomSeriesRenderItemAPI): CustomSeriesRenderItemReturn {
-  const index = api.value(0)
-  const start = api.coord([api.value(1), index])
-  const end = api.coord([api.value(2), index])
-  const height = (api.size?.([0, 1]) as number[])[1]
-
-  const rectShape = graphic.clipRectByRect(
-    {
-      x: start[0],
-      y: start[1] - height / 2,
-      width: end[0] - start[0],
-      height,
-    },
-    {
-      x: params.coordSys.x,
-      y: params.coordSys.y,
-      width: params.coordSys.width,
-      height: params.coordSys.height,
-    },
-  )
-
-  return (
-    rectShape && {
-      type: 'rect',
-      transition: ['shape'],
-      shape: rectShape,
-      style: api.style(),
-    }
-  )
-}
-
 type ChartOption = ReturnType<ReturnType<typeof init>['getOption']>
 const chartOption = computed<ChartOption>(() => ({
   tooltip: {
@@ -313,24 +273,8 @@ const chartOption = computed<ChartOption>(() => ({
       return `${params.marker}${params.name}: ${params.value[3] <= 1 ? '<1' : params.value[3]}ms}`
     },
   },
-  legendData: {
-    top: 'center',
-    data: ['c'],
-  },
   title: {
     text: 'Waterfall',
-  },
-  visualMap: {
-    type: 'piecewise',
-    // show: false,
-    orient: 'horizontal',
-    left: 'center',
-    bottom: 10,
-    pieces: [
-
-    ],
-    seriesIndex: 1,
-    dimension: 1,
   },
   dataZoom: [
     {
@@ -361,31 +305,7 @@ const chartOption = computed<ChartOption>(() => ({
   yAxis: {
     data: options.view.waterfallStacking ? [...chartDataStacked.value.keys()].reverse() : moduleIds.value.map(([id]) => id),
   },
-  series: [
-    {
-      type: 'custom',
-      name: 'c',
-      renderItem,
-      itemStyle: {
-        opacity: 0.8,
-      },
-      encode: {
-        x: [1, 2],
-        y: 0,
-      },
-      data: options.view.waterfallStacking ? chartDataStacked.value.flat() : chartDataById.value,
-      markLine: {
-        data: hmrEvents.value.map(({ type, file, timestamp }) => ({
-          name: `${type} ${file}`,
-          xAxis: timestamp,
-        })),
-        lineStyle: {
-          color: '#f00',
-        },
-        symbol: ['none', 'none'],
-      },
-    },
-  ],
+
 }))
 
 const chartStyle = computed(() => {
@@ -393,6 +313,19 @@ const chartStyle = computed(() => {
     height: `${height.value}px`,
   }
 })
+
+function handleSelectTimeRange(group: any) {
+  if (group.nextTimestamp - group.timestamp <= 0) {
+    return
+  }
+
+  if (selectedTimeRange.value) {
+    selectedTimeRange.value.active = false
+  }
+
+  selectedTimeRange.value = group
+  selectedTimeRange.value!.active = true
+}
 </script>
 
 <template>
@@ -424,15 +357,13 @@ const chartStyle = computed(() => {
   </NavBar>
 
   <div ref="container" p4>
-    <div v-if="!Object.keys(data).length" flex="~" h-40 w-full>
-      <div ma italic op50>
-        No data
-      </div>
-    </div>
-    <VChart v-else class="w-100%" :style="chartStyle" :option="chartOption" autoresize />
+    <WaterfallOverviewChart
+      :data="data"
+      :chart-style="chartStyle"
+      :chart-option="chartOption"
+    />
   </div>
 
-  <!-- 暂时先写死 -->
   <Splitpanes class="h-[calc(100vh-300px-84px)]" of-hidden border="t main" @resize="options.view.panelSizeModule = $event[0].size">
     <Pane
       :size="options.view.panelSizeModule" min-size="10"
@@ -454,8 +385,13 @@ const chartStyle = computed(() => {
           border="b main"
           flex="~ gap-1 wrap"
           items-center px-2 py-2 text-left text-xs font-mono
-          class="bg-active"
-          @click="group.file.toString()"
+          :class="{
+            'bg-active': group.nextTimestamp - group.timestamp > 0,
+            'cursor-pointer': group.nextTimestamp - group.timestamp > 0,
+            'cursor-not-allowed': group.nextTimestamp - group.timestamp <= 0,
+            'bg-blue-500/20 border-blue-500': group?.active,
+          }"
+          @click="handleSelectTimeRange(group)"
         >
           <span class="fw-600">
             <!-- <PluginName :name="group.name" /> -->
@@ -464,11 +400,17 @@ const chartStyle = computed(() => {
 
           <Badge
             v-if="group.nextTimestamp"
-            text="error"
+            :text="selectedTimeRange === group ? 'selected' : 'duration'"
+            :color="selectedTimeRange === group ? 200 : undefined"
           >
             <span flex-auto />
-            <DurationDisplay :duration="group.nextTimestamp - group.timestamp" />
+            <DurationDisplay v-if="group.nextTimestamp - group.timestamp > 0" :duration="group.nextTimestamp - group.timestamp" />
+            <Badge v-else text="Empty" />
           </Badge>
+
+          <span v-if="group.file !== 'init'" class="w-full overflow-hidden text-ellipsis text-nowrap text-xs op75">
+            {{ group.file }}
+          </span>
 
           <!-- <Badge
             v-if="!group.result"
@@ -500,7 +442,13 @@ const chartStyle = computed(() => {
     </Pane>
 
     <Pane min-size="5">
-      <WaterfallChart />
+      <div v-if="!selectedTimeRange" flex="~" h-40 w-full>
+        <div ma text-center italic op50>
+          <div>Click on a time range in the left panel</div>
+          <div>to view detailed HMR events</div>
+        </div>
+      </div>
+      <WaterfallRangeChart v-else :time-range="selectedTimeRange" />
     </Pane>
   </Splitpanes>
 </template>

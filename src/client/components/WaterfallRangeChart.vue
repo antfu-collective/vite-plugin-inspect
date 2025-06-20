@@ -19,6 +19,19 @@ import { onModuleUpdated, rpc } from '../logic/rpc'
 import { useOptionsStore } from '../stores/options'
 import { usePayloadStore } from '../stores/payload'
 
+// 接收时间范围属性
+const props = defineProps<{
+  timeRange?: {
+    type: string
+    file: string
+    timestamp: number
+    nextTimestamp: number
+    relativeTimestamp: number
+    relativeNextTimestamp: number
+    data: any[]
+  } | null
+}>()
+
 use([
   VisualMapComponent,
   CanvasRenderer,
@@ -43,8 +56,19 @@ const { height } = useElementSize(container)
 
 const data = shallowRef(await rpc.getWaterfallInfo(payload.query))
 const hmrEvents = shallowRef(await rpc.getHmrEvents(payload.query))
-const startTime = computed(() => Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity)))
-const endTime = computed(() => Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000)
+const startTime = computed(() => {
+  if (props.timeRange) {
+    return props.timeRange.timestamp
+  }
+  return Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity))
+})
+
+const endTime = computed(() => {
+  if (props.timeRange) {
+    return props.timeRange.nextTimestamp
+  }
+  return Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000
+})
 
 const paused = ref(false)
 const pluginFilter = ref('')
@@ -76,7 +100,26 @@ getHot().then((hot) => {
 })
 
 const sortedData = computed(() => {
+  if (!props.timeRange) {
+    return Object.entries(data.value)
+      .sort(([_, a], [__, b]) => {
+        const aStart = a[0]?.start ?? 0
+        const bStart = b[0]?.start ?? 0
+        return aStart - bStart
+      })
+  }
+
+  // 如果有选中的时间范围，只显示该时间范围内的数据
+  const { timestamp, nextTimestamp } = props.timeRange
   return Object.entries(data.value)
+    .map(([id, steps]) => {
+      // 过滤出在时间范围内的步骤
+      const filteredSteps = steps.filter(step =>
+        step.start >= timestamp && step.start <= nextTimestamp,
+      )
+      return [id, filteredSteps] as [string, typeof steps]
+    })
+    .filter(([_, steps]) => steps.length > 0) // 只保留有数据的模块
     .sort(([_, a], [__, b]) => {
       const aStart = a[0]?.start ?? 0
       const bStart = b[0]?.start ?? 0
@@ -207,7 +250,7 @@ const chartOption = computed<ChartOption>(() => ({
     data: ['c'],
   },
   title: {
-    text: 'Waterfall',
+    text: props.timeRange ? `${props.timeRange.type} - ${props.timeRange.file}` : 'Waterfall Range',
   },
   visualMap: {
     type: 'piecewise',
@@ -264,10 +307,16 @@ const chartOption = computed<ChartOption>(() => ({
       },
       data: options.view.waterfallStacking ? chartDataStacked.value.flat() : chartDataById.value,
       markLine: {
-        data: hmrEvents.value.map(({ type, file, timestamp }) => ({
-          name: `${type} ${file}`,
-          xAxis: timestamp,
-        })),
+        data: hmrEvents.value
+          .filter(({ timestamp }) => {
+            if (!props.timeRange)
+              return true
+            return timestamp >= props.timeRange.timestamp && timestamp <= props.timeRange.nextTimestamp
+          })
+          .map(({ type, file, timestamp }) => ({
+            name: `${type} ${file}`,
+            xAxis: timestamp,
+          })),
         lineStyle: {
           color: '#f00',
         },
@@ -287,7 +336,12 @@ const chartStyle = computed(() => {
 <template>
   <NavBar>
     <div my-auto text-sm font-mono>
-      Waterfall
+      <span v-if="props.timeRange">{{ props.timeRange.type }} Range</span>
+      <span v-else>Waterfall Range</span>
+    </div>
+
+    <div v-if="props.timeRange" my-auto text-xs op75>
+      {{ ((props.timeRange.nextTimestamp - props.timeRange.timestamp) / 1000).toFixed(2) }}s duration
     </div>
 
     <input v-model="pluginFilter" placeholder="Filter..." class="w-full px-4 py-2 text-xs">
