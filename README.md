@@ -14,7 +14,7 @@ npm i -D vite-plugin-inspect
 
 > [!NOTE]
 >
-> v0.10.0 requires **Vite v6.0.1** or above.
+> v10.x requires **Vite v6.0.1** or above.
 >
 > For Vite v2 to v5, use v0.8.x of `vite-plugin-inspect`. If you want to use it with both Vite 6 and below, you can still use v0.8.x, it's forwards compatible.
 

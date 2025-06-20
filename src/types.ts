@@ -98,6 +98,7 @@ export interface InstanceInfo {
 
 export interface Metadata {
   instances: InstanceInfo[]
+  embedded?: boolean
 }
 
 export interface RpcFunctions {
@@ -108,15 +109,6 @@ export interface RpcFunctions {
   getServerMetrics: (query: QueryEnv) => Promise<ServerMetrics>
   resolveId: (query: QueryEnv, id: string) => Promise<string>
   onModuleUpdated: () => Promise<void>
-
-  /**
-   * @deprecated Query for the default Vite instance with the default env. Deprecated. Use `getModulesList` instead.
-   */
-  list: () => Promise<{
-    root: string
-    modules: ModulesList
-    ssrModules: ModulesList
-  }>
 }
 
 export interface QueryEnv {

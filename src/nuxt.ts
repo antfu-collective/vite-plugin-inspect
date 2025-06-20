@@ -9,7 +9,7 @@ export default defineNuxtModule<ViteInspectOptions>({
     name: 'vite-plugin-inspect',
     configKey: 'inspect',
   },
-  setup(options) {
+  setup(options: any) {
     addVitePlugin(() => Inspect(options))
   },
 }) as any

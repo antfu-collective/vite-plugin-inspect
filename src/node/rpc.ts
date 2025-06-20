@@ -26,14 +26,6 @@ export function createServerRpc(
         .serverMetrics || {}
     },
     async onModuleUpdated() {},
-
-    async list() {
-      return {
-        root: ctx.getViteContext('vite1').config.root,
-        modules: await ctx.queryEnv({ vite: 'vite1', env: 'client' }).getModulesList(),
-        ssrModules: await ctx.queryEnv({ vite: 'vite1', env: 'server' }).getModulesList(),
-      }
-    },
   }
 
   return rpc

@@ -15,24 +15,37 @@ html.dark {
 }
 
 .CodeMirror {
-  height: max-content !important;
+  height: inherit !important;
   font-family: var(--cm-font-family) !important;
   font-size: 13px !important;
 }
 
-.CodeMirror-scroll {
-  overflow-y: hidden !important;
-  overflow-x: auto !important;
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
+  background-color: var(--cm-background) !important;
 }
 
+.CodeMirror-dialog {
+  @apply !border-main !py-1;
+}
+
+#CodeMirror-search-field {
+  @apply !border-main !border !rounded !outline-none !border-solid !px-1.5 !py-0.25;
+}
 
 /* Splitpanes */
 .splitpanes__pane {
   transition: none !important;
 }
 
+.splitpanes__pane[style*="display: none"]+.splitpanes__splitter,
+.splitpanes__pane[hidden]+.splitpanes__splitter {
+  display: none;
+}
+
 .splitpanes__splitter {
   position: relative;
+  @apply bg-gray:30
 }
 
 .splitpanes__splitter:before {
@@ -51,22 +64,22 @@ html.dark {
 }
 
 .splitpanes--vertical>.splitpanes__splitter {
-  width: 0 !important;
+  width: 1px !important;
 }
 
 .splitpanes--horizontal>.splitpanes__splitter {
-  height: 0 !important;
+  height: 1px !important;
 }
 
 .splitpanes--vertical>.splitpanes__splitter:before {
   left: -5px;
-  right: -4px;
+  right: -5px;
   height: 100%;
 }
 
 .splitpanes--horizontal>.splitpanes__splitter:before {
   top: -5px;
-  bottom: -4px;
+  bottom: -5px;
   width: 100%;
 }
 

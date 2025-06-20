@@ -3,8 +3,9 @@ import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
+import { VueRouterAutoImports } from 'unplugin-vue-router'
+import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
-import Pages from 'vite-plugin-pages'
 import Inspect from '../node'
 
 export default defineConfig({
@@ -55,20 +56,24 @@ export default defineConfig({
         defineModel: true,
       },
     }),
-    Pages({
-      pagesDir: 'pages',
+    VueRouter({
+      // logs: true,
+      root: __dirname,
+      routesFolder: 'pages',
     }),
     Components({
       dirs: ['components'],
       dts: join(__dirname, 'components.d.ts'),
     }),
     Unocss(),
-    Inspect(),
+    Inspect({
+      // embedded: true,
+    }),
     AutoImport({
       dts: join(__dirname, 'auto-imports.d.ts'),
       imports: [
         'vue',
-        'vue-router',
+        VueRouterAutoImports,
         '@vueuse/core',
       ],
     }),

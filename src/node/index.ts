@@ -1,14 +1,14 @@
-import type { Connect, Plugin, ViteDevServer } from 'vite'
+import type { Connect, Plugin, Rollup, ViteDevServer } from 'vite'
 import type { HMRData, RpcFunctions } from '../types'
 import type { InspectContextVite } from './context'
 import type { ViteInspectOptions } from './options'
 import process from 'node:process'
+import c from 'ansis'
 import { debounce } from 'perfect-debounce'
-import c from 'picocolors'
 import sirv from 'sirv'
 import { createRPCServer } from 'vite-dev-rpc'
-import { DIR_CLIENT } from '../dir'
-import { generateBuild } from './build'
+import { DIR_CLIENT } from '../dirs'
+import { createBuildGenerator, createEnvOrderHooks } from './build'
 import { InspectContext } from './context'
 import { hijackPlugin } from './hijack'
 import { createPreviewServer } from './preview'
@@ -39,6 +39,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
   }
 
   const ctx = new InspectContext(options)
+  let onBuildEnd: (envName: string, pluginCtx: Rollup.PluginContext) => Promise<void> | undefined
 
   const timestampRE = /\bt=\d{13}&?\b/
   const trailingSeparatorRE = /[?&]$/
@@ -211,6 +212,24 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
           return result
         }
       }
+
+      if (build) {
+        const buildGenerator = createBuildGenerator(ctx)
+        onBuildEnd = createEnvOrderHooks<[pluginCtx: Rollup.PluginContext]>(Object.keys(config.environments), {
+          async onFirst() {
+            await buildGenerator.setupOutputDir()
+          },
+          async onEach(pluginCtx) {
+            await buildGenerator.generateForEnv(pluginCtx)
+          },
+          async onLast(pluginCtx) {
+            const dir = buildGenerator.getOutputDir()
+            pluginCtx.environment.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(dir)}`)
+            if (_open && !isCI)
+              createPreviewServer(dir)
+          },
+        })
+      }
     },
     configureServer(server) {
       const rpc = configureServer(server)
@@ -233,23 +252,18 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
         return null
       },
     },
-    hotUpdate({ modules, environment }) {
+    hotUpdate({ modules }) {
       const ids = modules.map(module => module.id)
-      environment.hot.send({
+      this.environment.hot.send({
         type: 'custom',
         event: 'vite-plugin-inspect:update',
         data: { ids } as HMRData,
       })
     },
     async buildEnd() {
-      if (!build)
-        return
-      const dir = await generateBuild(ctx)
-
-      this.environment!.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(`${dir}`)}`)
-      if (_open && !isCI)
-        createPreviewServer(dir)
+      onBuildEnd?.(this.environment.name, this)
     },
+    sharedDuringBuild: true,
   }
   return plugin
 }
