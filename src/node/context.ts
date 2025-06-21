@@ -4,7 +4,6 @@ import type { ViteInspectOptions } from './options'
 import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
 import { objectMap } from '@antfu/utils'
-
 import { createFilter } from 'unplugin-utils'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 import { removeVersionQuery, serializePlugin } from './utils'
