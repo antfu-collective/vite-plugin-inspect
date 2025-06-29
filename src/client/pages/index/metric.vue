@@ -103,7 +103,7 @@ getHot().then((hot) => {
     <div mx1 h-full w-0 border="r main" />
     <button
       v-if="!payload.isStatic"
-      class="text-lg icon-btn" title="Refetch"
+      class="icon-btn text-lg" title="Refetch"
       @click="refetch()"
     >
       <div i-carbon-renew />
@@ -119,7 +119,7 @@ getHot().then((hot) => {
     <ServerChart
       v-if=" options.view.metricDisplayHook === 'server'"
     />
-    <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap children:(border-main border-b px-4 py-2 align-middle) text-sm font-mono">
+    <div v-else class="grid grid-cols-[1fr_max-content_max-content_max-content_max-content_max-content_1fr] mb-4 mt-2 whitespace-nowrap text-sm font-mono children:(border-b border-main px-4 py-2 align-middle)">
       <div />
       <div class="text-xs font-bold">
         Name ({{ plugins.length }})

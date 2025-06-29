@@ -23,7 +23,7 @@ const isRoot = computed(() => route.path === '/')
 
     <template v-if="options.view.listMode === 'detailed'">
       <button
-        text-lg icon-btn title="Sort" flex="~ items-center"
+        icon-btn text-lg title="Sort" flex="~ items-center"
         :disabled="!!options.search.text"
         :class="options.search.text ? 'op50 pointer-events-none' : ''"
         @click="options.toggleSort()"
@@ -46,21 +46,21 @@ const isRoot = computed(() => route.path === '/')
         </template>
       </button>
     </template>
-    <button text-lg icon-btn title="View Mode" @click="options.toggleListMode()">
+    <button icon-btn text-lg title="View Mode" @click="options.toggleListMode()">
       <span v-if="options.view.listMode === 'detailed'" i-carbon-list-boxes />
       <span v-else-if="options.view.listMode === 'list'" i-carbon-list />
       <span v-else i-carbon-network-4 />
     </button>
     <div mx2 h-full w-1 border="r main" />
-    <RouterLink text-lg icon-btn :to="{ path: '/metric', query: route.query }" title="Metrics">
+    <RouterLink icon-btn text-lg :to="{ path: '/metric', query: route.query }" title="Metrics">
       <span i-carbon-meter />
     </RouterLink>
-    <RouterLink text-lg icon-btn :to="{ path: '/plugins', query: route.query }" title="Plugins">
+    <RouterLink icon-btn text-lg :to="{ path: '/plugins', query: route.query }" title="Plugins">
       <span i-carbon-microservices-1 />
     </RouterLink>
     <button
       v-if="!payload.isStatic"
-      class="text-lg icon-btn" title="Refetch"
+      class="icon-btn text-lg" title="Refetch"
       @click="payload.refetch()"
     >
       <span i-carbon-renew />
@@ -79,7 +79,7 @@ const isRoot = computed(() => route.path === '/')
   >
     <RouterLink h-full min-w-70px flex-auto to="/" />
     <div
-      class="h-full w-[calc(100vw-100px)] transform overflow-hidden shadow-lg transition-transform duration-300 bg-main"
+      class="h-full w-[calc(100vw-100px)] transform overflow-hidden bg-main shadow-lg transition-transform duration-300"
       border="l main"
       :class="isRoot ? 'translate-x-1/2' : 'translate-x-0'"
     >
