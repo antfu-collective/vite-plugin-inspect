@@ -23,8 +23,8 @@ catalogs:
     unbuild: ^3.5.0
     unocss: ^66.3.2
     unplugin-auto-import: ^19.3.0
-    unplugin-vue-components: ^28.7.0
-    unplugin-vue-router: ^0.12.0
+    unplugin-vue-components: ^28.8.0
+    unplugin-vue-router: ^0.13.0
     vite: npm:rolldown-vite@6.3.0-beta.5
     vue-tsc: ^2.2.10
   frontend:
@@ -45,7 +45,7 @@ catalogs:
     vis-data: ^7.1.9
     vis-network: ^9.1.13
     vite-dev-rpc: ^1.1.0
-    vite-hot-client: ^2.0.4
+    vite-hot-client: ^2.1.0
     vue: ^3.5.17
     vue-echarts: ^7.0.3
     vue-router: ^4.5.1
