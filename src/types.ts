@@ -19,6 +19,12 @@ export interface ResolveIdInfo {
   error?: ParsedError
 }
 
+export interface HmrEventInfo {
+  type: 'create' | 'update' | 'delete'
+  file: string
+  timestamp: number
+}
+
 export interface ParsedError {
   message: string
   stack: StackFrame[]
@@ -43,6 +49,13 @@ export interface ModuleTransformInfo {
   resolvedId: string
   transforms: TransformInfo[]
 }
+
+export type WaterfallInfo = Record<string, {
+  name: string
+  start: number
+  end: number
+  isResolveId: boolean
+}[]>
 
 export interface PluginMetricInfo {
   name: string
@@ -107,6 +120,8 @@ export interface RpcFunctions {
   getModuleTransformInfo: (query: QueryEnv, id: string, clear?: boolean) => Promise<ModuleTransformInfo>
   getPluginMetrics: (query: QueryEnv) => Promise<PluginMetricInfo[]>
   getServerMetrics: (query: QueryEnv) => Promise<ServerMetrics>
+  getWaterfallInfo: (query: QueryEnv) => Promise<WaterfallInfo>
+  getHmrEvents: (query: QueryEnv) => Promise<HmrEventInfo[]>
   resolveId: (query: QueryEnv, id: string) => Promise<string>
   onModuleUpdated: () => Promise<void>
 }

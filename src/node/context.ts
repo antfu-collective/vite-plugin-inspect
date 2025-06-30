@@ -1,8 +1,9 @@
 import type { Environment, ResolvedConfig, Rollup } from 'vite'
-import type { Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo } from '../types'
+import type { HmrEventInfo, Metadata, ModuleInfo, PluginMetricInfo, QueryEnv, ResolveIdInfo, ServerMetrics, TransformInfo, WaterfallInfo } from '../types'
 import type { ViteInspectOptions } from './options'
 import { Buffer } from 'node:buffer'
 import { resolve } from 'node:path'
+import { objectMap } from '@antfu/utils'
 import { createFilter } from 'unplugin-utils'
 import { DUMMY_LOAD_PLUGIN_NAME } from './constants'
 import { removeVersionQuery, serializePlugin } from './utils'
@@ -111,10 +112,12 @@ export class InspectContextViteEnv {
     transform: Record<string, TransformInfo[]>
     resolveId: Record<string, ResolveIdInfo[]>
     transformCounter: Record<string, number>
+    hmrEvents: HmrEventInfo[]
   } = {
     transform: {},
     resolveId: {},
     transformCounter: {},
+    hmrEvents: [],
   }
 
   recordTransform(id: string, info: TransformInfo, preTransformCode: string) {
@@ -145,6 +148,10 @@ export class InspectContextViteEnv {
     if (!this.data.resolveId[id])
       this.data.resolveId[id] = []
     this.data.resolveId[id].push(info)
+  }
+
+  recordHmrEvent(info: HmrEventInfo) {
+    this.data.hmrEvents.push(info)
   }
 
   invalidate(id: string) {
@@ -300,6 +307,53 @@ export class InspectContextViteEnv {
       resolvedId,
       transforms: this.data.transform[resolvedId] || [],
     }
+  }
+
+  async getWaterfallInfo() {
+    const resolveIdByResult: Record<string, ResolveIdInfo> = {}
+    for (const id in this.data.resolveId) {
+      const info = this.data.resolveId[id][0]
+      resolveIdByResult[info.result] = {
+        ...info,
+        result: id,
+      }
+    }
+    return objectMap(this.data.transform, (id, transforms) => {
+      const result: WaterfallInfo[string] = []
+      let currentId = id
+      while (resolveIdByResult[currentId]) {
+        const info = resolveIdByResult[currentId]
+        result.push({
+          name: info.name,
+          start: info.start,
+          end: info.end,
+          isResolveId: true,
+        })
+        if (currentId === info.result)
+          break
+        currentId = info.result
+      }
+      for (const transform of transforms) {
+        result.push({
+          name: transform.name,
+          start: transform.start,
+          end: transform.end,
+          isResolveId: false,
+        })
+      }
+      result.sort((a, b) => a.start - b.start)
+      const filtered = result.filter(({ start, end }, i) => i === 0 || i === result.length - 1 || start < end)
+      return filtered.length
+        ? [
+            id,
+            filtered,
+          ]
+        : undefined
+    })
+  }
+
+  async getHmrEvents() {
+    return this.data.hmrEvents.sort((a, b) => a.timestamp - b.timestamp)
   }
 
   clearId(_id: string) {

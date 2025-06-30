@@ -25,6 +25,12 @@ export function createServerRpc(
         .data
         .serverMetrics || {}
     },
+    async getWaterfallInfo(query) {
+      return ctx.queryEnv(query).getWaterfallInfo()
+    },
+    async getHmrEvents(query) {
+      return ctx.queryEnv(query).getHmrEvents()
+    },
     async onModuleUpdated() {},
   }
 
