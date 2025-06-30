@@ -10,14 +10,14 @@
     "build-inspect": "serve .vite-inspect"
   },
   "dependencies": {
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue": "catalog:frontend",
+    "vue-router": "catalog:frontend"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.1",
-    "serve": "^14.2.4",
-    "typescript": "^5.7.3",
-    "vite": "^6.1.1",
+    "@vitejs/plugin-vue": "catalog:dev",
+    "serve": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vite": "catalog:dev",
     "vite-plugin-inspect": "workspace:*"
   }
 }

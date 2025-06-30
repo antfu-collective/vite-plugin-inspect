@@ -1,4 +1,4 @@
-import type { ObjectHook, ResolveIdResult, TransformResult } from 'rollup'
+import type { LoadResult, ObjectHook, ResolveIdResult, TransformResult } from 'rollup'
 import type { Plugin } from 'vite'
 import type { ParsedError } from '../types'
 import type { InspectContext } from './context'
@@ -69,7 +69,7 @@ export function hijackPlugin(
 
     const start = Date.now()
     try {
-      _result = await fn.apply(context, args)
+      _result = await fn.apply(context, args) as TransformResult
     }
     catch (_err) {
       error = _err
@@ -101,12 +101,12 @@ export function hijackPlugin(
   hijackHook(plugin, 'load', async (fn, context, args) => {
     const id = args[0]
 
-    let _result: TransformResult
+    let _result: LoadResult
     let error: any
 
     const start = Date.now()
     try {
-      _result = await fn.apply(context, args)
+      _result = await fn.apply(context, args) as LoadResult
     }
     catch (err) {
       error = err

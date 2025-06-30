@@ -143,7 +143,7 @@ function onUpdate(size: number) {
 
 <template>
   <Splitpanes @resize="onUpdate($event[0].size)">
-    <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize" border="main r">
+    <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize">
       <div ref="fromEl" class="h-inherit" />
     </Pane>
     <Pane min-size="10" :size="100 - leftPanelSize">

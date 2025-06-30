@@ -23,5 +23,6 @@ declare module 'vue-router/auto-routes' {
     '//metric': RouteRecordInfo<'//metric', '/metric', Record<never, never>, Record<never, never>>,
     '//module': RouteRecordInfo<'//module', '/module', Record<never, never>, Record<never, never>>,
     '//plugins': RouteRecordInfo<'//plugins', '/plugins', Record<never, never>, Record<never, never>>,
+    '//waterfall': RouteRecordInfo<'//waterfall', '/waterfall', Record<never, never>, Record<never, never>>,
   }
 }

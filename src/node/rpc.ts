@@ -32,14 +32,6 @@ export function createServerRpc(
       return ctx.queryEnv(query).getHmrEvents()
     },
     async onModuleUpdated() {},
-
-    async list() {
-      return {
-        root: ctx.getViteContext('vite1').config.root,
-        modules: await ctx.queryEnv({ vite: 'vite1', env: 'client' }).getModulesList(),
-        ssrModules: await ctx.queryEnv({ vite: 'vite1', env: 'server' }).getModulesList(),
-      }
-    },
   }
 
   return rpc
