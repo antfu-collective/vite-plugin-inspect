@@ -49,7 +49,7 @@ const payload = usePayloadStore()
 
 const container = ref<HTMLDivElement | null>()
 
-const dataZoomBar = 100
+const dataZoomBar = 130
 const zoomBarOffset = 100
 
 const { height } = useElementSize(container)
@@ -60,6 +60,7 @@ const startTime = computed(() => {
   if (props.timeRange) {
     return props.timeRange.timestamp
   }
+
   return Math.min(...Object.values(data.value).map(i => i[0]?.start ?? Infinity))
 })
 
@@ -67,6 +68,7 @@ const endTime = computed(() => {
   if (props.timeRange) {
     return props.timeRange.nextTimestamp
   }
+
   return Math.max(...Object.values(data.value).map(i => i[i.length - 1]?.end ?? -Infinity)) + 1000
 })
 

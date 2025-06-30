@@ -342,21 +342,21 @@ function handleSelectTimeRange(group: any) {
 
     <QuerySelector />
 
-    <button text-lg icon-btn title="Pause" @click="paused = !paused">
+    <button icon-btn text-lg title="Pause" @click="paused = !paused">
       <span v-if="!paused" i-carbon-pause opacity-90 :class="paused ? 'text-red' : ''" />
       <span v-else i-carbon-stop opacity-90 :class="paused ? 'text-red' : ''" />
     </button>
-    <button text-lg icon-btn title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
+    <button icon-btn text-lg title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
       <span i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Stacked" @click="options.view.waterfallStacking = !options.view.waterfallStacking">
+    <button icon-btn text-lg title="Stacked" @click="options.view.waterfallStacking = !options.view.waterfallStacking">
       <span i-carbon-stacked-scrolling-1 :class="options.view.waterfallStacking ? 'opacity-100' : 'opacity-25'" />
     </button>
 
     <div flex-auto />
   </NavBar>
 
-  <div ref="container" p4>
+  <div ref="container">
     <WaterfallOverviewChart
       :data="data"
       :chart-style="chartStyle"
@@ -372,12 +372,6 @@ function handleSelectTimeRange(group: any) {
     >
       <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
         <span flex-auto text-center text-sm uppercase>{{ payload.query.env }} WATERFALL STACK</span>
-        <button
-          class="icon-btn" title="Toggle bailout plugins"
-          @click="options.view.showBailout = !options.view.showBailout"
-        >
-          <div :class="options.view.showBailout ? 'opacity-100 i-carbon-view' : 'opacity-75 i-carbon-view-off'" />
-        </button>
       </div>
       <div border="b main" />
       <template v-for="(group) of dataGroupByTimeRange" :key="group.relativeTimestamp">
