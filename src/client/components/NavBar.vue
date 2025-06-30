@@ -12,13 +12,13 @@ const payload = usePayloadStore()
       <template v-if="!payload.metadata.embedded">
         <div mx1 h-full w-0 border="r main" />
         <a
-          text-lg icon-btn
+          icon-btn text-lg
           href="https://github.com/antfu/vite-plugin-inspect"
           target="_blank"
         >
           <div i-carbon-logo-github />
         </a>
-        <button class="text-lg icon-btn" title="Toggle Dark Mode" @click="toggleDark()">
+        <button class="icon-btn text-lg" title="Toggle Dark Mode" @click="toggleDark()">
           <span i-carbon-sun dark:i-carbon-moon />
         </button>
       </template>

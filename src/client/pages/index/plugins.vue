@@ -36,7 +36,7 @@ function renderRow(idx: number) {
 
 <template>
   <NavBar>
-    <RouterLink my-auto outline-none icon-btn to="/">
+    <RouterLink my-auto icon-btn outline-none to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
     <div flex-auto />

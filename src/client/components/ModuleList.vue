@@ -38,7 +38,7 @@ const { list, containerProps, wrapperProps } = useVirtualList(
         <RouterLink
           v-for="m in list"
           :key="`${payload.query.vite}-${payload.query.env}-${m.data.id}`"
-          class="block border-b border-main hover:bg-active px-3 py-2 text-left text-sm font-mono"
+          class="block border-b border-main px-3 py-2 text-left text-sm font-mono hover:bg-active"
           :to="{
             path: '/module',
             query: {
