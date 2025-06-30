@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { init } from 'echarts/core'
-import type { CustomSeriesRenderItemAPI, CustomSeriesRenderItemParams, CustomSeriesRenderItemReturn, TopLevelFormatterParams } from 'echarts/types/dist/shared'
+import type { TopLevelFormatterParams } from 'echarts/types/dist/shared'
 import { BarChart, CustomChart } from 'echarts/charts'
 import {
   DataZoomComponent,
@@ -10,9 +10,9 @@ import {
   TooltipComponent,
   VisualMapComponent,
 } from 'echarts/components'
-import { graphic, use } from 'echarts/core'
+import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import VChart from 'vue-echarts'
+import { Pane, Splitpanes } from 'splitpanes'
 import { createFilter, generatorHashColorByString } from '../../../node/utils'
 import { getHot } from '../../logic/hot'
 import { onModuleUpdated, rpc } from '../../logic/rpc'
@@ -36,10 +36,13 @@ const payload = usePayloadStore()
 
 const container = ref<HTMLDivElement | null>()
 
-const dataZoomBar = 100
+const dataZoomBar = 40
 const zoomBarOffset = 100
 
-const { height } = useElementSize(container)
+// const { height } = useElementSize(container)
+const height = ref(300)
+
+// const currentIndex = ref('')
 
 const data = shallowRef(await rpc.getWaterfallInfo(payload.query))
 const hmrEvents = shallowRef(await rpc.getHmrEvents(payload.query))
@@ -52,12 +55,132 @@ const idFilter = ref('')
 const pluginFilterFn = computed(() => createFilter(pluginFilter.value))
 const idFilterFn = computed(() => createFilter(idFilter.value))
 
+// 选中的时间范围状态
+const selectedTimeRange = ref<{
+  type: string
+  file: string
+  timestamp: number
+  nextTimestamp: number
+  relativeTimestamp: number
+  relativeNextTimestamp: number
+  data: any[]
+  active?: boolean
+} | null>(null)
+
 async function refetch() {
   if (!paused.value) {
     data.value = await rpc.getWaterfallInfo(payload.query)
     hmrEvents.value = await rpc.getHmrEvents(payload.query)
   }
 }
+
+const dataGroupByTimeRange = computed(() => {
+  const dataGroup = [] as {
+    type: string
+    file: string
+    timestamp: number
+    nextTimestamp: number
+    relativeTimestamp: number
+    relativeNextTimestamp: number
+    data: {
+      name: string
+      start: number
+      end: number
+      isResolveId: boolean
+      filePath: string
+    }[]
+    active?: boolean
+  }[]
+
+  // const dataPool = Object.entries(data.value).map(([filePath, steps]) => {
+  //   return steps.map((step) => {
+  //     return {
+  //       filePath,
+  //       ...step,
+  //     }
+  //   })
+  // })
+
+  const dataPool = Object.entries(data.value).reduce((acc, [filePath, steps]) => {
+    const data = steps.map((step) => {
+      return {
+        filePath,
+        relativeStart: step.start - startTime.value,
+        relativeEnd: step.end - startTime.value,
+        ...step,
+      }
+    })
+
+    acc.push(...data)
+
+    return acc
+  }, [] as { name: string, start: number, end: number, isResolveId: boolean, filePath: string }[])
+
+  hmrEvents.value.forEach((event) => {
+    const { type, file, timestamp } = event
+
+    const nextTimestamp = hmrEvents.value[hmrEvents.value.indexOf(event) + 1]?.timestamp ?? endTime.value
+
+    const dataGroupItem = {
+      type,
+      file,
+      timestamp,
+      relativeTimestamp: timestamp - startTime.value,
+      nextTimestamp,
+      relativeNextTimestamp: nextTimestamp - startTime.value,
+      data: [] as {
+        name: string
+        start: number
+        end: number
+        isResolveId: boolean
+
+        filePath: string
+      }[],
+    }
+
+    dataPool.forEach((step) => {
+      // Calculate data between each HMR time (timestamp field) and the next HMR time
+
+      const hmrRange = [timestamp, hmrEvents.value[hmrEvents.value.indexOf(event) + 1]?.timestamp ?? endTime.value]
+
+      // If the start time of current data is within the HMR time range
+      if (step.start >= hmrRange[0] && step.start <= hmrRange[1]) {
+        dataGroupItem.data.push(step)
+      }
+    })
+
+    const stepTimestamp = dataGroupItem.data.reduce((acc, step) => {
+      if (step.start < acc) {
+        return step.start
+      }
+      return acc
+    }, Infinity)
+
+    const stepNextTimestamp = dataGroupItem.data.reduce((acc, step) => {
+      if (step.end > acc) {
+        return step.end
+      }
+      return acc
+    }, -Infinity)
+
+    dataGroupItem.timestamp = stepTimestamp
+    dataGroupItem.nextTimestamp = stepNextTimestamp
+
+    dataGroup.push(dataGroupItem)
+  })
+
+  dataGroup.unshift({
+    type: 'init',
+    file: 'init',
+    timestamp: startTime.value,
+    relativeTimestamp: 0,
+    nextTimestamp: hmrEvents.value[0]?.timestamp ?? endTime.value,
+    relativeNextTimestamp: hmrEvents.value[0]?.timestamp ?? endTime.value,
+    data: dataPool.filter(step => step.start < hmrEvents.value[0]?.timestamp),
+  })
+
+  return dataGroup
+})
 
 onModuleUpdated.on(refetch)
 
@@ -85,27 +208,6 @@ const sortedData = computed(() => {
 })
 
 const moduleIds = computed(() => sortedData.value.filter(([k]) => idFilterFn.value(k)).reverse())
-
-const chartDataById = computed(() => {
-  const result: any[] = []
-  for (const [index, [id, steps]] of moduleIds.value.entries()) {
-    for (const s of steps) {
-      if (pluginFilterFn.value(s.name)) {
-        const duration = s.end - s.start
-        result.push({
-          name: id,
-          value: [index, s.start, duration < 1 ? s.start + 1 : s.end, duration],
-          itemStyle: {
-            normal: {
-              color: generatorHashColorByString(id),
-            },
-          },
-        })
-      }
-    }
-  }
-  return result
-})
 
 interface WaterfallSpan {
   kind: 'resolve' | 'transform' | 'group'
@@ -164,37 +266,6 @@ const chartDataStacked = computed(() => {
   }))
 })
 
-function renderItem(params: CustomSeriesRenderItemParams | any, api: CustomSeriesRenderItemAPI): CustomSeriesRenderItemReturn {
-  const index = api.value(0)
-  const start = api.coord([api.value(1), index])
-  const end = api.coord([api.value(2), index])
-  const height = (api.size?.([0, 1]) as number[])[1]
-
-  const rectShape = graphic.clipRectByRect(
-    {
-      x: start[0],
-      y: start[1] - height / 2,
-      width: end[0] - start[0],
-      height,
-    },
-    {
-      x: params.coordSys.x,
-      y: params.coordSys.y,
-      width: params.coordSys.width,
-      height: params.coordSys.height,
-    },
-  )
-
-  return (
-    rectShape && {
-      type: 'rect',
-      transition: ['shape'],
-      shape: rectShape,
-      style: api.style(),
-    }
-  )
-}
-
 type ChartOption = ReturnType<ReturnType<typeof init>['getOption']>
 const chartOption = computed<ChartOption>(() => ({
   tooltip: {
@@ -202,24 +273,8 @@ const chartOption = computed<ChartOption>(() => ({
       return `${params.marker}${params.name}: ${params.value[3] <= 1 ? '<1' : params.value[3]}ms}`
     },
   },
-  legendData: {
-    top: 'center',
-    data: ['c'],
-  },
   title: {
     text: 'Waterfall',
-  },
-  visualMap: {
-    type: 'piecewise',
-    // show: false,
-    orient: 'horizontal',
-    left: 'center',
-    bottom: 10,
-    pieces: [
-
-    ],
-    seriesIndex: 1,
-    dimension: 1,
   },
   dataZoom: [
     {
@@ -250,31 +305,7 @@ const chartOption = computed<ChartOption>(() => ({
   yAxis: {
     data: options.view.waterfallStacking ? [...chartDataStacked.value.keys()].reverse() : moduleIds.value.map(([id]) => id),
   },
-  series: [
-    {
-      type: 'custom',
-      name: 'c',
-      renderItem,
-      itemStyle: {
-        opacity: 0.8,
-      },
-      encode: {
-        x: [1, 2],
-        y: 0,
-      },
-      data: options.view.waterfallStacking ? chartDataStacked.value.flat() : chartDataById.value,
-      markLine: {
-        data: hmrEvents.value.map(({ type, file, timestamp }) => ({
-          name: `${type} ${file}`,
-          xAxis: timestamp,
-        })),
-        lineStyle: {
-          color: '#f00',
-        },
-        symbol: ['none', 'none'],
-      },
-    },
-  ],
+
 }))
 
 const chartStyle = computed(() => {
@@ -282,6 +313,19 @@ const chartStyle = computed(() => {
     height: `${height.value}px`,
   }
 })
+
+function handleSelectTimeRange(group: any) {
+  if (group.nextTimestamp - group.timestamp <= 0) {
+    return
+  }
+
+  if (selectedTimeRange.value) {
+    selectedTimeRange.value.active = false
+  }
+
+  selectedTimeRange.value = group
+  selectedTimeRange.value!.active = true
+}
 </script>
 
 <template>
@@ -299,7 +343,8 @@ const chartStyle = computed(() => {
     <QuerySelector />
 
     <button text-lg icon-btn title="Pause" @click="paused = !paused">
-      <span i-carbon-pause opacity-90 :class="paused ? 'text-red' : ''" />
+      <span v-if="!paused" i-carbon-pause opacity-90 :class="paused ? 'text-red' : ''" />
+      <span v-else i-carbon-stop opacity-90 :class="paused ? 'text-red' : ''" />
     </button>
     <button text-lg icon-btn title="Show resolveId" @click="options.view.waterfallShowResolveId = !options.view.waterfallShowResolveId">
       <span i-carbon-connect-source :class="options.view.waterfallShowResolveId ? 'opacity-100' : 'opacity-25'" />
@@ -311,12 +356,99 @@ const chartStyle = computed(() => {
     <div flex-auto />
   </NavBar>
 
-  <div ref="container" h-full p4>
-    <div v-if="!Object.keys(data).length" flex="~" h-40 w-full>
-      <div ma italic op50>
-        No data
-      </div>
-    </div>
-    <VChart v-else class="w-100%" :style="chartStyle" :option="chartOption" autoresize />
+  <div ref="container" p4>
+    <WaterfallOverviewChart
+      :data="data"
+      :chart-style="chartStyle"
+      :chart-option="chartOption"
+    />
   </div>
+
+  <Splitpanes class="h-[calc(100vh-300px-84px)]" of-hidden border="t main" @resize="options.view.panelSizeModule = $event[0].size">
+    <Pane
+      :size="options.view.panelSizeModule" min-size="10"
+      flex="~ col" border="r main"
+      overflow-y-auto
+    >
+      <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
+        <span flex-auto text-center text-sm uppercase>{{ payload.query.env }} WATERFALL STACK</span>
+        <button
+          class="icon-btn" title="Toggle bailout plugins"
+          @click="options.view.showBailout = !options.view.showBailout"
+        >
+          <div :class="options.view.showBailout ? 'opacity-100 i-carbon-view' : 'opacity-75 i-carbon-view-off'" />
+        </button>
+      </div>
+      <div border="b main" />
+      <template v-for="(group) of dataGroupByTimeRange" :key="group.relativeTimestamp">
+        <button
+          border="b main"
+          flex="~ gap-1 wrap"
+          items-center px-2 py-2 text-left text-xs font-mono
+          :class="{
+            'bg-active': group.nextTimestamp - group.timestamp > 0,
+            'cursor-pointer': group.nextTimestamp - group.timestamp > 0,
+            'cursor-not-allowed': group.nextTimestamp - group.timestamp <= 0,
+            'bg-blue-500/20 border-blue-500': group?.active,
+          }"
+          @click="handleSelectTimeRange(group)"
+        >
+          <span class="fw-600">
+            <!-- <PluginName :name="group.name" /> -->
+            {{ group.type }}
+          </span>
+
+          <Badge
+            v-if="group.nextTimestamp"
+            :text="selectedTimeRange === group ? 'selected' : 'duration'"
+            :color="selectedTimeRange === group ? 200 : undefined"
+          >
+            <span flex-auto />
+            <DurationDisplay v-if="group.nextTimestamp - group.timestamp > 0" :duration="group.nextTimestamp - group.timestamp" />
+            <Badge v-else text="Empty" />
+          </Badge>
+
+          <span v-if="group.file !== 'init'" class="w-full overflow-hidden text-ellipsis text-nowrap text-xs op75">
+            {{ group.file }}
+          </span>
+
+          <!-- <Badge
+            v-if="!group.result"
+            text="bailout" saturate-0
+          />
+          <Badge
+            v-else-if="group.noChange"
+            text="no change"
+            :color="20"
+          />
+          <Badge
+            v-if="group.load"
+            text="load"
+          />
+          <Badge
+            v-if="group.order && group.order !== 'normal'"
+            :title="group.order.includes('-') ? `Using object hooks ${group.order}` : group.order"
+            :text="group.order"
+          />
+          <Badge
+            v-if="group.error"
+            text="error"
+          >
+            <span flex-auto />
+            <DurationDisplay :duration="group.end - group.start" />
+          </Badge> -->
+        </button>
+      </template>
+    </Pane>
+
+    <Pane min-size="5">
+      <div v-if="!selectedTimeRange" flex="~" h-40 w-full>
+        <div ma text-center italic op50>
+          <div>Click on a time range in the left panel</div>
+          <div>to view detailed HMR events</div>
+        </div>
+      </div>
+      <WaterfallRangeChart v-else :time-range="selectedTimeRange" />
+    </Pane>
+  </Splitpanes>
 </template>

@@ -111,7 +111,7 @@ getHot().then((hot) => {
 
 <template>
   <NavBar>
-    <RouterLink my-auto outline-none icon-btn to="/">
+    <RouterLink my-auto icon-btn outline-none to="/">
       <div i-carbon-arrow-left />
     </RouterLink>
     <ModuleId v-if="id" :id="id" />
@@ -121,7 +121,7 @@ getHot().then((hot) => {
     <template v-if="deps?.length || importers?.length">
       <div mx1 h-full w-0 border="r main" />
       <Dropdown v-if="deps?.length">
-        <button title="Dependencies" flex="~ gap-2 items-center" text-lg icon-btn>
+        <button title="Dependencies" flex="~ gap-2 items-center" icon-btn text-lg>
           <span i-carbon-downstream />
           <span line-height-1em>{{ deps.length }}</span>
         </button>
@@ -132,7 +132,7 @@ getHot().then((hot) => {
         </template>
       </Dropdown>
       <Dropdown v-if="importers?.length">
-        <button title="Importers" flex="~ gap-2 items-center" text-lg icon-btn>
+        <button title="Importers" flex="~ gap-2 items-center" icon-btn text-lg>
           <span i-carbon-upstream />
           <span line-height-1em>{{ importers.length }}</span>
         </button>
@@ -144,22 +144,22 @@ getHot().then((hot) => {
       </Dropdown>
     </template>
     <div mx1 h-full w-0 border="r main" />
-    <button text-lg icon-btn :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
+    <button icon-btn text-lg :title="sourcemaps ? 'Inspect sourcemaps' : 'Sourcemap is not available'" :disabled="!sourcemaps" @click="inspectSourcemaps({ code: to, sourcemaps })">
       <span i-carbon-choropleth-map block :class="sourcemaps ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Line Wrapping" @click="options.view.lineWrapping = !options.view.lineWrapping">
+    <button icon-btn text-lg title="Line Wrapping" @click="options.view.lineWrapping = !options.view.lineWrapping">
       <span i-carbon-text-wrap :class="options.view.lineWrapping ? 'opacity-100' : 'opacity-25'" />
     </button>
-    <button text-lg icon-btn title="Toggle one column" @click="options.view.showOneColumn = !options.view.showOneColumn">
+    <button icon-btn text-lg title="Toggle one column" @click="options.view.showOneColumn = !options.view.showOneColumn">
       <span v-if="options.view.showOneColumn" i-carbon-side-panel-open />
       <span v-else i-carbon-side-panel-close />
     </button>
-    <button class="text-lg icon-btn" title="Toggle Diff" @click="options.view.diff = !options.view.diff">
+    <button class="icon-btn text-lg" title="Toggle Diff" @click="options.view.diff = !options.view.diff">
       <span i-carbon-compare :class="options.view.diff ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button
       v-if="!payload.isStatic"
-      class="text-lg icon-btn" title="Refetch"
+      class="icon-btn text-lg" title="Refetch"
       @click="refetch(true)"
     >
       <span i-carbon-renew />
@@ -178,7 +178,7 @@ getHot().then((hot) => {
     <Splitpanes h-full of-hidden @resize="options.view.panelSizeModule = $event[0].size">
       <Pane
         :size="options.view.panelSizeModule" min-size="10"
-        flex="~ col" border="r main"
+        flex="~ col"
         overflow-y-auto
       >
         <div flex="~ gap2 items-center" p2 tracking-widest class="op75 dark:op50">
@@ -249,7 +249,6 @@ getHot().then((hot) => {
             :one-column="options.view.showOneColumn || !!currentTransform?.error"
             :diff="options.view.diff && !currentTransform?.error"
             :from="from" :to="to"
-            h-unset
           />
         </div>
       </Pane>

@@ -13,11 +13,11 @@ const hot = createHotContext('/___', `${location.pathname.split('/__inspect')[0]
 export const rpc = isStaticMode
   ? createStaticRpcClient() as BirpcReturn<RpcFunctions>
   : createRPCClient<RpcFunctions, Pick<RpcFunctions, 'onModuleUpdated'>>(
-    'vite-plugin-inspect',
-    hot,
-    {
-      async onModuleUpdated() {
-        onModuleUpdated.trigger()
+      'vite-plugin-inspect',
+      hot,
+      {
+        async onModuleUpdated() {
+          onModuleUpdated.trigger()
+        },
       },
-    },
-  )
+    )

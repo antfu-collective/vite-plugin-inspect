@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type CodeMirror from 'codemirror'
 import { Pane, Splitpanes } from 'splitpanes'
-import { nextTick, onMounted, ref, toRefs, watchEffect } from 'vue'
-import { syncCmHorizontalScrolling, useCodeMirror } from '../logic/codemirror'
+import { nextTick, onMounted, toRefs, watchEffect } from 'vue'
+import { syncEditorScrolls, syncScrollListeners, useCodeMirror } from '../logic/codemirror'
 import { guessMode } from '../logic/utils'
 import { useOptionsStore } from '../stores/options'
 import { calculateDiffWithWorker } from '../worker/diff'
@@ -17,47 +18,54 @@ const options = useOptionsStore()
 
 const { from, to } = toRefs(props)
 
-const fromEl = ref<HTMLTextAreaElement>()
-const toEl = ref<HTMLTextAreaElement>()
+const fromEl = useTemplateRef('fromEl')
+const toEl = useTemplateRef('toEl')
+
+let cm1: CodeMirror.Editor
+let cm2: CodeMirror.Editor
 
 onMounted(() => {
-  const cm1 = useCodeMirror(
+  cm1 = useCodeMirror(
     fromEl,
     from,
     {
       mode: 'javascript',
       readOnly: true,
       lineNumbers: true,
-      scrollbarStyle: 'null',
     },
   )
 
-  const cm2 = useCodeMirror(
+  cm2 = useCodeMirror(
     toEl,
     to,
     {
       mode: 'javascript',
       readOnly: true,
       lineNumbers: true,
-      scrollbarStyle: 'null',
     },
   )
 
-  syncCmHorizontalScrolling(cm1, cm2)
+  syncScrollListeners(cm1, cm2)
 
   watchEffect(() => {
     cm1.setOption('lineWrapping', options.view.lineWrapping)
     cm2.setOption('lineWrapping', options.view.lineWrapping)
   })
 
-  watchEffect(() => {
-    // @ts-expect-error untyped
-    cm1.display.wrapper.style.display = props.oneColumn ? 'none' : ''
+  watchEffect(async () => {
+    cm1.getWrapperElement().style.display = props.oneColumn ? 'none' : ''
+    if (!props.oneColumn) {
+      await nextTick()
+      // Force sync to current scroll
+      cm1.refresh()
+      syncEditorScrolls(cm2, cm1)
+    }
   })
 
   watchEffect(async () => {
     const l = from.value
     const r = to.value
+    const diffEnabled = props.diff
 
     cm1.setOption('mode', guessMode(l))
     cm2.setOption('mode', guessMode(r))
@@ -75,7 +83,7 @@ onMounted(() => {
     for (let i = 0; i < cm2.lineCount() + 2; i++)
       cm2.removeLineClass(i, 'background', 'diff-added')
 
-    if (props.diff && from.value) {
+    if (diffEnabled && from.value) {
       const changes = await calculateDiffWithWorker(l, r)
 
       const addedLines = new Set()
@@ -124,6 +132,9 @@ const leftPanelSize = computed(() => {
 })
 
 function onUpdate(size: number) {
+  // Refresh sizes
+  cm1?.refresh()
+  cm2?.refresh()
   if (props.oneColumn)
     return
   options.view.panelSizeDiff = size
@@ -132,11 +143,11 @@ function onUpdate(size: number) {
 
 <template>
   <Splitpanes @resize="onUpdate($event[0].size)">
-    <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize" class="h-max min-h-screen" border="main r">
-      <textarea ref="fromEl" v-text="from" />
+    <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize">
+      <div ref="fromEl" class="h-inherit" />
     </Pane>
-    <Pane min-size="10" :size="100 - leftPanelSize" class="h-max min-h-screen">
-      <textarea ref="toEl" v-text="to" />
+    <Pane min-size="10" :size="100 - leftPanelSize">
+      <div ref="toEl" class="h-inherit" />
     </Pane>
   </Splitpanes>
 </template>
