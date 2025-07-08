@@ -223,6 +223,8 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
             await buildGenerator.generateForEnv(pluginCtx)
           },
           async onLast(pluginCtx) {
+            await buildGenerator.generateMetadata()
+
             const dir = buildGenerator.getOutputDir()
             pluginCtx.environment.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(dir)}`)
             if (_open && !isCI)
