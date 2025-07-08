@@ -64,10 +64,6 @@ export function createBuildGenerator(ctx: InspectContext) {
               'data-vite-inspect-mode="BUILD"',
             ),
         ),
-        writeJSON(
-          join(reportsDir, 'metadata.json'),
-          ctx.getMetadata(),
-        ),
       ])
     },
     async generateForEnv(pluginCtx: Rollup.PluginContext) {
@@ -101,6 +97,12 @@ export function createBuildGenerator(ctx: InspectContext) {
               )),
           ])
         }),
+      )
+    },
+    async generateMetadata() {
+      await writeJSON(
+        join(reportsDir, 'metadata.json'),
+        ctx.getMetadata(),
       )
     },
   }
