@@ -175,7 +175,7 @@ getHot().then((hot) => {
     v-else-if="info && filteredTransforms"
     flex overflow-hidden
   >
-    <Splitpanes h-full of-hidden @resize="options.view.panelSizeModule = $event[0].size">
+    <Splitpanes h-full of-hidden @resize="options.view.panelSizeModule = $event.prevPane.size">
       <Pane
         :size="options.view.panelSizeModule" min-size="10"
         flex="~ col"
