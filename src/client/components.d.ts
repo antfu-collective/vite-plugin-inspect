@@ -30,5 +30,7 @@ declare module 'vue' {
     SearchBox: typeof import('./components/SearchBox.vue')['default']
     SegmentControl: typeof import('./components/SegmentControl.vue')['default']
     ServerChart: typeof import('./components/ServerChart.vue')['default']
+    WaterfallOverviewChart: typeof import('./components/WaterfallOverviewChart.vue')['default']
+    WaterfallRangeChart: typeof import('./components/WaterfallRangeChart.vue')['default']
   }
 }

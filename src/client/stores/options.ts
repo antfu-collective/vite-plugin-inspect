@@ -12,6 +12,8 @@ export interface ViewState {
   showBailout: boolean
   showOneColumn: boolean
   sort: 'default' | 'time-asc' | 'time-desc'
+  waterfallShowResolveId: boolean
+  waterfallStacking: boolean
 }
 
 export interface SearchState {
@@ -37,6 +39,8 @@ export const useOptionsStore = defineStore('options', () => {
       showBailout: false,
       showOneColumn: false,
       sort: 'default',
+      waterfallShowResolveId: true,
+      waterfallStacking: true,
     },
     { mergeDefaults: true },
   )

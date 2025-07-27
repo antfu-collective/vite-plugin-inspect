@@ -22,5 +22,8 @@ export function createStaticRpcClient(): RpcFunctions {
     resolveId: (query, id) => getModuleTransformInfo(query, id).then(r => r.resolvedId),
     onModuleUpdated: async () => undefined,
     getServerMetrics: async () => ({}),
+    getWaterfallInfo: async () => ({}),
+    getHmrEvents: async () => [],
+    list: () => null!,
   }
 }
