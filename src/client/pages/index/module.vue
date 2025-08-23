@@ -245,7 +245,6 @@ getHot().then((hot) => {
           />
           <DiffEditor
             v-else
-            :key="id"
             :one-column="options.view.showOneColumn || !!currentTransform?.error"
             :diff="options.view.diff && !currentTransform?.error"
             :from="from" :to="to"
