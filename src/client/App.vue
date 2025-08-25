@@ -12,7 +12,7 @@ await payload.init()
 </script>
 
 <template>
-  <main grid="~ rows-[min-content_1fr]" size="h-screen w-screen">
+  <main grid="~ rows-[min-content_1fr]" size="h-full w-screen">
     <Suspense>
       <RouterView />
       <template #fallback>

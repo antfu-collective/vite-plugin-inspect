@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[calc(100vh-55px)]">
+  <div class="h-full">
     <slot />
   </div>
 </template>
