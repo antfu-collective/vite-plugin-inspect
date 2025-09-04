@@ -25,7 +25,7 @@ catalogs:
     unplugin-auto-import: ^20.0.0
     unplugin-vue-components: ^29.0.0
     unplugin-vue-router: ^0.15.0
-    vite: npm:rolldown-vite@6.3.0-beta.5
+    vite: ^6.3.0
     vue-tsc: ^3.0.6
   frontend:
     '@vueuse/core': ^13.7.0
