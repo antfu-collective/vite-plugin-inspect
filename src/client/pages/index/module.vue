@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HMRData, ModuleInfo } from '../../../types'
+import { onKeyDown } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { Dropdown } from 'floating-vue'
 import { Pane, Splitpanes } from 'splitpanes'
@@ -106,6 +107,16 @@ getHot().then((hot) => {
         refetch()
     })
   }
+})
+
+const router = useRouter()
+onKeyDown('Escape', (e) => {
+  e.preventDefault()
+
+  if (!e.isTrusted || e.repeat)
+    return
+
+  router.back()
 })
 </script>
 
