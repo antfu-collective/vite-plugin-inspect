@@ -53,6 +53,7 @@
     }
   },
   "dependencies": {
+    "@vitejs/devtools-kit": "catalog:prod",
     "ansis": "catalog:prod",
     "error-stack-parser-es": "catalog:prod",
     "obug": "catalog:prod",
@@ -60,8 +61,7 @@
     "open": "catalog:prod",
     "perfect-debounce": "catalog:frontend",
     "sirv": "catalog:prod",
-    "unplugin-utils": "catalog:prod",
-    "vite-dev-rpc": "catalog:frontend"
+    "unplugin-utils": "catalog:prod"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",
@@ -73,6 +73,7 @@
     "@types/node": "catalog:dev",
     "@unocss/eslint-config": "catalog:dev",
     "@unocss/eslint-plugin": "catalog:dev",
+    "@vitejs/devtools": "catalog:dev",
     "@vitejs/plugin-vue": "catalog:dev",
     "@vue/compiler-sfc": "catalog:dev",
     "@vueuse/core": "catalog:frontend",
@@ -101,7 +102,6 @@
     "vis-data": "catalog:frontend",
     "vis-network": "catalog:frontend",
     "vite": "catalog:dev",
-    "vite-hot-client": "catalog:frontend",
     "vue": "catalog:frontend",
     "vue-echarts": "catalog:frontend",
     "vue-router": "catalog:frontend",

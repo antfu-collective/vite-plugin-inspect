@@ -12,6 +12,7 @@ export default defineBuildConfig({
     'vite',
     '@nuxt/kit',
     '@nuxt/schema',
+    '@vitejs/devtools-kit',
   ],
   rollup: {
     inlineDependencies: [

@@ -10,6 +10,7 @@ catalogs:
     '@types/node': ^24.10.1
     '@unocss/eslint-config': ^66.5.7
     '@unocss/eslint-plugin': ^66.5.7
+    '@vitejs/devtools': ^0.0.0-alpha.26
     '@vitejs/plugin-vue': ^6.0.2
     '@vue/compiler-sfc': ^3.5.24
     bumpp: ^10.3.1
@@ -43,13 +44,12 @@ catalogs:
     splitpanes: ^4.0.4
     vis-data: ^8.0.3
     vis-network: ^10.0.2
-    vite-dev-rpc: ^1.1.0
-    vite-hot-client: ^2.1.0
     vue: ^3.5.24
     vue-echarts: ^8.0.1
     vue-router: ^4.6.3
   prod:
     '@nuxt/kit': ^4.2.1
+    '@vitejs/devtools-kit': ^0.0.0-alpha.26
     ansis: ^4.2.0
     error-stack-parser-es: ^1.0.5
     obug: ^2.0.0

@@ -1,35 +1,25 @@
 import type { Connect, Plugin, Rollup, ViteDevServer } from 'vite'
-import type { HMRData, RpcFunctions } from '../types'
+import type { HMRData } from '../types'
 import type { InspectContextVite } from './context'
 import type { ViteInspectOptions } from './options'
-import process from 'node:process'
 import c from 'ansis'
 import { debounce } from 'perfect-debounce'
 import sirv from 'sirv'
-import { createRPCServer } from 'vite-dev-rpc'
 import { DIR_CLIENT } from '../dirs'
 import { createBuildGenerator, createEnvOrderHooks } from './build'
 import { InspectContext } from './context'
 import { hijackPlugin } from './hijack'
-import { createPreviewServer } from './preview'
-import { createServerRpc } from './rpc'
-import { openBrowser } from './utils'
+import { createDevToolsRpcFunctions } from './rpc-devtools'
+import './devtools-types'
 
 export * from './options'
 
 const NAME = 'vite-plugin-inspect'
-const isCI = !!process.env.CI
-
-export interface ViteInspectAPI {
-  rpc: RpcFunctions
-}
 
 export default function PluginInspect(options: ViteInspectOptions = {}): Plugin {
   const {
     dev = true,
     build = false,
-    silent = false,
-    open: _open = false,
   } = options
 
   if (!dev && !build) {
@@ -103,8 +93,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
     })
   }
 
-  function configureServer(server: ViteDevServer): RpcFunctions {
-    const config = server.config
+  function configureServer(server: ViteDevServer) {
     Object.values(server.environments)
       .forEach((env) => {
         const envCtx = ctx.getEnvContext(env)!
@@ -123,62 +112,48 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       single: true,
       dev: true,
     }))
+  }
 
-    const rpc = createServerRpc(ctx)
+  function setupDevTools(ctx: InspectContext, base: string) {
+    return {
+      async setup(devtoolsCtx: any) {
+        // Register RPC functions
+        const rpcFunctions = createDevToolsRpcFunctions(ctx)
+        rpcFunctions.forEach(fn => devtoolsCtx.rpc.register(fn))
 
-    const rpcServer = createRPCServer<RpcFunctions, any>(
-      'vite-plugin-inspect',
-      server.ws,
-      rpc,
-    )
-
-    const debouncedModuleUpdated = debounce(() => {
-      rpcServer.onModuleUpdated.asEvent()
-    }, 100)
-
-    server.middlewares.use((req, res, next) => {
-      debouncedModuleUpdated()
-      next()
-    })
-
-    const _print = server.printUrls
-    server.printUrls = () => {
-      let host = `${config.server.https ? 'https' : 'http'}://localhost:${config.server.port || '80'}`
-
-      const url = server.resolvedUrls?.local[0]
-
-      if (url) {
-        try {
-          const u = new URL(url)
-          host = `${u.protocol}//${u.host}`
+        // Register dock entry (only when in DevTools mode)
+        if (devtoolsCtx.docks) {
+          devtoolsCtx.docks.register({
+            id: 'vite-plugin-inspect',
+            title: 'Inspect',
+            icon: 'ph:magnifying-glass-duotone',
+            type: 'iframe',
+            url: `${base}__inspect/`,
+          })
         }
-        catch (error) {
-          config.logger.warn(`Parse resolved url failed: ${error}`)
+
+        // Setup module update broadcast
+        if (devtoolsCtx.viteServer) {
+          const debouncedBroadcast = debounce(() => {
+            devtoolsCtx.rpc.broadcast({
+              method: 'inspect:onModuleUpdated',
+              args: [],
+            })
+          }, 100)
+
+          devtoolsCtx.viteServer.middlewares.use((req: any, res: any, next: any) => {
+            debouncedBroadcast()
+            next()
+          })
         }
-      }
-
-      _print()
-
-      if (!silent) {
-        const colorUrl = (url: string) => c.green(url.replace(/:(\d+)\//, (_, port) => `:${c.bold(port)}/`))
-
-        config.logger.info(`  ${c.green('➜')}  ${c.bold('Inspect')}: ${colorUrl(`${host}${base}__inspect/`)}`)
-      }
-
-      if (_open && !isCI) {
-        // a delay is added to ensure the app page is opened first
-        setTimeout(() => {
-          openBrowser(`${host}${base}__inspect/`)
-        }, 500)
-      }
+      },
     }
-
-    return rpc
   }
 
   const plugin = <Plugin>{
     name: NAME,
     enforce: 'pre',
+    devtools: setupDevTools(ctx, options.base || '/'),
     apply(_, { command }) {
       if (command === 'serve' && dev)
         return true
@@ -227,17 +202,12 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
             const dir = buildGenerator.getOutputDir()
             pluginCtx.environment.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(dir)}`)
-            if (_open && !isCI)
-              createPreviewServer(dir)
           },
         })
       }
     },
     configureServer(server) {
-      const rpc = configureServer(server)
-      plugin.api = {
-        rpc,
-      }
+      configureServer(server)
 
       return () => {
         setupMiddlewarePerf(

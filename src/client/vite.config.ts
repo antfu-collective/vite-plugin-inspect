@@ -1,4 +1,5 @@
 import { join, resolve } from 'node:path'
+import { DevTools } from '@vitejs/devtools'
 import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -18,6 +19,7 @@ export default defineConfig({
   },
 
   plugins: [
+    DevTools(),
     {
       name: 'local:object-hook-transform',
       transform: {

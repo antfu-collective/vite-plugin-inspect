@@ -1,23 +1,32 @@
 import type { BirpcReturn } from 'birpc'
 import type { RpcFunctions } from '../../types'
-import { createRPCClient } from 'vite-dev-rpc'
-import { createHotContext } from 'vite-hot-client'
+import { createDevToolsRpcClient } from './rpc-devtools'
 import { createStaticRpcClient } from './rpc-static'
 
 export const onModuleUpdated = createEventHook<void>()
 
+// Mode detection
 export const isStaticMode = document.body.getAttribute('data-vite-inspect-mode') === 'BUILD'
 
-const hot = createHotContext('/___', `${location.pathname.split('/__inspect')[0] || ''}/`.replace(/\/\//g, '/'))
+// Create RPC client based on mode
+let rpcClientPromise: Promise<BirpcReturn<RpcFunctions>> | null = null
 
-export const rpc = isStaticMode
-  ? createStaticRpcClient() as BirpcReturn<RpcFunctions>
-  : createRPCClient<RpcFunctions, Pick<RpcFunctions, 'onModuleUpdated'>>(
-      'vite-plugin-inspect',
-      hot,
-      {
-        async onModuleUpdated() {
-          onModuleUpdated.trigger()
-        },
-      },
-    )
+function getRpcClient(): Promise<BirpcReturn<RpcFunctions>> {
+  if (!rpcClientPromise) {
+    rpcClientPromise = (async () => {
+      // Build mode: use static JSON files
+      if (isStaticMode) {
+        return createStaticRpcClient() as BirpcReturn<RpcFunctions>
+      }
+
+      // Dev mode: always use DevTools RPC (works in both standalone and iframe modes)
+      return await createDevToolsRpcClient(() => {
+        onModuleUpdated.trigger()
+      })
+    })()
+  }
+  return rpcClientPromise
+}
+
+// eslint-disable-next-line antfu/no-top-level-await
+export const rpc = await getRpcClient()

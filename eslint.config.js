@@ -4,6 +4,11 @@ export default antfu(
   {
     unocss: true,
     pnpm: true,
+    ignores: [
+      '.agents/**',
+      '.claude/**',
+      '.cursor/**',
+    ],
   },
   {
     rules: {
