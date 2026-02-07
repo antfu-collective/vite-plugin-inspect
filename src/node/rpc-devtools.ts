@@ -4,7 +4,7 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export function createDevToolsRpcFunctions(ctx: InspectContext) {
   return [
     defineRpcFunction({
-      name: 'inspect:getMetadata',
+      name: 'vite-plugin-inspect:getMetadata',
       type: 'query',
       setup: () => ({
         handler: async () => ctx.getMetadata(),
@@ -12,7 +12,7 @@ export function createDevToolsRpcFunctions(ctx: InspectContext) {
     }),
 
     defineRpcFunction({
-      name: 'inspect:getModulesList',
+      name: 'vite-plugin-inspect:getModulesList',
       type: 'query',
       setup: () => ({
         handler: async query => ctx.queryEnv(query).getModulesList(),
@@ -20,7 +20,7 @@ export function createDevToolsRpcFunctions(ctx: InspectContext) {
     }),
 
     defineRpcFunction({
-      name: 'inspect:getPluginMetrics',
+      name: 'vite-plugin-inspect:getPluginMetrics',
       type: 'query',
       setup: () => ({
         handler: async query => ctx.queryEnv(query).getPluginMetrics(),
@@ -28,7 +28,7 @@ export function createDevToolsRpcFunctions(ctx: InspectContext) {
     }),
 
     defineRpcFunction({
-      name: 'inspect:getModuleTransformInfo',
+      name: 'vite-plugin-inspect:getModuleTransformInfo',
       type: 'query',
       setup: () => ({
         handler: async (query, id, clear) =>
@@ -37,7 +37,7 @@ export function createDevToolsRpcFunctions(ctx: InspectContext) {
     }),
 
     defineRpcFunction({
-      name: 'inspect:resolveId',
+      name: 'vite-plugin-inspect:resolveId',
       type: 'query',
       setup: () => ({
         handler: async (query, id) => ctx.queryEnv(query).resolveId(id),
@@ -45,7 +45,7 @@ export function createDevToolsRpcFunctions(ctx: InspectContext) {
     }),
 
     defineRpcFunction({
-      name: 'inspect:getServerMetrics',
+      name: 'vite-plugin-inspect:getServerMetrics',
       type: 'query',
       setup: () => ({
         handler: async query =>

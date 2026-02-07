@@ -136,7 +136,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
         if (devtoolsCtx.viteServer) {
           const debouncedBroadcast = debounce(() => {
             devtoolsCtx.rpc.broadcast({
-              method: 'inspect:onModuleUpdated',
+              method: 'vite-plugin-inspect:onModuleUpdated',
               args: [],
             })
           }, 100)
