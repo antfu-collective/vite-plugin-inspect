@@ -7,7 +7,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "types": [
-      "unplugin-vue-router/client",
+      "vue-router/client",
       "vite/client"
     ],
     "strict": true,

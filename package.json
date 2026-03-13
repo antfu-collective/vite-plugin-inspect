@@ -100,7 +100,6 @@
     "unocss": "catalog:dev",
     "unplugin-auto-import": "catalog:dev",
     "unplugin-vue-components": "catalog:dev",
-    "unplugin-vue-router": "catalog:dev",
     "vis-data": "catalog:frontend",
     "vis-network": "catalog:frontend",
     "vite": "catalog:dev",

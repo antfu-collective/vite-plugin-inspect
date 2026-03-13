@@ -24,7 +24,6 @@ catalogs:
     unocss: ^66.6.6
     unplugin-auto-import: ^21.0.0
     unplugin-vue-components: ^31.0.0
-    unplugin-vue-router: ^0.17.2
     vite: ^8.0.0
     skills-npm: ^1.1.0
     vue-tsc: ^3.2.5
