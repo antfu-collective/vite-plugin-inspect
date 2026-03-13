@@ -2,34 +2,35 @@ packages:
   - playground
 catalogs:
   dev:
-    '@antfu/eslint-config': ^6.7.3
-    '@antfu/ni': ^27.0.1
+    '@antfu/eslint-config': ^7.7.2
+    '@antfu/ni': ^28.3.0
     '@antfu/utils': ^9.3.0
-    '@iconify/json': ^2.2.436
+    '@iconify/json': ^2.2.449
     '@types/codemirror': ^5.60.17
-    '@types/node': ^24.10.11
-    '@unocss/eslint-config': ^66.6.0
-    '@unocss/eslint-plugin': ^66.6.0
-    '@vitejs/devtools': ^0.0.0-alpha.26
-    '@vitejs/plugin-vue': ^6.0.4
-    '@vue/compiler-sfc': ^3.5.27
+    '@types/node': ^25.5.0
+    '@unocss/eslint-config': ^66.6.6
+    '@unocss/eslint-plugin': ^66.6.6
+    '@vitejs/devtools': ^0.1.0
+    '@vitejs/plugin-vue': ^6.0.5
+    '@vue/compiler-sfc': ^3.5.30
     bumpp: ^10.4.1
-    eslint: ^9.39.2
-    lint-staged: ^16.2.7
+    eslint: ^10.0.3
+    lint-staged: ^16.3.3
     premove: ^4.0.0
-    serve: ^14.2.5
+    serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.3
     unbuild: ^3.6.1
-    unocss: ^66.6.0
-    unplugin-auto-import: ^20.3.0
-    unplugin-vue-components: ^30.0.0
+    unocss: ^66.6.6
+    unplugin-auto-import: ^21.0.0
+    unplugin-vue-components: ^31.0.0
     unplugin-vue-router: ^0.17.2
-    vite: ^7.3.1
-    vue-tsc: ^3.2.4
+    vite: ^8.0.0
+    skills-npm: ^1.1.0
+    vue-tsc: ^3.2.5
   frontend:
-    '@vueuse/core': ^14.2.0
-    '@vueuse/router': ^14.2.0
+    '@vueuse/core': ^14.2.1
+    '@vueuse/router': ^14.2.1
     codemirror: ^5.65.16
     codemirror-theme-vars: ^0.1.2
     comlink: ^4.4.2
@@ -44,12 +45,12 @@ catalogs:
     splitpanes: ^4.0.4
     vis-data: ^8.0.3
     vis-network: ^10.0.2
-    vue: ^3.5.27
+    vue: ^3.5.30
     vue-echarts: ^8.0.1
-    vue-router: ^4.6.4
+    vue-router: ^5.0.3
   prod:
-    '@nuxt/kit': ^4.3.0
-    '@vitejs/devtools-kit': ^0.0.0-alpha.26
+    '@nuxt/kit': ^4.4.2
+    '@vitejs/devtools-kit': ^0.1.0
     ansis: ^4.2.0
     error-stack-parser-es: ^1.0.5
     obug: ^2.1.1
@@ -61,5 +62,3 @@ onlyBuiltDependencies:
   - simple-git-hooks
   - unrs-resolver
   - vue-demi
-catalog:
-  skills-npm: ^0.1.0
