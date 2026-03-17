@@ -29,7 +29,7 @@ const payload = usePayloadStore()
 const metrics = ref(await rpc.getServerMetrics(payload.query))
 
 function getMiddlewareTotalTime(m: { total: number }[]) {
-  return m[m.length - 1].total
+  return m.at(-1)?.total || 0
 }
 
 const middlewareYData = computed(() => {

@@ -23,19 +23,17 @@ export class InspectContext {
 
   getMetadata(): Metadata {
     return {
-      instances: [...this._idToInstances.values()]
-        .map(vite => ({
-          root: vite.config.root,
-          vite: vite.id,
-          plugins: vite.config.plugins.map(i => serializePlugin(i)),
-          environments: [...vite.environments.keys()],
-          environmentPlugins: Object.fromEntries(
-            [...vite.environments.entries()]
-              .map(([name, env]) => {
-                return [name, env.env.getTopLevelConfig().plugins.map(i => vite.config.plugins.indexOf(i))]
-              }),
-          ),
-        })),
+      instances: Array.from(this._idToInstances.values(), vite => ({
+        root: vite.config.root,
+        vite: vite.id,
+        plugins: vite.config.plugins.map(i => serializePlugin(i)),
+        environments: [...vite.environments.keys()],
+        environmentPlugins: Object.fromEntries(
+          Array.from(vite.environments.entries(), ([name, env]) => {
+            return [name, env.env.getTopLevelConfig().plugins.map(i => vite.config.plugins.indexOf(i))]
+          }),
+        ),
+      })),
       embedded: this.options.embedded,
     }
   }
@@ -223,7 +221,7 @@ export class InspectContextViteEnv {
         totalTime,
         invokeCount: this.data.transformCounter?.[id] || 0,
         sourceSize: getSize(this.data.transform[id]?.[0]?.result),
-        distSize: getSize(this.data.transform[id]?.[this.data.transform[id].length - 1]?.result),
+        distSize: getSize(this.data.transform[id].at(-1)?.result),
       }
     })
   }

@@ -10,9 +10,8 @@ export default antfu(
       '.cursor/**',
     ],
   },
-  {
-    rules: {
-      'vue/no-v-text-v-html-on-component': 'off',
-    },
-  },
 )
+  .removeRules(
+    'vue/no-v-text-v-html-on-component',
+    'e18e/prefer-static-regex',
+  )

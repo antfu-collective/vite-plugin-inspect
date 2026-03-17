@@ -74,7 +74,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
             // middleware selfTime = totalTime - next.totalTime
             ctx.data.serverMetrics.middleware![url].push({
-              self: metrics.length ? Math.max(total - metrics[metrics.length - 1].total, 0) : total,
+              self: metrics.length ? Math.max(total - (metrics.at(-1)?.total || 0), 0) : total,
               total,
               name: originalHandle.name,
             })

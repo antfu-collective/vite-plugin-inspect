@@ -1,31 +1,39 @@
+ignoreWorkspaceRootCheck: true
+shamefullyHoist: true
+strictPeerDependencies: false
+sideEffectsCache: false
+shellEmulator: true
+trustPolicy: no-downgrade
+
 packages:
   - playground
 catalogs:
   dev:
-    '@antfu/eslint-config': ^7.7.2
-    '@antfu/ni': ^28.3.0
+    '@antfu/eslint-config': ^7.7.3
+    '@antfu/ni': ^29.0.0
     '@antfu/utils': ^9.3.0
-    '@iconify/json': ^2.2.449
+    '@iconify/json': ^2.2.450
+    '@playwright/test': ^1.58.2
     '@types/codemirror': ^5.60.17
     '@types/node': ^25.5.0
     '@unocss/eslint-config': ^66.6.6
     '@unocss/eslint-plugin': ^66.6.6
-    '@vitejs/devtools': ^0.1.0
+    '@vitejs/devtools': ^0.1.2
     '@vitejs/plugin-vue': ^6.0.5
     '@vue/compiler-sfc': ^3.5.30
-    bumpp: ^10.4.1
+    bumpp: ^11.0.1
     eslint: ^10.0.3
-    lint-staged: ^16.3.3
+    lint-staged: ^16.4.0
     premove: ^4.0.0
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
+    skills-npm: ^1.1.0
     typescript: ^5.9.3
     unbuild: ^3.6.1
     unocss: ^66.6.6
     unplugin-auto-import: ^21.0.0
     unplugin-vue-components: ^31.0.0
     vite: ^8.0.0
-    skills-npm: ^1.1.0
     vue-tsc: ^3.2.5
   frontend:
     '@vueuse/core': ^14.2.1
@@ -49,7 +57,7 @@ catalogs:
     vue-router: ^5.0.3
   prod:
     '@nuxt/kit': ^4.4.2
-    '@vitejs/devtools-kit': ^0.1.0
+    '@vitejs/devtools-kit': ^0.1.2
     ansis: ^4.2.0
     error-stack-parser-es: ^1.0.5
     obug: ^2.1.1

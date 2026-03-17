@@ -29,7 +29,7 @@ const relativePath = computed(() => {
     relate = `./${relate}`
   if (relate.startsWith('./'))
     return relate
-  if (relate.match(/^(?:\.\.\/){1,3}[^.]/))
+  if (/^(?:\.\.\/){1,3}[^.]/.test(relate))
     return relate
   return props.id
 })
@@ -50,7 +50,7 @@ const HighlightedPath = defineComponent({
         type = 'query'
 
       if (type === 'start') {
-        if (part.match(/^\.+$/)) {
+        if (/^\.+$/.test(part)) {
           _class.push('op50')
         }
         else if (part === '/') {
@@ -62,7 +62,7 @@ const HighlightedPath = defineComponent({
       }
 
       if (type === 'path') {
-        if (part === '/' || part === 'node_modules' || part.match(/^\.\w/)) {
+        if (part === '/' || part === 'node_modules' || /^\.\w/.test(part)) {
           _class.push('op75')
         }
         if (part === '.pnpm') {

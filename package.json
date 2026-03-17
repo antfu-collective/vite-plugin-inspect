@@ -41,6 +41,7 @@
     "prepare": "simple-git-hooks && skills-npm",
     "stub": "unbuild --stub",
     "lint": "eslint .",
+    "test:e2e": "playwright test",
     "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "pnpm run build",
     "release": "bumpp"
@@ -70,6 +71,7 @@
     "@antfu/utils": "catalog:dev",
     "@iconify/json": "catalog:dev",
     "@nuxt/kit": "catalog:prod",
+    "@playwright/test": "catalog:dev",
     "@types/codemirror": "catalog:dev",
     "@types/node": "catalog:dev",
     "@unocss/eslint-config": "catalog:dev",
@@ -93,7 +95,7 @@
     "pinia": "catalog:frontend",
     "premove": "catalog:dev",
     "simple-git-hooks": "catalog:dev",
-    "skills-npm": "^1.1.0",
+    "skills-npm": "catalog:dev",
     "splitpanes": "catalog:frontend",
     "typescript": "catalog:dev",
     "unbuild": "catalog:dev",
@@ -109,6 +111,8 @@
     "vue-tsc": "catalog:dev"
   },
   "resolutions": {
+    "@vitejs/devtools": "catalog:dev",
+    "@vitejs/devtools-kit": "catalog:prod",
     "vite": "catalog:dev"
   },
   "simple-git-hooks": {

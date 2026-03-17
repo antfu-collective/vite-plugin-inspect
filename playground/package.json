@@ -14,6 +14,7 @@
     "vue-router": "catalog:frontend"
   },
   "devDependencies": {
+    "@vitejs/devtools": "catalog:dev",
     "@vitejs/plugin-vue": "catalog:dev",
     "serve": "catalog:dev",
     "typescript": "catalog:dev",

@@ -1,3 +1,4 @@
+import { DevTools } from '@vitejs/devtools'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
@@ -8,6 +9,7 @@ export default defineConfig({
     open: true,
   },
   plugins: [
+    DevTools(),
     vue(),
     {
       name: 'custom-loader',
