@@ -86,6 +86,7 @@ src/client/public/assets/fonts
 
 # Agent skills from npm packages (managed by skills-npm)
 **/skills/npm-*
+**/skills
 
 test-results/
 playwright-report/
