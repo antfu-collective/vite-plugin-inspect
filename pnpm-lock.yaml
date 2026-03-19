@@ -33,6 +33,9 @@ catalogs:
     '@unocss/eslint-plugin':
       specifier: ^66.6.6
       version: 66.6.6
+    '@unocss/reset':
+      specifier: ^66.6.7
+      version: 66.6.7
     '@vitejs/plugin-vue':
       specifier: ^6.0.5
       version: 6.0.5
@@ -226,6 +229,9 @@ importers:
       '@unocss/eslint-plugin':
         specifier: catalog:dev
         version: 66.6.6(eslint@10.0.3(jiti@2.6.1))(typescript@5.9.3)
+      '@unocss/reset':
+        specifier: catalog:dev
+        version: 66.6.7
       '@vitejs/devtools':
         specifier: ^0.1.2
         version: 0.1.2(@pnpm/logger@1001.0.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))
@@ -1588,6 +1594,9 @@ packages:
 
   '@unocss/preset-wind@66.6.6':
     resolution: {integrity: sha512-TMy3lZ35FP/4QqDHOLWZmV+RoOGWUDqnDEOTjOKI1CQARGta0ppUmq+IZMuI1ZJLuOa4OZ9V6SfnwMXwRLgXmw==}
+
+  '@unocss/reset@66.6.7':
+    resolution: {integrity: sha512-+OjpLDEaPmhTQ3Gj7EaKApNM92TM9f9gLgHNa79+66wIll9IfhKfEmJXnF9y1SE725n4PmPIQgC9k313HztMLA==}
 
   '@unocss/rule-utils@66.6.6':
     resolution: {integrity: sha512-krWtQKGshOaqQMuxeGq1NOA8NL35VdpYlmQEWOe39BY6TACT51bgQFu40MRfsAIMZZtoGS2YYTrnHojgR92omw==}
@@ -5347,6 +5356,8 @@ snapshots:
     dependencies:
       '@unocss/core': 66.6.6
       '@unocss/preset-wind3': 66.6.6
+
+  '@unocss/reset@66.6.7': {}
 
   '@unocss/rule-utils@66.6.6':
     dependencies:

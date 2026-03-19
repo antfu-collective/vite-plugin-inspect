@@ -76,6 +76,7 @@
     "@types/node": "catalog:dev",
     "@unocss/eslint-config": "catalog:dev",
     "@unocss/eslint-plugin": "catalog:dev",
+    "@unocss/reset": "catalog:dev",
     "@vitejs/devtools": "catalog:dev",
     "@vitejs/plugin-vue": "catalog:dev",
     "@vue/compiler-sfc": "catalog:dev",
