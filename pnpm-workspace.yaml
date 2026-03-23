@@ -18,8 +18,8 @@ catalogs:
     premove: ^4.0.0
     serve: ^14.2.5
     simple-git-hooks: ^2.13.1
+    tsdown: ^0.21.4
     typescript: ^5.9.3
-    unbuild: ^3.6.1
     unocss: ^66.5.7
     unplugin-auto-import: ^20.2.0
     unplugin-vue-components: ^30.0.0

@@ -23,9 +23,9 @@
     "./nuxt": "./dist/nuxt.mjs",
     "./*": "./*"
   },
-  "main": "dist/index.mjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.mts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "files": [
     "dist"
   ],
@@ -35,10 +35,10 @@
   "scripts": {
     "build": "premove dist && pnpm run --sequential /^build:/",
     "build:client": "vite build src/client",
-    "build:js": "unbuild",
-    "dev": "nr stub && INSPECT_DEV=true vite src/client",
+    "build:js": "tsdown",
+    "dev": "pnpm build:client && INSPECT_DEV=true vite src/client",
     "dev:client": "vite build src/client --watch",
-    "stub": "unbuild --stub",
+    "watch": "tsdown --watch",
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "pnpm run build",
@@ -92,8 +92,8 @@
     "premove": "catalog:dev",
     "simple-git-hooks": "catalog:dev",
     "splitpanes": "catalog:frontend",
+    "tsdown": "catalog:dev",
     "typescript": "catalog:dev",
-    "unbuild": "catalog:dev",
     "unocss": "catalog:dev",
     "unplugin-auto-import": "catalog:dev",
     "unplugin-vue-components": "catalog:dev",
