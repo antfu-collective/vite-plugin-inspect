@@ -10,20 +10,20 @@ packages:
 catalogs:
   dev:
     '@antfu/eslint-config': ^7.7.3
-    '@antfu/ni': ^29.0.0
+    '@antfu/ni': ^30.0.0
     '@antfu/utils': ^9.3.0
-    '@iconify/json': ^2.2.450
+    '@iconify/json': ^2.2.454
     '@playwright/test': ^1.58.2
     '@types/codemirror': ^5.60.17
     '@types/node': ^25.5.0
-    '@unocss/eslint-config': ^66.6.6
-    '@unocss/eslint-plugin': ^66.6.6
+    '@unocss/eslint-config': ^66.6.7
+    '@unocss/eslint-plugin': ^66.6.7
     '@unocss/reset': ^66.6.7
-    '@vitejs/devtools': ^0.1.2
+    '@vitejs/devtools': ^0.1.9
     '@vitejs/plugin-vue': ^6.0.5
     '@vue/compiler-sfc': ^3.5.30
     bumpp: ^11.0.1
-    eslint: ^10.0.3
+    eslint: ^10.1.0
     lint-staged: ^16.4.0
     premove: ^4.0.0
     serve: ^14.2.6
@@ -31,11 +31,11 @@ catalogs:
     skills-npm: ^1.1.0
     typescript: ^5.9.3
     unbuild: ^3.6.1
-    unocss: ^66.6.6
+    unocss: ^66.6.7
     unplugin-auto-import: ^21.0.0
-    unplugin-vue-components: ^31.0.0
-    vite: ^8.0.0
-    vue-tsc: ^3.2.5
+    unplugin-vue-components: ^32.0.0
+    vite: ^8.0.2
+    vue-tsc: ^3.2.6
   frontend:
     '@vueuse/core': ^14.2.1
     '@vueuse/router': ^14.2.1
@@ -55,10 +55,10 @@ catalogs:
     vis-network: ^10.0.2
     vue: ^3.5.30
     vue-echarts: ^8.0.1
-    vue-router: ^5.0.3
+    vue-router: ^5.0.4
   prod:
     '@nuxt/kit': ^4.4.2
-    '@vitejs/devtools-kit': ^0.1.2
+    '@vitejs/devtools-kit': ^0.1.9
     ansis: ^4.2.0
     error-stack-parser-es: ^1.0.5
     obug: ^2.1.1
