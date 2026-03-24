@@ -14,7 +14,7 @@ export default defineConfig({
     env: {
       VITE_DEVTOOLS_DISABLE_CLIENT_AUTH: 'true',
     },
-    url: 'http://localhost:5173/__inspect/',
+    url: 'http://localhost:5173/.vite-inspect/',
     reuseExistingServer: !process.env.CI,
   },
 })

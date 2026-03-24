@@ -20,7 +20,7 @@ export const usePayloadStore = defineStore('payload', () => {
   const queryCache = new Map<string, Promise<readonly ModuleInfo[]>>()
 
   async function init() {
-    metadata.value = await rpc.getMetadata()
+    metadata.value = await rpc.call('vite-plugin-inspect:get-metadata')
 
     if (!metadata.value.instances.some(i => i.vite === query.value.vite))
       query.value.vite = metadata.value.instances[0].vite
@@ -48,7 +48,7 @@ export const usePayloadStore = defineStore('payload', () => {
   async function doQuery() {
     const key = `${query.value.vite}-${query.value.env}`
     if (!queryCache.has(key))
-      queryCache.set(key, rpc.getModulesList(query.value))
+      queryCache.set(key, rpc.call('vite-plugin-inspect:get-modules-list', query.value))
     isLoading.value = true
     modules.value = []
     try {
@@ -62,7 +62,7 @@ export const usePayloadStore = defineStore('payload', () => {
   async function refetch(force = false) {
     queryCache.clear()
     if (force)
-      metadata.value = await rpc.getMetadata()
+      metadata.value = await rpc.call('vite-plugin-inspect:get-metadata')
     await doQuery()
   }
 

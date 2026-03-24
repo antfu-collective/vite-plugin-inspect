@@ -221,7 +221,7 @@ export class InspectContextViteEnv {
         totalTime,
         invokeCount: this.data.transformCounter?.[id] || 0,
         sourceSize: getSize(this.data.transform[id]?.[0]?.result),
-        distSize: getSize(this.data.transform[id].at(-1)?.result),
+        distSize: getSize(this.data.transform[id]?.at(-1)?.result),
       }
     })
   }
@@ -284,20 +284,21 @@ export class InspectContextViteEnv {
     return metrics
   }
 
-  async getModuleTransformInfo(id: string, clear = false) {
-    if (clear) {
-      this.clearId(id)
-      try {
-        if (this.env.mode === 'dev')
-          await this.env.transformRequest(id)
-      }
-      catch {}
-    }
+  async getModuleTransformInfo(id: string) {
     const resolvedId = this.resolveId(id)
     return {
       resolvedId,
       transforms: this.data.transform[resolvedId] || [],
     }
+  }
+
+  async clearModuleTransform(id: string) {
+    this.clearId(id)
+    try {
+      if (this.env.mode === 'dev')
+        await this.env.transformRequest(id)
+    }
+    catch {}
   }
 
   clearId(_id: string) {

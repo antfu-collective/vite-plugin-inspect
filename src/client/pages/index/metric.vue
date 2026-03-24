@@ -7,7 +7,7 @@ import { usePayloadStore } from '../../stores/payload'
 const options = useOptionsStore()
 const payload = usePayloadStore()
 
-const metrics = ref(await rpc.getPluginMetrics(payload.query))
+const metrics = ref(await rpc.call('vite-plugin-inspect:get-plugin-metrics', payload.query))
 
 const selectedPlugin = ref('')
 
@@ -51,7 +51,7 @@ const plugins = computed(() => {
 })
 
 async function refetch() {
-  metrics.value = await rpc.getPluginMetrics(payload.query)
+  metrics.value = await rpc.call('vite-plugin-inspect:get-plugin-metrics', payload.query)
 }
 
 watch(

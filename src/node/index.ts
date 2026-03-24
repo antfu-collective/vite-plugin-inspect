@@ -9,8 +9,7 @@ import { DIR_CLIENT } from '../dirs'
 import { createBuildGenerator, createEnvOrderHooks } from './build'
 import { InspectContext } from './context'
 import { hijackPlugin } from './hijack'
-import { createDevToolsRpcFunctions } from './rpc-devtools'
-import './devtools-types'
+import { rpcFunctions, setInspectContext } from './rpc'
 
 export * from './options'
 
@@ -108,7 +107,14 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
     const base = (options.base ?? server.config.base) || '/'
 
-    server.middlewares.use(`${base}__inspect`, sirv(DIR_CLIENT, {
+    // Redirect legacy /__inspect URL to new /.vite-inspect
+    server.middlewares.use(`${base}__inspect`, (req, res) => {
+      const newUrl = req.url?.replace(/^\/?/, `${base}.vite-inspect/`) ?? `${base}.vite-inspect/`
+      res.writeHead(301, { Location: newUrl })
+      res.end()
+    })
+
+    server.middlewares.use(`${base}.vite-inspect`, sirv(DIR_CLIENT, {
       single: true,
       dev: true,
     }))
@@ -121,9 +127,13 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
         build: true,
       },
       async setup(devtoolsCtx: any) {
+        // Bind InspectContext to this DevTools context
+        setInspectContext(devtoolsCtx, ctx)
+
         // Register RPC functions
-        const rpcFunctions = createDevToolsRpcFunctions(ctx)
-        rpcFunctions.forEach(fn => devtoolsCtx.rpc.register(fn))
+        for (const fn of rpcFunctions) {
+          devtoolsCtx.rpc.register(fn)
+        }
 
         // Register dock entry
         if (devtoolsCtx.docks) {
@@ -132,12 +142,12 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
             title: 'Inspect',
             icon: 'ph:magnifying-glass-duotone',
             type: 'iframe',
-            url: `${base}__inspect/`,
+            url: `${base}.vite-inspect/`,
           })
         }
 
         // Host static client UI for build output
-        devtoolsCtx.views.hostStatic(`${base}__inspect/`, DIR_CLIENT)
+        devtoolsCtx.views.hostStatic(`${base}.vite-inspect/`, DIR_CLIENT)
 
         // Setup module update broadcast (dev mode only)
         if (devtoolsCtx.viteServer) {

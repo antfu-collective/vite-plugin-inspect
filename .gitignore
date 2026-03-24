@@ -90,3 +90,4 @@ src/client/public/assets/fonts
 
 test-results/
 playwright-report/
+.context

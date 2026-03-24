@@ -26,7 +26,7 @@ use([
 ])
 
 const payload = usePayloadStore()
-const metrics = ref(await rpc.getServerMetrics(payload.query))
+const metrics = ref(await rpc.call('vite-plugin-inspect:get-server-metrics', payload.query))
 
 function getMiddlewareTotalTime(m: { total: number }[]) {
   return m.at(-1)?.total || 0

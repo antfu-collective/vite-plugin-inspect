@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const BASE = '/__inspect/'
+const BASE = '/.vite-inspect/'
 
 test.beforeEach(async ({ page }) => {
   // Visit the playground app first to trigger module loading

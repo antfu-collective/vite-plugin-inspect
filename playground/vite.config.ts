@@ -9,7 +9,10 @@ export default defineConfig({
     open: true,
   },
   plugins: [
-    DevTools({ build: { withApp: true } }),
+    DevTools({
+      build: { withApp: true },
+      builtinDevTools: false,
+    }),
     vue(),
     {
       name: 'custom-loader',
@@ -32,14 +35,14 @@ export default defineConfig({
         if (!id.startsWith('\0virtual:slow:'))
           return
 
-        const matcher = /^\0virtual:slow:(\d)$/.exec(id)
+        const matcher = /^\0virtual:slow:(\d+)$/.exec(id)
         if (matcher) {
           const timeout = +matcher[1]
           await new Promise(resolve => setTimeout(resolve, timeout * 1000))
           return `export default 'Hi after ${timeout} seconds!'`
         }
 
-        throw new Error('Invalid timeout!')
+        return `export default 'Error: Invalid timeout! ${id}'`
       },
     },
     Inspect({

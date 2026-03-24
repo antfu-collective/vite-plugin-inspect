@@ -24,7 +24,7 @@ const payload = usePayloadStore()
 
 const route = useRoute()
 const id = computed(() => getModuleId(route.fullPath))
-const info = ref(id.value ? await rpc.getModuleTransformInfo(payload.query, id.value) : undefined)
+const info = ref(id.value ? await rpc.call('vite-plugin-inspect:get-module-transform-info', payload.query, id.value) : undefined)
 const mod = computed(() => payload.modules.find(m => m.id === id.value))
 const index = useRouteQuery<string | undefined>('index')
 const currentIndex = computed(() => (index.value != null ? +index.value : null) ?? (info.value?.transforms.length || 1) - 1)
@@ -61,8 +61,11 @@ const filteredTransforms = computed(() =>
 )
 
 async function refetch(clear = false) {
-  if (id.value)
-    info.value = await rpc.getModuleTransformInfo(payload.query, id.value, clear)
+  if (!id.value)
+    return
+  if (clear)
+    await rpc.call('vite-plugin-inspect:clear-module-transform', payload.query, id.value)
+  info.value = await rpc.call('vite-plugin-inspect:get-module-transform-info', payload.query, id.value)
 }
 
 onModuleUpdated.on(async () => {
