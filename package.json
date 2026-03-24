@@ -106,6 +106,7 @@
     "vis-data": "catalog:frontend",
     "vis-network": "catalog:frontend",
     "vite": "catalog:dev",
+    "vitest": "catalog:",
     "vue": "catalog:frontend",
     "vue-echarts": "catalog:frontend",
     "vue-router": "catalog:frontend",

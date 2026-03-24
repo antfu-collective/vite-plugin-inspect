@@ -7,6 +7,8 @@ trustPolicy: no-downgrade
 
 packages:
   - playground
+catalog:
+  vitest: ^4.1.1
 catalogs:
   dev:
     '@antfu/eslint-config': ^7.7.3

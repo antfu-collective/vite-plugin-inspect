@@ -9,7 +9,7 @@ export default defineConfig({
     open: true,
   },
   plugins: [
-    DevTools(),
+    DevTools({ build: { withApp: true } }),
     vue(),
     {
       name: 'custom-loader',

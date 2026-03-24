@@ -9,7 +9,7 @@ export async function createDevToolsRpcClient(onModuleUpdated: () => void): Prom
   if (!clientPromise) {
     // Set up the client RPC functions that the server can call
     const clientFunctions = {
-      'vite-plugin-inspect:onModuleUpdated': () => {
+      'vite-plugin-inspect:on-module-updated': () => {
         onModuleUpdated()
       },
     }
@@ -27,13 +27,13 @@ export async function createDevToolsRpcClient(onModuleUpdated: () => void): Prom
 
   // Map namespaced DevTools RPC to legacy interface
   return {
-    getMetadata: () => client.call('vite-plugin-inspect:getMetadata'),
-    getModulesList: (query: any) => client.call('vite-plugin-inspect:getModulesList', query),
-    getPluginMetrics: (query: any) => client.call('vite-plugin-inspect:getPluginMetrics', query),
+    getMetadata: () => client.call('vite-plugin-inspect:get-metadata'),
+    getModulesList: (query: any) => client.call('vite-plugin-inspect:get-modules-list', query),
+    getPluginMetrics: (query: any) => client.call('vite-plugin-inspect:get-plugin-metrics', query),
     getModuleTransformInfo: (query: any, id: string, clear?: boolean) =>
-      client.call('vite-plugin-inspect:getModuleTransformInfo', query, id, clear),
-    resolveId: (query: any, id: string) => client.call('vite-plugin-inspect:resolveId', query, id),
-    getServerMetrics: (query: any) => client.call('vite-plugin-inspect:getServerMetrics', query),
+      client.call('vite-plugin-inspect:get-module-transform-info', query, id, clear),
+    resolveId: (query: any, id: string) => client.call('vite-plugin-inspect:resolve-id', query, id),
+    getServerMetrics: (query: any) => client.call('vite-plugin-inspect:get-server-metrics', query),
     onModuleUpdated: async () => {},
   } as any
 }

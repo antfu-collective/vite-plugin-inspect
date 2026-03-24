@@ -116,12 +116,16 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
   function setupDevTools(ctx: InspectContext, base: string) {
     return {
+      capabilities: {
+        dev: true,
+        build: true,
+      },
       async setup(devtoolsCtx: any) {
         // Register RPC functions
         const rpcFunctions = createDevToolsRpcFunctions(ctx)
         rpcFunctions.forEach(fn => devtoolsCtx.rpc.register(fn))
 
-        // Register dock entry (only when in DevTools mode)
+        // Register dock entry
         if (devtoolsCtx.docks) {
           devtoolsCtx.docks.register({
             id: 'vite-plugin-inspect',
@@ -132,11 +136,14 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
           })
         }
 
-        // Setup module update broadcast
+        // Host static client UI for build output
+        devtoolsCtx.views.hostStatic(`${base}__inspect/`, DIR_CLIENT)
+
+        // Setup module update broadcast (dev mode only)
         if (devtoolsCtx.viteServer) {
           const debouncedBroadcast = debounce(() => {
             devtoolsCtx.rpc.broadcast({
-              method: 'vite-plugin-inspect:onModuleUpdated',
+              method: 'vite-plugin-inspect:on-module-updated',
               args: [],
             })
           }, 100)

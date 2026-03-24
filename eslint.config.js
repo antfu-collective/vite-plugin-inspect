@@ -8,6 +8,7 @@ export default antfu(
       '.agents/**',
       '.claude/**',
       '.cursor/**',
+      '.context/**',
     ],
   },
 )

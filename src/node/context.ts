@@ -226,16 +226,16 @@ export class InspectContextViteEnv {
     })
   }
 
-  resolveId(id = '', ssr = false): string {
+  resolveId(id = ''): string {
     if (id.startsWith('./'))
       id = resolve(this.env.getTopLevelConfig().root, id).replace(/\\/g, '/')
-    return this.resolveIdRecursive(id, ssr)
+    return this.resolveIdRecursive(id)
   }
 
-  private resolveIdRecursive(id: string, ssr = false): string {
+  private resolveIdRecursive(id: string): string {
     const resolved = this.data.resolveId[id]?.[0]?.result
     return resolved
-      ? this.resolveIdRecursive(resolved, ssr)
+      ? this.resolveIdRecursive(resolved)
       : id
   }
 
