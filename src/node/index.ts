@@ -110,7 +110,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
     // Redirect legacy /__inspect URL to new /.vite-inspect
     server.middlewares.use(`${base}__inspect`, (req, res) => {
       const newUrl = req.url?.replace(/^\/?/, `${base}.vite-inspect/`) ?? `${base}.vite-inspect/`
-      res.writeHead(301, { Location: newUrl })
+      res.writeHead(302, { Location: newUrl })
       res.end()
     })
 
