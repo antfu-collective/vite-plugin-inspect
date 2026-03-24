@@ -1,26 +1,22 @@
-import { defineBuildConfig } from 'unbuild'
+import { defineConfig } from 'tsdown'
 
-export default defineBuildConfig({
-  entries: [
-    'src/index',
-    'src/nuxt',
-    'src/dirs',
-  ],
+export default defineConfig({
+  entry: {
+    index: 'src/index.ts',
+    nuxt: 'src/nuxt.ts',
+    dirs: 'src/dirs.ts',
+  },
   clean: false,
-  declaration: 'node16',
-  externals: [
-    'vite',
-    '@nuxt/kit',
-    '@nuxt/schema',
-    '@vitejs/devtools-kit',
-  ],
-  rollup: {
-    inlineDependencies: [
+  deps: {
+    neverBundle: [
+      'vite',
+      '@nuxt/kit',
+      '@nuxt/schema',
+      '@vitejs/devtools-kit',
+    ],
+    alwaysBundle: [
       '@antfu/utils',
     ],
-    dts: {
-      respectExternal: true,
-    },
   },
   hooks: {
     'build:done': async () => {
