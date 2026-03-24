@@ -101,16 +101,6 @@ export interface Metadata {
   embedded?: boolean
 }
 
-export interface RpcFunctions {
-  getMetadata: () => Promise<Metadata>
-  getModulesList: (query: QueryEnv) => Promise<ModulesList>
-  getModuleTransformInfo: (query: QueryEnv, id: string, clear?: boolean) => Promise<ModuleTransformInfo>
-  getPluginMetrics: (query: QueryEnv) => Promise<PluginMetricInfo[]>
-  getServerMetrics: (query: QueryEnv) => Promise<ServerMetrics>
-  resolveId: (query: QueryEnv, id: string) => Promise<string>
-  onModuleUpdated: () => Promise<void>
-}
-
 export interface QueryEnv {
   /**
    * Vite instance ID

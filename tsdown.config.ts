@@ -12,6 +12,7 @@ export default defineConfig({
       'vite',
       '@nuxt/kit',
       '@nuxt/schema',
+      '@vitejs/devtools-kit',
     ],
     alwaysBundle: [
       '@antfu/utils',

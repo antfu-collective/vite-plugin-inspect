@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isDark } from '../logic/dark'
+import { isDark } from '../logic'
 
 const props = defineProps<{
   filename: string
@@ -36,7 +36,7 @@ const icon = computed(() => {
     .replace(/(\?|&)v=[^&]*/, '$1')
     .replace(/\?$/, '')
 
-  if (file.match(/[\\/]node_modules[\\/]/))
+  if (/[\\/]node_modules[\\/]/.test(file))
     return 'i-catppuccin-folder-node-open'
 
   let ext = (file.split('.').pop() || '').toLowerCase()

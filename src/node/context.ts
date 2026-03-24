@@ -23,19 +23,17 @@ export class InspectContext {
 
   getMetadata(): Metadata {
     return {
-      instances: [...this._idToInstances.values()]
-        .map(vite => ({
-          root: vite.config.root,
-          vite: vite.id,
-          plugins: vite.config.plugins.map(i => serializePlugin(i)),
-          environments: [...vite.environments.keys()],
-          environmentPlugins: Object.fromEntries(
-            [...vite.environments.entries()]
-              .map(([name, env]) => {
-                return [name, env.env.getTopLevelConfig().plugins.map(i => vite.config.plugins.indexOf(i))]
-              }),
-          ),
-        })),
+      instances: Array.from(this._idToInstances.values(), vite => ({
+        root: vite.config.root,
+        vite: vite.id,
+        plugins: vite.config.plugins.map(i => serializePlugin(i)),
+        environments: [...vite.environments.keys()],
+        environmentPlugins: Object.fromEntries(
+          Array.from(vite.environments.entries(), ([name, env]) => {
+            return [name, env.env.getTopLevelConfig().plugins.map(i => vite.config.plugins.indexOf(i))]
+          }),
+        ),
+      })),
       embedded: this.options.embedded,
     }
   }
@@ -223,21 +221,21 @@ export class InspectContextViteEnv {
         totalTime,
         invokeCount: this.data.transformCounter?.[id] || 0,
         sourceSize: getSize(this.data.transform[id]?.[0]?.result),
-        distSize: getSize(this.data.transform[id]?.[this.data.transform[id].length - 1]?.result),
+        distSize: getSize(this.data.transform[id]?.at(-1)?.result),
       }
     })
   }
 
-  resolveId(id = '', ssr = false): string {
+  resolveId(id = ''): string {
     if (id.startsWith('./'))
       id = resolve(this.env.getTopLevelConfig().root, id).replace(/\\/g, '/')
-    return this.resolveIdRecursive(id, ssr)
+    return this.resolveIdRecursive(id)
   }
 
-  private resolveIdRecursive(id: string, ssr = false): string {
+  private resolveIdRecursive(id: string): string {
     const resolved = this.data.resolveId[id]?.[0]?.result
     return resolved
-      ? this.resolveIdRecursive(resolved, ssr)
+      ? this.resolveIdRecursive(resolved)
       : id
   }
 
@@ -286,20 +284,21 @@ export class InspectContextViteEnv {
     return metrics
   }
 
-  async getModuleTransformInfo(id: string, clear = false) {
-    if (clear) {
-      this.clearId(id)
-      try {
-        if (this.env.mode === 'dev')
-          await this.env.transformRequest(id)
-      }
-      catch {}
-    }
+  async getModuleTransformInfo(id: string) {
     const resolvedId = this.resolveId(id)
     return {
       resolvedId,
       transforms: this.data.transform[resolvedId] || [],
     }
+  }
+
+  async clearModuleTransform(id: string) {
+    this.clearId(id)
+    try {
+      if (this.env.mode === 'dev')
+        await this.env.transformRequest(id)
+    }
+    catch {}
   }
 
   clearId(_id: string) {

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { getHot } from '../../logic/hot'
-import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
+import { getHot, isStaticMode, onModuleUpdated, rpc } from '../../logic'
 import { useOptionsStore } from '../../stores/options'
 import { usePayloadStore } from '../../stores/payload'
 
 const options = useOptionsStore()
 const payload = usePayloadStore()
 
-const metrics = ref(await rpc.getPluginMetrics(payload.query))
+const metrics = ref(await rpc.call('vite-plugin-inspect:get-plugin-metrics', payload.query))
 
 const selectedPlugin = ref('')
 
@@ -51,7 +50,7 @@ const plugins = computed(() => {
 })
 
 async function refetch() {
-  metrics.value = await rpc.getPluginMetrics(payload.query)
+  metrics.value = await rpc.call('vite-plugin-inspect:get-plugin-metrics', payload.query)
 }
 
 watch(
@@ -102,7 +101,7 @@ getHot().then((hot) => {
     <QuerySelector />
     <div mx1 h-full w-0 border="r main" />
     <button
-      v-if="!payload.isStatic"
+      v-if="!isStaticMode"
       class="icon-btn text-lg" title="Refetch"
       @click="refetch()"
     >

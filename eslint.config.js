@@ -4,10 +4,15 @@ export default antfu(
   {
     unocss: true,
     pnpm: true,
-  },
-  {
-    rules: {
-      'vue/no-v-text-v-html-on-component': 'off',
-    },
+    ignores: [
+      '.agents/**',
+      '.claude/**',
+      '.cursor/**',
+      '.context/**',
+    ],
   },
 )
+  .removeRules(
+    'vue/no-v-text-v-html-on-component',
+    'e18e/prefer-static-regex',
+  )

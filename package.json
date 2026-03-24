@@ -2,7 +2,7 @@
   "name": "vite-plugin-inspect",
   "type": "module",
   "version": "11.3.3",
-  "packageManager": "pnpm@10.22.0",
+  "packageManager": "pnpm@10.32.1",
   "description": "Inspect the intermediate state of Vite plugins",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
   "license": "MIT",
@@ -38,14 +38,16 @@
     "build:js": "tsdown",
     "dev": "pnpm build:client && INSPECT_DEV=true vite src/client",
     "dev:client": "vite build src/client --watch",
+    "prepare": "simple-git-hooks && skills-npm",
     "watch": "tsdown --watch",
     "lint": "eslint .",
+    "test:e2e": "playwright test",
     "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "pnpm run build",
     "release": "bumpp"
   },
   "peerDependencies": {
-    "vite": "^6.0.0 || ^7.0.0-0"
+    "vite": "^8.0.0-0"
   },
   "peerDependenciesMeta": {
     "@nuxt/kit": {
@@ -53,6 +55,7 @@
     }
   },
   "dependencies": {
+    "@vitejs/devtools-kit": "catalog:prod",
     "ansis": "catalog:prod",
     "error-stack-parser-es": "catalog:prod",
     "obug": "catalog:prod",
@@ -60,8 +63,7 @@
     "open": "catalog:prod",
     "perfect-debounce": "catalog:frontend",
     "sirv": "catalog:prod",
-    "unplugin-utils": "catalog:prod",
-    "vite-dev-rpc": "catalog:frontend"
+    "unplugin-utils": "catalog:prod"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",
@@ -69,10 +71,13 @@
     "@antfu/utils": "catalog:dev",
     "@iconify/json": "catalog:dev",
     "@nuxt/kit": "catalog:prod",
+    "@playwright/test": "catalog:dev",
     "@types/codemirror": "catalog:dev",
     "@types/node": "catalog:dev",
     "@unocss/eslint-config": "catalog:dev",
     "@unocss/eslint-plugin": "catalog:dev",
+    "@unocss/reset": "catalog:dev",
+    "@vitejs/devtools": "catalog:dev",
     "@vitejs/plugin-vue": "catalog:dev",
     "@vue/compiler-sfc": "catalog:dev",
     "@vueuse/core": "catalog:frontend",
@@ -91,23 +96,25 @@
     "pinia": "catalog:frontend",
     "premove": "catalog:dev",
     "simple-git-hooks": "catalog:dev",
+    "skills-npm": "catalog:dev",
     "splitpanes": "catalog:frontend",
     "tsdown": "catalog:dev",
     "typescript": "catalog:dev",
     "unocss": "catalog:dev",
     "unplugin-auto-import": "catalog:dev",
     "unplugin-vue-components": "catalog:dev",
-    "unplugin-vue-router": "catalog:dev",
     "vis-data": "catalog:frontend",
     "vis-network": "catalog:frontend",
     "vite": "catalog:dev",
-    "vite-hot-client": "catalog:frontend",
+    "vitest": "catalog:",
     "vue": "catalog:frontend",
     "vue-echarts": "catalog:frontend",
     "vue-router": "catalog:frontend",
     "vue-tsc": "catalog:dev"
   },
   "resolutions": {
+    "@vitejs/devtools": "catalog:dev",
+    "@vitejs/devtools-kit": "catalog:prod",
     "vite": "catalog:dev"
   },
   "simple-git-hooks": {

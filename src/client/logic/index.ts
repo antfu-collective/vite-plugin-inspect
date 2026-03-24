@@ -1,3 +1,5 @@
+export * from './color'
 export * from './dark'
+export * from './hot'
 export * from './rpc'
 export * from './utils'

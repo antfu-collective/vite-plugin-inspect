@@ -19,9 +19,9 @@ export function msToTime(ms: number) {
 export function guessMode(code: string) {
   if (code.trimStart().startsWith('<'))
     return 'htmlmixed'
-  if (code.match(/^import\s/))
+  if (/^import\s/.test(code))
     return 'javascript'
-  if (code.match(/^[.#].+\{/))
+  if (/^[.#].+\{/.test(code))
     return 'css'
   return 'javascript'
 }

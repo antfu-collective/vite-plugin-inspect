@@ -8,15 +8,15 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 
 ## Install
 
-```bash
-npm i -D vite-plugin-inspect
-```
-
 > [!NOTE]
 >
-> v10.x requires **Vite v6.0.1** or above.
+> v12.x requires **Vite v8.0.0** or above with **@vitejs/devtools v0.1.9** or above.
 >
-> For Vite v2 to v5, use v0.8.x of `vite-plugin-inspect`. If you want to use it with both Vite 6 and below, you can still use v0.8.x, it's forwards compatible.
+> For the previous versions, check the [v11](https://github.com/antfu-collective/vite-plugin-inspect/tree/v11) branch.
+
+```bash
+pnpm add -D vite-plugin-inspect @vitejs/devtools
+```
 
 Add plugin to your `vite.config.ts`:
 
@@ -25,27 +25,32 @@ Add plugin to your `vite.config.ts`:
 import Inspect from 'vite-plugin-inspect'
 
 export default {
+  devtools: true,
   plugins: [
     Inspect()
   ],
 }
 ```
 
-Then run `npm run dev` and visit [localhost:5173/__inspect/](http://localhost:5173/__inspect/) to inspect the modules.
+Then run `npm run dev` and open the DevTools to inspect the modules.
 
 ## Build Mode
 
-To inspect transformation in build mode, you can pass the `build: true` option:
+To inspect transformation in build mode, you can set the `devtools.build.withApp` option to `true`:
 
 ```ts
 // vite.config.ts
 import Inspect from 'vite-plugin-inspect'
 
 export default {
+  devtools: {
+    build: {
+      withApp: true,
+    }
+  },
   plugins: [
     Inspect({
-      build: true,
-      outputDir: '.vite-inspect'
+      build: true
     })
   ],
 }
@@ -57,7 +62,7 @@ After running `vite build`, the inspector client will be generated under `.vite-
 
 <p align="center">
   <a href="https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg">
-    <img src='https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg'/>
+    <img src='https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg' alt='Sponsors' />
   </a>
 </p>
 
