@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isStaticMode } from '../logic'
 import { useOptionsStore } from '../stores/options'
 import { usePayloadStore } from '../stores/payload'
 import { useSearchResults } from '../stores/search'
@@ -59,7 +60,7 @@ const isRoot = computed(() => route.path === '/')
       <span i-carbon-microservices-1 />
     </RouterLink>
     <button
-      v-if="!payload.isStatic"
+      v-if="!isStaticMode"
       class="icon-btn text-lg" title="Refetch"
       @click="payload.refetch()"
     >

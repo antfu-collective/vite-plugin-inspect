@@ -55,16 +55,6 @@ export function createBuildGenerator(ctx: InspectContext) {
       await fs.rm(targetDir, { recursive: true, force: true })
       await fs.mkdir(reportsDir, { recursive: true })
       await fs.cp(DIR_CLIENT, targetDir, { recursive: true })
-      await Promise.all([
-        fs.writeFile(
-          join(targetDir, 'index.html'),
-          (await fs.readFile(join(targetDir, 'index.html'), 'utf-8'))
-            .replace(
-              'data-vite-inspect-mode="DEV"',
-              'data-vite-inspect-mode="BUILD"',
-            ),
-        ),
-      ])
     },
     async generateForEnv(pluginCtx: Rollup.PluginContext) {
       const env = pluginCtx.environment

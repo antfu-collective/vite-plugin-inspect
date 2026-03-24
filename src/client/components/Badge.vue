@@ -2,7 +2,7 @@
 import {
   getHashColorFromString,
   getHsla,
-} from '../logic/color'
+} from '../logic'
 
 const props = withDefaults(
   defineProps<{

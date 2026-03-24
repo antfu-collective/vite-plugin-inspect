@@ -2,7 +2,7 @@
 import { vTooltip } from 'floating-vue'
 import { relative } from 'pathe'
 import { computed } from 'vue'
-import { getPluginColor } from '../logic/color'
+import { getPluginColor } from '../logic'
 import { usePayloadStore } from '../stores/payload'
 
 const props = withDefaults(

@@ -5,11 +5,13 @@ import { useRouteQuery } from '@vueuse/router'
 import { Dropdown } from 'floating-vue'
 import { Pane, Splitpanes } from 'splitpanes'
 import {
+  getHot,
   inspectSourcemaps,
+  isStaticMode,
+  onModuleUpdated,
+  rpc,
   safeJsonParse,
 } from '../../logic'
-import { getHot } from '../../logic/hot'
-import { isStaticMode, onModuleUpdated, rpc } from '../../logic/rpc'
 import { useOptionsStore } from '../../stores/options'
 import { usePayloadStore } from '../../stores/payload'
 
@@ -172,7 +174,7 @@ onKeyDown('Escape', (e) => {
       <span i-carbon-compare :class="options.view.diff ? 'opacity-100' : 'opacity-25'" />
     </button>
     <button
-      v-if="!payload.isStatic"
+      v-if="!isStaticMode"
       class="icon-btn text-lg" title="Refetch"
       @click="refetch(true)"
     >

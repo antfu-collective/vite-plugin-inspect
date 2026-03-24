@@ -2,8 +2,8 @@
 import type CodeMirror from 'codemirror'
 import { Pane, Splitpanes } from 'splitpanes'
 import { nextTick, onMounted, toRefs, watchEffect } from 'vue'
+import { guessMode } from '../logic'
 import { syncEditorScrolls, syncScrollListeners, useCodeMirror } from '../logic/codemirror'
-import { guessMode } from '../logic/utils'
 import { useOptionsStore } from '../stores/options'
 import { calculateDiffWithWorker } from '../worker/diff'
 

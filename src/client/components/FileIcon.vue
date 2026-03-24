@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isDark } from '../logic/dark'
+import { isDark } from '../logic'
 
 const props = defineProps<{
   filename: string

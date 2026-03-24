@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getHashColorFromString } from '../logic/color'
+import { getHashColorFromString } from '../logic'
 
 const props = defineProps<{
   name: string

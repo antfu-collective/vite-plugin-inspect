@@ -1,6 +1,6 @@
 import type { Metadata, ModuleInfo, QueryEnv } from '../../types'
 import { defineStore } from 'pinia'
-import { isStaticMode, onModuleUpdated, rpc } from '../logic/rpc'
+import { onModuleUpdated, rpc } from '../logic/rpc'
 
 export const usePayloadStore = defineStore('payload', () => {
   const isLoading = ref(false)
@@ -77,7 +77,6 @@ export const usePayloadStore = defineStore('payload', () => {
     instance,
     root,
     isLoading,
-    isStatic: isStaticMode,
     refetch,
   }
 })
