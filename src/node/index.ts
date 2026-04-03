@@ -119,7 +119,10 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
 
     const clientEntryPointPromise = getPackageInfo('@vitejs/devtools').then(async (pkg) => {
       const clientFile = await readFile(resolve(DIR_CLIENT, 'index.html'), { encoding: 'utf8' })
-      return clientFile.replace('vite-plugin-inspect-devtools-injector.js', `/@fs/${resolve(pkg!.rootPath, 'dist/client/inject.js').replace(/\\/g, '/')}`)
+      return clientFile.replace(
+        'vite-plugin-inspect-devtools-injector.js',
+        `/@fs/${resolve(pkg!.rootPath, 'dist/client/inject.js').replace(/\\/g, '/')}`,
+      )
     })
 
     server.middlewares.use(`${base}.vite-inspect`, async (req, res, next) => {
