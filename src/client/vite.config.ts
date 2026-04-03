@@ -27,7 +27,6 @@ const plugins: () => Promise<Plugin[]> = process.env.VITE_DEVTOOLS_LOCAL_DEV
           return [{
             tag: 'script',
             attrs: {
-              id: 'vite-plugin-inspect-devtools-injector',
               src: 'vite-plugin-inspect-devtools-injector.js',
               type: 'module',
             },
