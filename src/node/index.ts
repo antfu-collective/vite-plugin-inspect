@@ -117,13 +117,19 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       res.end()
     })
 
-    const resolvedPathPromise = getPackageInfo('@vitejs/devtools').then((pkg) => {
-      return readFile(resolve(pkg!.rootPath, 'dist/client/inject.js'), 'utf8')
+    const clientEntryPointPromise = getPackageInfo('@vitejs/devtools').then(async (pkg) => {
+      const clientFile = await readFile(resolve(DIR_CLIENT, 'index.html'), { encoding: 'utf8' })
+      return clientFile.replace('vite-plugin-inspect-devtools-injector.js', `/@fs/${resolve(pkg!.rootPath, 'dist/client/inject.js').replace(/\\/g, '/')}`)
     })
 
-    server.middlewares.use(`${base}.vite-inspect/vite-plugin-inspect-devtools-injector.js`, async (_, res) => {
-      res.writeHead(200, { 'content-type': 'application/javascript; charset=utf-8' })
-      return res.end(await resolvedPathPromise)
+    server.middlewares.use(`${base}.vite-inspect`, async (req, res, next) => {
+      const url = req.url
+      if (url === '' || url === '/') {
+        res.writeHead(200, { 'content-type': 'text/html' })
+        return res.end(await clientEntryPointPromise)
+      }
+
+      next()
     })
 
     server.middlewares.use(`${base}.vite-inspect`, sirv(DIR_CLIENT, {
