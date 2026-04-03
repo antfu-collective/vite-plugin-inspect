@@ -1,4 +1,6 @@
+import type { Plugin } from 'vite'
 import { join, resolve } from 'node:path'
+import process from 'node:process'
 import { DevTools } from '@vitejs/devtools'
 import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
@@ -8,6 +10,33 @@ import { defineConfig } from 'vite'
 import { VueRouterAutoImports } from 'vue-router/unplugin'
 import VueRouter from 'vue-router/vite'
 import Inspect from '../node'
+
+const plugins: () => Promise<Plugin[]> = process.env.VITE_DEVTOOLS_LOCAL_DEV
+  ? DevTools
+  : async () => {
+    const devtools = await DevTools()
+
+    const devtoolsPlugin = devtools.filter(p => p.name !== 'vite:devtools:injection')
+    return [
+      ...devtoolsPlugin,
+      <Plugin>{
+        name: 'devtools:plugin:injector',
+        enforce: 'post',
+        apply: 'build',
+        transformIndexHtml() {
+          return [{
+            tag: 'script',
+            attrs: {
+              id: 'vite-plugin-inspect-devtools-injector',
+              src: 'vite-plugin-inspect-devtools-injector.js',
+              type: 'module',
+            },
+            injectTo: 'body',
+          }]
+        },
+      },
+    ]
+  }
 
 export default defineConfig({
   base: './',
@@ -19,7 +48,7 @@ export default defineConfig({
   },
 
   plugins: [
-    DevTools(),
+    plugins(),
     {
       name: 'local:object-hook-transform',
       transform: {
