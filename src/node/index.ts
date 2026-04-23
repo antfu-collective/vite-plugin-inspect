@@ -2,7 +2,10 @@ import type { Connect, Plugin, Rollup, ViteDevServer } from 'vite'
 import type { HMRData } from '../types'
 import type { InspectContextVite } from './context'
 import type { ViteInspectOptions } from './options'
+import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import c from 'ansis'
+import { getPackageInfo } from 'local-pkg'
 import { debounce } from 'perfect-debounce'
 import sirv from 'sirv'
 import { DIR_CLIENT } from '../dirs'
@@ -112,6 +115,24 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
       const newUrl = req.url?.replace(/^\/?/, `${base}.vite-inspect/`) ?? `${base}.vite-inspect/`
       res.writeHead(302, { Location: newUrl })
       res.end()
+    })
+
+    const clientEntryPointPromise = getPackageInfo('@vitejs/devtools').then(async (pkg) => {
+      const clientFile = await readFile(resolve(DIR_CLIENT, 'index.html'), { encoding: 'utf8' })
+      return clientFile.replace(
+        'vite-plugin-inspect-devtools-injector.js',
+        `/@fs/${resolve(pkg!.rootPath, 'dist/client/inject.js').replace(/\\/g, '/')}`,
+      )
+    })
+
+    server.middlewares.use(`${base}.vite-inspect`, async (req, res, next) => {
+      const url = req.url
+      if (url === '' || url === '/') {
+        res.writeHead(200, { 'content-type': 'text/html' })
+        return res.end(await clientEntryPointPromise)
+      }
+
+      next()
     })
 
     server.middlewares.use(`${base}.vite-inspect`, sirv(DIR_CLIENT, {
