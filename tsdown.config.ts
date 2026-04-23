@@ -26,6 +26,8 @@ export default defineConfig({
         esmDirClient,
       ] = await Promise.all([
         import('node:fs/promises').then(m => m.lstat),
+        // eslint-disable-next-line ts/ban-ts-comment
+        // @ts-ignore not available until client build
         import('./dist/dirs.mjs').then(m => m.DIR_CLIENT),
       ])
       const stats = await lstat(esmDirClient)
