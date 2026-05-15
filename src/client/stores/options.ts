@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 // @keep-sorted
 export interface ViewState {
   diff: boolean
+  graphHighlightCircular: boolean
   graphWeightMode: 'deps' | 'transform' | 'resolveId'
   lineWrapping: boolean
   listMode: 'graph' | 'list' | 'detailed'
@@ -28,6 +29,7 @@ export const useOptionsStore = defineStore('options', () => {
     // @keep-sorted
     {
       diff: true,
+      graphHighlightCircular: true,
       graphWeightMode: 'deps',
       lineWrapping: false,
       listMode: 'detailed',
