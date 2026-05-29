@@ -16,17 +16,20 @@ test('page loads and shows module list', async ({ page }) => {
 
 test('search box filters modules', async ({ page }) => {
   await page.goto(BASE)
-  await expect(page.locator('a[href*="/module"]').first()).toBeVisible({ timeout: 15000 })
+  const moduleLinks = page.locator('a[href*="/module"]')
+  await expect(moduleLinks.first()).toBeVisible({ timeout: 15000 })
 
-  const countBefore = await page.locator('a[href*="/module"]').count()
+  const countBefore = await moduleLinks.count()
 
-  const input = page.locator('input[placeholder="Search..."]')
-  await input.fill('App.vue')
-  await page.waitForTimeout(500)
+  // Enable exact substring search so the result is deterministic
+  await page.locator('label:has-text("exact search") input[type="checkbox"]').check()
+  await page.locator('input[placeholder="Search..."]').fill('App.vue')
 
-  const countAfter = await page.locator('a[href*="/module"]').count()
-  expect(countAfter).toBeLessThan(countBefore)
-  expect(countAfter).toBeGreaterThan(0)
+  await expect
+    .poll(async () => moduleLinks.count(), { timeout: 5000 })
+    .toBeLessThan(countBefore)
+
+  await expect(moduleLinks.first()).toBeVisible()
 })
 
 test('can navigate to metrics page', async ({ page }) => {

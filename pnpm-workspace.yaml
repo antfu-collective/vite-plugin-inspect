@@ -4,6 +4,8 @@ strictPeerDependencies: false
 sideEffectsCache: false
 shellEmulator: true
 trustPolicy: no-downgrade
+trustPolicyExclude:
+  - tinyexec
 
 packages:
   - playground
@@ -21,7 +23,7 @@ catalogs:
     '@unocss/eslint-config': ^66.6.8
     '@unocss/eslint-plugin': ^66.6.8
     '@unocss/reset': ^66.6.8
-    '@vitejs/devtools': ^0.1.24
+    '@vitejs/devtools': ^0.3.1
     '@vitejs/plugin-vue': ^6.0.6
     '@vue/compiler-sfc': ^3.5.34
     bumpp: ^11.1.0
@@ -61,7 +63,7 @@ catalogs:
     vue-router: ^5.0.7
   prod:
     '@nuxt/kit': ^4.4.5
-    '@vitejs/devtools-kit': ^0.1.24
+    '@vitejs/devtools-kit': ^0.3.1
     ansis: ^4.3.0
     error-stack-parser-es: ^1.0.5
     obug: ^2.1.1
