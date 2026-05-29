@@ -1,5 +1,4 @@
-import type { LoadResult, ObjectHook, ResolveIdResult, TransformResult } from 'rollup'
-import type { Plugin } from 'vite'
+import type { HookHandler, Plugin, Rollup } from 'vite'
 import type { ParsedError } from '../types'
 import type { InspectContext } from './context'
 import { parse as parseErrorStacks } from 'error-stack-parser-es'
@@ -7,13 +6,16 @@ import { createDebug } from 'obug'
 
 const debug = createDebug('vite-plugin-inspect')
 
-type HookHandler<T> = T extends ObjectHook<infer F> ? F : T
+type AnyFn = (...args: any) => any
+type AsFn<T> = T extends AnyFn ? T : AnyFn
+type PluginHookFn<K extends keyof Plugin> = AsFn<NonNullable<HookHandler<Plugin[K]>>>
+
 type HookWrapper<K extends keyof Plugin> = (
-  fn: NonNullable<HookHandler<Plugin[K]>>,
-  context: ThisParameterType<NonNullable<HookHandler<Plugin[K]>>>,
-  args: NonNullable<Parameters<HookHandler<Plugin[K]>>>,
+  fn: PluginHookFn<K>,
+  context: ThisParameterType<PluginHookFn<K>>,
+  args: NonNullable<Parameters<PluginHookFn<K>>>,
   order: string,
-) => ReturnType<HookHandler<Plugin[K]>>
+) => ReturnType<PluginHookFn<K>>
 
 function hijackHook<K extends keyof Plugin>(plugin: Plugin, name: K, wrapper: HookWrapper<K>) {
   if (!plugin[name])
@@ -64,19 +66,19 @@ export function hijackPlugin(
     const code = args[0]
     const id = args[1]
 
-    let _result: TransformResult
+    let _result: Rollup.TransformResult
     let error: any
 
     const start = Date.now()
     try {
-      _result = await fn.apply(context, args) as TransformResult
+      _result = await fn.apply(context, args) as Rollup.TransformResult
     }
     catch (_err) {
       error = _err
     }
     const end = Date.now()
 
-    const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code)
+    const result = error ? '[Error]' : (typeof _result === 'string' ? _result : _result?.code?.toString())
     if (ctx.filter(id)) {
       const sourcemaps = typeof _result === 'string' ? null : _result?.map
       ctx
@@ -101,12 +103,12 @@ export function hijackPlugin(
   hijackHook(plugin, 'load', async (fn, context, args) => {
     const id = args[0]
 
-    let _result: LoadResult
+    let _result: Rollup.LoadResult
     let error: any
 
     const start = Date.now()
     try {
-      _result = await fn.apply(context, args) as LoadResult
+      _result = await fn.apply(context, args) as Rollup.LoadResult
     }
     catch (err) {
       error = err
@@ -144,7 +146,7 @@ export function hijackPlugin(
   hijackHook(plugin, 'resolveId', async (fn, context, args) => {
     const id = args[0]
 
-    let _result: ResolveIdResult
+    let _result: Rollup.ResolveIdResult
     let error: any
 
     const start = Date.now()
