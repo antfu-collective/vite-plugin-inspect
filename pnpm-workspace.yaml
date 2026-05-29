@@ -6,41 +6,41 @@ shellEmulator: true
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - tinyexec
+minimumReleaseAge: 0
 
 packages:
   - playground
-catalog:
-  vitest: ^4.1.6
 catalogs:
   dev:
     '@antfu/eslint-config': ^9.0.0
     '@antfu/ni': ^30.1.0
     '@antfu/utils': ^9.3.0
+    vitest: ^4.1.7
     '@iconify/json': ^2.2.473
     '@playwright/test': ^1.60.0
     '@types/codemirror': ^5.60.17
-    '@types/node': ^25.7.0
-    '@unocss/eslint-config': ^66.6.8
-    '@unocss/eslint-plugin': ^66.6.8
-    '@unocss/reset': ^66.6.8
+    '@types/node': ^25.9.1
+    '@unocss/eslint-config': ^66.7.0
+    '@unocss/eslint-plugin': ^66.7.0
+    '@unocss/reset': ^66.7.0
     '@vitejs/devtools': ^0.3.1
-    '@vitejs/plugin-vue': ^6.0.6
-    '@vue/compiler-sfc': ^3.5.34
+    '@vitejs/plugin-vue': ^6.0.7
+    '@vue/compiler-sfc': ^3.5.35
     bumpp: ^11.1.0
-    eslint: ^10.3.0
-    lint-staged: ^17.0.4
+    eslint: ^10.4.0
+    lint-staged: ^17.0.5
     premove: ^4.0.0
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     skills-npm: ^1.1.1
-    tsdown: ^0.22.0
+    tsdown: ^0.22.1
     typescript: ^6.0.3
-    unocss: ^66.6.8
+    unocss: ^66.7.0
     unplugin-auto-import: ^21.0.0
-    unplugin-vue-components: ^32.0.0
+    unplugin-vue-components: ^32.1.0
     unplugin-vue-router: ^0.17.0
-    vite: ^8.0.13
-    vue-tsc: ^3.2.9
+    vite: ^8.0.14
+    vue-tsc: ^3.3.2
   frontend:
     '@vueuse/core': ^14.3.0
     '@vueuse/router': ^14.3.0
@@ -48,21 +48,21 @@ catalogs:
     codemirror-theme-vars: ^0.1.2
     comlink: ^4.4.2
     diff-match-patch-es: ^1.0.1
-    echarts: ^6.0.0
+    echarts: ^6.1.0
     floating-vue: ^5.2.2
     fuse.js: ^7.3.0
     ohash: ^2.0.11
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
     pinia: ^3.0.4
-    splitpanes: ^4.0.4
+    splitpanes: ^4.1.2
     vis-data: ^8.0.4
-    vis-network: ^10.0.3
-    vue: ^3.5.34
+    vis-network: ^10.1.0
+    vue: ^3.5.35
     vue-echarts: ^8.0.1
-    vue-router: ^5.0.7
+    vue-router: ^5.1.0
   prod:
-    '@nuxt/kit': ^4.4.5
+    '@nuxt/kit': ^4.4.6
     '@vitejs/devtools-kit': ^0.3.1
     ansis: ^4.3.0
     error-stack-parser-es: ^1.0.5
@@ -70,8 +70,5 @@ catalogs:
     open: ^11.0.0
     sirv: ^3.0.2
     unplugin-utils: ^0.3.1
-onlyBuiltDependencies:
-  - esbuild
-  - simple-git-hooks
-  - unrs-resolver
-  - vue-demi
+allowBuilds:
+  simple-git-hooks: true
