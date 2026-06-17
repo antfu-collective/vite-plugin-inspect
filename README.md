@@ -10,7 +10,7 @@ Inspect the intermediate state of Vite plugins. Useful for debugging and authori
 
 > [!NOTE]
 >
-> v12.x requires **Vite v8.0.0** or above with **@vitejs/devtools v0.1.9** or above.
+> v12.x requires **Vite v8.0.0** or above with **@vitejs/devtools v0.3.1** or above.
 >
 > For the previous versions, check the [v11](https://github.com/antfu-collective/vite-plugin-inspect/tree/v11) branch.
 
