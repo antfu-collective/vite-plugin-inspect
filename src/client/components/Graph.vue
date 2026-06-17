@@ -3,6 +3,7 @@ import type { Data, Options } from 'vis-network'
 import type { ModuleInfo } from '../../types'
 import { DataSet } from 'vis-data'
 import { Network } from 'vis-network'
+import { detectCircularDeps, edgeKey } from '../logic/circular'
 import { useOptionsStore } from '../stores/options'
 import { useSearchResults } from '../stores/search'
 
@@ -48,11 +49,17 @@ const shapes = [
 ]
 const router = useRouter()
 
+const circularResult = computed(() => detectCircularDeps(search.filtered))
+
 const data = computed(() => {
   const modules = search.filtered
+  const circular = circularResult.value
+  const highlight = options.view.graphHighlightCircular
+
   const nodes = new DataSet(modules.map((mod) => {
     const path = mod.id.replace(/\?.*$/, '').replace(/#.*$/, '')
     const group = path.match(/\.(\w+)$/)?.[1] || 'unknown'
+    const isCircular = highlight && circular.nodes.has(mod.id)
     return {
       id: mod.id,
       label: path.split('/').splice(-1)[0],
@@ -64,21 +71,28 @@ const data = computed(() => {
         : mod.virtual
           ? 'diamond'
           : 'dot',
+      borderWidth: isCircular ? 3 : 0,
+      color: isCircular ? { border: '#e84545' } : undefined,
     }
   }))
-  const edges: Data['edges'] = modules.flatMap(mod => mod.deps.map(dep => ({
-    from: mod.id,
-    to: dep,
-    arrows: {
-      to: {
-        enabled: true,
-        scaleFactor: 0.8,
+  const edges: Data['edges'] = modules.flatMap(mod => mod.deps.map((dep) => {
+    const isCircular = highlight && circular.edges.has(edgeKey(mod.id, dep))
+    return {
+      from: mod.id,
+      to: dep,
+      arrows: {
+        to: {
+          enabled: true,
+          scaleFactor: 0.8,
+        },
       },
-    },
-    color: {
-      opacity: 0.8,
-    },
-  })))
+      color: isCircular
+        ? { color: '#e84545', opacity: 1, highlight: '#e84545' }
+        : { opacity: 0.8 },
+      width: isCircular ? 2.5 : 1,
+      dashes: isCircular ? [8, 4] : false,
+    }
+  }))
 
   return {
     nodes,
@@ -173,6 +187,20 @@ onMounted(() => {
           {{ shape.type }}
         </div>
       </div>
+      <div border="t base" my3 h-1px />
+      <label flex="~ gap-2 items-center" cursor-pointer>
+        <input
+          v-model="options.view.graphHighlightCircular"
+          type="checkbox"
+        >
+        <div h-3 w-5 border="~ [#e84545] 2 dashed" rounded-sm />
+        <div>
+          circular
+          <span v-if="circularResult.cycles.length" op50>
+            ({{ circularResult.cycles.length }})
+          </span>
+        </div>
+      </label>
     </div>
     <div
       border="~ main"
