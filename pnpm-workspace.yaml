@@ -27,8 +27,9 @@ catalogs:
     '@vue/compiler-sfc': ^3.5.39
     bumpp: ^11.1.0
     eslint: ^10.7.0
-    lint-staged: ^17.0.8
+    nano-staged: ^1.0.2
     premove: ^4.0.0
+    publint: ^0.3.21
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     skills-npm: ^1.2.0

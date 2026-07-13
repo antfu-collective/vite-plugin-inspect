@@ -7,6 +7,7 @@ export default defineConfig({
     dirs: 'src/dirs.ts',
   },
   clean: false,
+  publint: true,
   deps: {
     neverBundle: [
       'vite',

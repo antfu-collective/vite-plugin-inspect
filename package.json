@@ -18,6 +18,7 @@
   "keywords": [
     "vite-plugin"
   ],
+  "sideEffects": false,
   "exports": {
     ".": "./dist/index.mjs",
     "./nuxt": "./dist/nuxt.mjs",
@@ -94,10 +95,11 @@
     "eslint": "catalog:dev",
     "floating-vue": "catalog:frontend",
     "fuse.js": "catalog:frontend",
-    "lint-staged": "catalog:dev",
+    "nano-staged": "catalog:dev",
     "pathe": "catalog:frontend",
     "pinia": "catalog:frontend",
     "premove": "catalog:dev",
+    "publint": "catalog:dev",
     "simple-git-hooks": "catalog:dev",
     "skills-npm": "catalog:dev",
     "splitpanes": "catalog:frontend",
@@ -121,11 +123,9 @@
     "vite": "catalog:dev"
   },
   "simple-git-hooks": {
-    "pre-commit": "npx lint-staged"
+    "pre-commit": "npx nano-staged"
   },
-  "lint-staged": {
-    "*.{js,ts,vue,md}": [
-      "eslint --cache --fix"
-    ]
+  "nano-staged": {
+    "*.{js,ts,vue,md}": "eslint --cache --fix"
   }
 }
