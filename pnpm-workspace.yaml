@@ -23,7 +23,7 @@ catalogs:
     '@unocss/eslint-config': ^66.7.0
     '@unocss/eslint-plugin': ^66.7.0
     '@unocss/reset': ^66.7.0
-    '@vitejs/devtools': ^0.3.1
+    '@vitejs/devtools': ^0.4.0
     '@vitejs/plugin-vue': ^6.0.7
     '@vue/compiler-sfc': ^3.5.35
     bumpp: ^11.1.0
@@ -63,7 +63,7 @@ catalogs:
     vue-router: ^5.1.0
   prod:
     '@nuxt/kit': ^4.4.6
-    '@vitejs/devtools-kit': ^0.3.1
+    '@vitejs/devtools-kit': ^0.4.0
     ansis: ^4.3.0
     error-stack-parser-es: ^1.0.5
     obug: ^2.1.1
