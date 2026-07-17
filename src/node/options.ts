@@ -55,6 +55,7 @@ export interface ViteInspectOptions {
   /**
    * Automatically open inspect page
    *
+   * @deprecated This option is unused since the migration to Vite DevTools Kit.
    * @default false
    */
   open?: boolean

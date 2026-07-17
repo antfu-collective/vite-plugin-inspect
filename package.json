@@ -64,7 +64,6 @@
     "error-stack-parser-es": "catalog:prod",
     "obug": "catalog:prod",
     "ohash": "catalog:frontend",
-    "open": "catalog:prod",
     "perfect-debounce": "catalog:frontend",
     "sirv": "catalog:prod",
     "unplugin-utils": "catalog:prod"
