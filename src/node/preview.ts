@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'node:net'
 import { createServer } from 'node:http'
-import c from 'ansis'
+import { styleText } from 'node:util'
 import sirv from 'sirv'
 import { openBrowser } from './utils'
 
@@ -19,7 +19,7 @@ export function createPreviewServer(staticPath: string) {
     const { port } = server.address() as AddressInfo
     const url = `http://localhost:${port}`
     // eslint-disable-next-line no-console
-    console.log(`  ${c.green('➜')}  ${c.bold('Inspect Preview Started')}: ${url}`)
+    console.log(`  ${styleText('green', '➜')}  ${styleText('bold', 'Inspect Preview Started')}: ${url}`)
     openBrowser(url)
   })
 }

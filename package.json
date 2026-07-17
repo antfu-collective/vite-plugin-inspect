@@ -60,7 +60,6 @@
   },
   "dependencies": {
     "@vitejs/devtools-kit": "catalog:prod",
-    "ansis": "catalog:prod",
     "error-stack-parser-es": "catalog:prod",
     "obug": "catalog:prod",
     "ohash": "catalog:frontend",

@@ -158,9 +158,6 @@ catalogs:
     '@vitejs/devtools-kit':
       specifier: ^0.4.0
       version: 0.4.0
-    ansis:
-      specifier: ^4.3.1
-      version: 4.3.1
     error-stack-parser-es:
       specifier: ^2.0.1
       version: 2.0.1
@@ -184,9 +181,6 @@ importers:
       '@vitejs/devtools-kit':
         specifier: catalog:prod
         version: 0.4.0(srvx@0.11.15)(typescript@6.0.3)(vite@8.1.4)
-      ansis:
-        specifier: catalog:prod
-        version: 4.3.1
       error-stack-parser-es:
         specifier: catalog:prod
         version: 2.0.1

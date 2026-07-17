@@ -2,7 +2,7 @@ import type { Connect, Plugin, Rollup, ViteDevServer } from 'vite'
 import type { HMRData } from '../types'
 import type { InspectContextVite } from './context'
 import type { ViteInspectOptions } from './options'
-import c from 'ansis'
+import { styleText } from 'node:util'
 import { debounce } from 'perfect-debounce'
 import sirv from 'sirv'
 import { DIR_CLIENT } from '../dirs'
@@ -218,7 +218,7 @@ export default function PluginInspect(options: ViteInspectOptions = {}): Plugin 
             await buildGenerator.generateMetadata()
 
             const dir = buildGenerator.getOutputDir()
-            pluginCtx.environment.logger.info(`${c.green('Inspect report generated at')}  ${c.dim(dir)}`)
+            pluginCtx.environment.logger.info(`${styleText('green', 'Inspect report generated at')}  ${styleText('dim', dir)}`)
           },
         })
       }
