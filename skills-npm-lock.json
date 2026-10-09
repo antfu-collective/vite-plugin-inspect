@@ -1,0 +1,15 @@
+{
+  "version": 3,
+  "skills": {
+    "devframe": {
+      "package": "devframe",
+      "version": "1.2.3",
+      "skillPath": "skills/devframe/SKILL.md"
+    },
+    "writing-vite-devtools-integrations": {
+      "package": "@vitejs/devtools-kit",
+      "version": "0.7.6",
+      "skillPath": "skills/vite-devtools-kit/SKILL.md"
+    }
+  }
+}

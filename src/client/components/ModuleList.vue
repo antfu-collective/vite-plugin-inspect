@@ -54,7 +54,7 @@ const { list, containerProps, wrapperProps } = useVirtualList(
                 v-for="(i, idx) in m.data.plugins
                   .slice(1)
                   .filter((plugin) => plugin.transform !== undefined)"
-                :key="i"
+                :key="i.name"
               >
                 <span v-if="idx !== 0" op20>|</span>
                 <span ws-nowrap op50>
