@@ -25,6 +25,7 @@ catalogs:
   dev:
     '@antfu/eslint-config': ^9.5.1
     '@antfu/ni': ^30.6.0
+    '@antfu/skills': ^0.1.0
     '@antfu/utils': ^9.3.0
     '@iconify/json': ^2.2.541
     '@playwright/test': ^1.64.0

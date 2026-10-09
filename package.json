@@ -72,6 +72,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",
     "@antfu/ni": "catalog:dev",
+    "@antfu/skills": "catalog:dev",
     "@antfu/utils": "catalog:dev",
     "@iconify/json": "catalog:dev",
     "@nuxt/kit": "catalog:prod",
